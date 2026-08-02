@@ -1,0 +1,30 @@
+# Bytecode
+__pycache__/
+*.py[cod]
+
+# Virtual Environment
+.venv/
+venv/
+env/
+
+# VS Code
+.vscode/*
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+.pytest_cache/
+
+# Build
+dist/
+build/
+*.egg-info/
+.venv/
+__pycache__/
+.venv/
+venv/
