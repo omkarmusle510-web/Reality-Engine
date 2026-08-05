@@ -8,15 +8,18 @@ from __future__ import annotations
 
 from engine.core.config import config as EngineConfig
 from engine.core.engine import Engine
+from engine.core.fps import FPSCounter, create_fps_stage
 from engine.core.logger import get_logger
 from engine.interaction.action_mapper import ActionMapper, create_action_stage
 from engine.interaction.cursor_mapper import CursorSmoother, create_cursor_stage
 from engine.interaction.gesture_recognizer import create_gesture_stage
 from engine.interaction.mouse_controller import MouseController, create_mouse_controller_stage
+from engine.interaction.mouse_toggle import MouseToggle, create_mouse_toggle_stage
 from engine.rendering.display import DisplayWindow, create_display_stage
 from engine.rendering.overlay import create_overlay_stage
 from engine.tracking.hand_tracker import HandTracker, create_tracking_stage
 from engine.vision.camera import Camera
+from engine.vision.mirror import create_mirror_stage
 from engine.vision.pipeline import create_vision_stage
 
 logger = get_logger(__name__)
@@ -39,14 +42,19 @@ def run() -> None:
     tracker = HandTracker()
     cursor_smoother = CursorSmoother()
     action_mapper = ActionMapper()
+    mouse_toggle = MouseToggle()
     mouse_controller = MouseController()
+    fps_counter = FPSCounter()
     display = DisplayWindow()
 
     engine.pipeline.register_stage("vision", create_vision_stage(camera))
+    engine.pipeline.register_stage("mirror", create_mirror_stage())
+    engine.pipeline.register_stage("fps", create_fps_stage(fps_counter))
     engine.pipeline.register_stage("tracking", create_tracking_stage(tracker))
     engine.pipeline.register_stage("gesture", create_gesture_stage())
     engine.pipeline.register_stage("cursor", create_cursor_stage(cursor_smoother))
     engine.pipeline.register_stage("action", create_action_stage(action_mapper))
+    engine.pipeline.register_stage("mouse_toggle", create_mouse_toggle_stage(mouse_toggle))
     engine.pipeline.register_stage("mouse_controller", create_mouse_controller_stage(mouse_controller))
     engine.pipeline.register_stage("overlay", create_overlay_stage())
     engine.pipeline.register_stage("display", create_display_stage(display))

@@ -105,10 +105,17 @@ class MouseController:
 def create_mouse_controller_stage(controller: MouseController) -> StageFunc:
     """Builds a pipeline stage that drives the OS mouse from context state.
 
-    Reads `context["cursor"]` and moves the OS mouse to that position.
-    Reads `context["action"]` and executes it via the Windows API. Either
-    is a no-op if its context key is absent this frame. Returns the
-    context unchanged.
+    Reads `context["mouse_enabled"]` (defaults to `True` if absent). If
+    disabled, the stage does not call `move_to` or `execute_action` at
+    all for this cycle - no Win32 calls happen while mouse control is
+    off. On the cycle mouse control transitions from enabled to disabled,
+    the stage force-releases the left button first, so toggling off
+    mid-drag can't leave the OS button stuck down.
+
+    While enabled, reads `context["cursor"]` and moves the OS mouse to
+    that position, and reads `context["action"]` and executes it via the
+    Windows API. Either is a no-op if its context key is absent this
+    frame. Returns the context unchanged.
 
     Args:
         controller: A `MouseController` instance, owned by the caller.
@@ -116,15 +123,23 @@ def create_mouse_controller_stage(controller: MouseController) -> StageFunc:
     Returns:
         A stage function suitable for `engine.pipeline.register_stage`.
     """
+    previously_enabled = {"value": True}
 
     def _mouse_controller_stage(context: PipelineContext) -> PipelineContext:
-        cursor = context.get("cursor")
-        if isinstance(cursor, Cursor):
-            controller.move_to(cursor)
+        mouse_enabled = context.get("mouse_enabled", True)
 
-        action = context.get("action")
-        if isinstance(action, Action):
-            controller.execute_action(action)
+        if not mouse_enabled and previously_enabled["value"]:
+            controller.release()
+        previously_enabled["value"] = mouse_enabled
+
+        if mouse_enabled:
+            cursor = context.get("cursor")
+            if isinstance(cursor, Cursor):
+                controller.move_to(cursor)
+
+            action = context.get("action")
+            if isinstance(action, Action):
+                controller.execute_action(action)
 
         return context
 
