@@ -65,6 +65,11 @@ class DisplayWindow:
 
         cv2.resizeWindow(self._window_name, window_width, window_height)
 
+        # Screen-size lookup for positioning only - unrelated to the
+        # always-on-top mechanism (that is now handled entirely by
+        # `_pin_topmost` via OpenCV's native window-property API below).
+        # Kept as-is per the requirement to preserve window position
+        # exactly as it currently works.
         user32 = ctypes.windll.user32
         screen_width = user32.GetSystemMetrics(0)
         screen_height = user32.GetSystemMetrics(1)
@@ -75,6 +80,27 @@ class DisplayWindow:
             screen_height - window_height - 80,
         )
 
+    def _pin_topmost(self) -> None:
+        """Re-asserts the window's topmost property via OpenCV's native API.
+
+        Uses `cv2.setWindowProperty(..., cv2.WND_PROP_TOPMOST, 1)`
+        exclusively - no ctypes, no `FindWindowW`, no `SetWindowPos`, no
+        cached HWND. OpenCV resolves the native window handle internally.
+
+        This must still run after every `cv2.imshow()` call, not once at
+        startup. On the Win32 HighGUI backend, `setWindowProperty` for
+        `WND_PROP_TOPMOST` is implemented as the same underlying
+        `SetWindowPos(hwnd, HWND_TOPMOST, ...)` call we previously made
+        by hand - and `imshow()` itself issues its own internal
+        `SetWindowPos(hwnd, HWND_TOP, ...)` on every frame to manage
+        redraw/z-order, which silently clears topmost status. A single
+        call to this property, from any location, would be undone by
+        the very next frame for that reason. Reasserting it here, right
+        after our own `imshow()`, keeps our call as the last word on
+        z-order for each cycle.
+        """
+        cv2.setWindowProperty(self._window_name, cv2.WND_PROP_TOPMOST, 1)
+
     def show(self, frame: Frame) -> DisplaySignal:
         """Displays a frame and checks for developer key/window signals.
 
@@ -84,6 +110,9 @@ class DisplayWindow:
         enough pacing to keep this loop from busy-waiting; no separate
         sleep or frame-rate limiter is needed.
 
+        Always-on-top is re-asserted every frame, immediately after
+        `cv2.imshow()` - see `_pin_topmost` for why.
+
         Args:
             frame: The frame to display (already annotated by upstream
                 stages, if any).
@@ -92,6 +121,7 @@ class DisplayWindow:
             A `DisplaySignal` describing what was detected this cycle.
         """
         cv2.imshow(self._window_name, frame.image)
+        self._pin_topmost()
 
         key = cv2.waitKey(1) & 0xFF
 

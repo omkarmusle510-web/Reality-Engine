@@ -7,6 +7,7 @@ display), runs it until stopped, and shuts down cleanly.
 from __future__ import annotations
 
 from engine.core.config import config as EngineConfig
+from engine.core.emergency_exit import EmergencyExit, create_emergency_exit_stage
 from engine.core.engine import Engine
 from engine.core.fps import FPSCounter, create_fps_stage
 from engine.core.logger import get_logger
@@ -46,7 +47,9 @@ def run() -> None:
     mouse_controller = MouseController()
     fps_counter = FPSCounter()
     display = DisplayWindow()
+    emergency_exit = EmergencyExit()
 
+    engine.pipeline.register_stage("emergency_exit", create_emergency_exit_stage(emergency_exit))
     engine.pipeline.register_stage("vision", create_vision_stage(camera))
     engine.pipeline.register_stage("mirror", create_mirror_stage())
     engine.pipeline.register_stage("fps", create_fps_stage(fps_counter))
@@ -68,6 +71,7 @@ def run() -> None:
         tracker.close()
         camera.release()
         mouse_controller.release()
+        emergency_exit.close()
         engine.shutdown()
 
 
