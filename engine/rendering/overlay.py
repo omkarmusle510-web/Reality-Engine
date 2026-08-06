@@ -1,7 +1,7 @@
 """Hand landmark overlay drawing for the Reality Engine rendering layer.
 
-Draws landmarks, their connections, the engine cursor, a short fading
-cursor trail, a brief gesture transition banner, and a grouped
+Draws landmarks, their connections, the engine cursor, a brush preview, 
+a short fading cursor trail, a brief gesture transition banner, and a grouped
 developer debug HUD (FPS, tracking confidence, gesture, action, cursor
 position, mouse state, hand count) using OpenCV drawing functions only.
 No window display, no gesture/action/toggle/cursor/tracking decision
@@ -56,6 +56,13 @@ _CURSOR_CROSSHAIR_LENGTH_PX = 14
 _CURSOR_IDLE_COLOR = (0, 255, 255)   # yellow
 _CURSOR_DRAG_COLOR = (0, 0, 255)     # red
 _DRAGGING_ACTIONS = (Action.LEFT_CLICK, Action.DRAG)
+
+# --- Brush preview ---------------------------------------------------------
+# These render optional, already-decided values from context (brush_size,
+# brush_color, eraser_active) if present - Overlay makes no decisions
+# about brush size, color, or eraser state itself, the same way it
+# already only visualizes cursor/action without computing them.
+_ERASER_PREVIEW_COLOR = (255, 255, 255)  # white ring while erasing
 
 # --- Cursor trail --------------------------------------------------------
 _TRAIL_MAX_AGE_SECONDS = 0.35
@@ -124,6 +131,40 @@ def draw_cursor(image: np.ndarray, cursor: Cursor, dragging: bool) -> np.ndarray
     cv2.line(image, (center[0] - half_length, center[1]), (center[0] + half_length, center[1]), color, 1)
     cv2.line(image, (center[0], center[1] - half_length), (center[0], center[1] + half_length), color, 1)
 
+    return image
+
+
+def draw_brush_preview(
+    image: np.ndarray,
+    cursor: Cursor,
+    brush_size: int,
+    color: Tuple[int, int, int],
+    eraser_active: bool,
+) -> np.ndarray:
+    """Draws a ring around the cursor showing the current brush footprint.
+
+    Purely visual: the ring's radius mirrors whatever brush size was
+    already decided upstream (by `ToolState` in Reality Painter) - this
+    function makes no decision about size, color, or tool selection, it
+    only renders the values it is given. While the eraser is active, the
+    ring is drawn in a neutral white regardless of the selected palette
+    color, so it's visually distinct from a paint preview.
+
+    Args:
+        image: BGR image to draw on. Mutated in place.
+        cursor: The current smoothed cursor position (normalized).
+        brush_size: Current brush size in pixels.
+        color: Current brush BGR color.
+        eraser_active: Whether the eraser tool is currently active.
+
+    Returns:
+        The same image, with the brush preview ring drawn on it.
+    """
+    height, width = image.shape[:2]
+    center = (int(cursor.x * width), int(cursor.y * height))
+    radius = max(1, brush_size // 2)
+    ring_color = _ERASER_PREVIEW_COLOR if eraser_active else color
+    cv2.circle(image, center, radius, ring_color, 1, cv2.LINE_AA)
     return image
 
 
@@ -351,6 +392,9 @@ def draw_debug_hud(
     hand_count: int,
     tracking_label: str,
     transition_text: Optional[str],
+    brush_size: Optional[int] = None,
+    brush_color_name: Optional[str] = None,
+    eraser_active: Optional[bool] = None,
 ) -> np.ndarray:
     """Draws a grouped developer debug panel in the upper-left corner.
 
@@ -373,6 +417,10 @@ def draw_debug_hud(
             "EXCELLENT", "GOOD", "POOR", "LOST", "N/A").
         transition_text: An active "PREVIOUS -> CURRENT" gesture
             transition string, or `None` if none is currently active.
+        brush_size: Current brush size in pixels, or `None` if the
+            painting stage isn't present in this application's pipeline.
+        brush_color_name: Current brush color's display name, or `None`.
+        eraser_active: Whether the eraser tool is active, or `None`.
 
     Returns:
         The same image, with the debug panel drawn on it.
@@ -388,6 +436,13 @@ def draw_debug_hud(
         f"Mouse:    {'ON' if mouse_enabled else 'OFF'}",
         f"Hands:    {hand_count}",
     ]
+
+    if brush_size is not None:
+        tool_label = "ERASER" if eraser_active else "BRUSH"
+        body_lines.append(f"Tool:     {tool_label}")
+        body_lines.append(f"Brush:    {brush_size}px")
+        if brush_color_name is not None:
+            body_lines.append(f"Color:    {brush_color_name}")
 
     # Title + separator + body lines (+ optional transition line).
     total_rows = 2 + len(body_lines) + (1 if transition_text else 0)
@@ -481,11 +536,17 @@ def create_overlay_stage() -> StageFunc:
         action = context.get("action")
         cursor = context.get("cursor")
         hand_count = len(hands) if hands is not None else 0
+        brush_size = context.get("brush_size")
+        brush_color = context.get("brush_color")
+        brush_color_name = context.get("brush_color_name")
+        eraser_active = context.get("eraser_active")
 
         if isinstance(cursor, Cursor):
             height, width = frame.image.shape[:2]
             trail_tracker.record(cursor, width, height)
             trail_tracker.draw(frame.image)
+            if brush_size is not None and brush_color is not None:
+                draw_brush_preview(frame.image, cursor, brush_size, brush_color, bool(eraser_active))
             dragging = action in _DRAGGING_ACTIONS
             draw_cursor(frame.image, cursor, dragging)
 
@@ -509,6 +570,9 @@ def create_overlay_stage() -> StageFunc:
                 hand_count,
                 tracking_label,
                 transition_text,
+                brush_size,
+                brush_color_name,
+                eraser_active,
             )
 
         return context

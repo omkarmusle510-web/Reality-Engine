@@ -16,6 +16,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import ctypes
+from typing import Optional
 
 import cv2
 
@@ -38,10 +39,17 @@ class DisplaySignal:
         stop_requested: True if ESC was pressed or the window was closed.
         toggle_mouse_requested: True if the mouse-control toggle key (M)
             was pressed this cycle.
+        key_pressed: The raw key code pressed this cycle, or `None` if no
+            key was pressed. This is a generic passthrough - Display has
+            no opinion about what any given key means beyond the specific
+            ESC/M/H checks above; other stages may read it to implement
+            their own key bindings without Display needing to know about
+            them.
     """
 
     stop_requested: bool
     toggle_mouse_requested: bool
+    key_pressed: Optional[int]
 
 
 class DisplayWindow:
@@ -111,7 +119,8 @@ class DisplayWindow:
         sleep or frame-rate limiter is needed.
 
         Always-on-top is re-asserted every frame, immediately after
-        `cv2.imshow()` - see `_pin_topmost` for why.
+        `cv2.imshow()` - see `_pin_topmost` for why. This function also
+        detects the new generic key_pressed passthrough.
 
         Args:
             frame: The frame to display (already annotated by upstream
@@ -141,9 +150,12 @@ class DisplayWindow:
         if toggle_mouse_requested:
             logger.info("M pressed - requesting mouse-control toggle.")
 
+        key_pressed = key if key != 0xFF else None
+
         return DisplaySignal(
             stop_requested=stop_requested,
             toggle_mouse_requested=toggle_mouse_requested,
+            key_pressed=key_pressed,
         )
 
     def close(self) -> None:
@@ -160,6 +172,7 @@ def create_display_stage(window: DisplayWindow) -> StageFunc:
     execution to decide whether to stop - and checks for the M key,
     setting `context["toggle_mouse_requested"] = True`, a reserved key
     the mouse-toggle stage consumes (and clears) on the next execution.
+    It also checks for the new generic key_pressed passthrough.
     No-op if no frame is present.
 
     Args:
@@ -179,6 +192,9 @@ def create_display_stage(window: DisplayWindow) -> StageFunc:
 
             if signal.toggle_mouse_requested:
                 context["toggle_mouse_requested"] = True
+
+            if signal.key_pressed is not None:
+                context["key_pressed"] = signal.key_pressed
 
         return context
 
