@@ -1,12 +1,12 @@
 """Hand landmark overlay drawing for the Reality Engine rendering layer.
 
-Draws landmarks, their connections, the engine cursor, a brief gesture
-transition banner, and a grouped developer debug HUD (FPS, tracking
-confidence, gesture, action, cursor position, mouse state, hand count)
-using OpenCV drawing functions only. No window display, no gesture/
-action/toggle/cursor/tracking decision logic - this module only renders
-values that other stages have already computed and placed in the
-pipeline context.
+Draws landmarks, their connections, the engine cursor, a short fading
+cursor trail, a brief gesture transition banner, and a grouped
+developer debug HUD (FPS, tracking confidence, gesture, action, cursor
+position, mouse state, hand count) using OpenCV drawing functions only.
+No window display, no gesture/action/toggle/cursor/tracking decision
+logic - this module only renders values that other stages have already
+computed and placed in the pipeline context.
 """
 
 from __future__ import annotations
@@ -56,6 +56,13 @@ _CURSOR_CROSSHAIR_LENGTH_PX = 14
 _CURSOR_IDLE_COLOR = (0, 255, 255)   # yellow
 _CURSOR_DRAG_COLOR = (0, 0, 255)     # red
 _DRAGGING_ACTIONS = (Action.LEFT_CLICK, Action.DRAG)
+
+# --- Cursor trail --------------------------------------------------------
+_TRAIL_MAX_AGE_SECONDS = 0.35
+_TRAIL_MAX_POINTS = 12
+_TRAIL_BASE_RADIUS_PX = 6
+_TRAIL_BASE_ALPHA = 0.5
+_TRAIL_COLOR = (0, 255, 255)  # yellow, same family as the idle cursor
 
 # --- Gesture transition feedback ---------------------------------------
 _GESTURE_TRANSITION_DISPLAY_SECONDS = 0.5
@@ -120,36 +127,105 @@ def draw_cursor(image: np.ndarray, cursor: Cursor, dragging: bool) -> np.ndarray
     return image
 
 
-def get_tracking_confidence_label(hands: Optional[List[Hand]]) -> str:
-    """Classifies tracking quality from the primary hand's detection confidence.
+def _draw_faded_circle(
+    image: np.ndarray,
+    center: Tuple[int, int],
+    radius: int,
+    color: Tuple[int, int, int],
+    alpha: float,
+) -> None:
+    """Alpha-blends a small filled circle onto a cropped region of the image.
 
-    Reads `Hand.confidence`, which `HandTracker.detect()` already
-    populates from MediaPipe's classification score - no new tracking
-    computation happens here, this only buckets an existing value into a
-    human-readable label. Falls back to a safe string rather than
-    crashing if no hand or no confidence value is available.
+    Blends only the circle's own bounding box, not the full frame - the
+    same region-of-interest approach already used for the HUD panel
+    background, so drawing several trail points per frame stays cheap
+    regardless of camera resolution.
 
     Args:
-        hands: The current frame's detected hands, or `None` if the
-            tracking stage did not run this cycle.
-
-    Returns:
-        One of "EXCELLENT", "GOOD", "POOR", "LOST", or "N/A".
+        image: BGR image to draw onto. Mutated in place.
+        center: Pixel-space (x, y) center of the circle.
+        radius: Circle radius in pixels. No-op if <= 0.
+        color: BGR color of the circle.
+        alpha: Blend strength in [0, 1]. No-op if <= 0.
     """
-    if not hands:
-        return "LOST"
+    if radius <= 0 or alpha <= 0:
+        return
 
-    confidence = getattr(hands[0], "confidence", None)
-    if confidence is None:
-        return "N/A"
+    height, width = image.shape[:2]
+    x1 = max(0, center[0] - radius)
+    x2 = min(width, center[0] + radius + 1)
+    y1 = max(0, center[1] - radius)
+    y2 = min(height, center[1] + radius + 1)
+    if x2 <= x1 or y2 <= y1:
+        return
 
-    if confidence >= _CONFIDENCE_EXCELLENT_THRESHOLD:
-        return "EXCELLENT"
-    if confidence >= _CONFIDENCE_GOOD_THRESHOLD:
-        return "GOOD"
-    if confidence >= _CONFIDENCE_POOR_THRESHOLD:
-        return "POOR"
-    return "POOR"
+    roi = image[y1:y2, x1:x2]
+    roi_overlay = roi.copy()
+    local_center = (center[0] - x1, center[1] - y1)
+    cv2.circle(roi_overlay, local_center, radius, color, -1, cv2.LINE_AA)
+    cv2.addWeighted(roi_overlay, alpha, roi, 1 - alpha, 0, dst=roi)
+
+
+class _CursorTrailTracker:
+    """Tracks recent cursor positions so Overlay can draw a short fading trail.
+
+    Purely a rendering aid, independent of the painted canvas: it does
+    not compute cursor positions (that remains `CursorSmoother`'s job)
+    and has no effect on anything drawn to the persistent painting
+    layer - it only remembers the last few frames' cursor positions and
+    how long ago each was recorded, fading and expiring them
+    automatically. State lives here, inside the rendering layer, the
+    same pattern already used by `_GestureTransitionTracker`.
+    """
+
+    def __init__(
+        self,
+        max_age_seconds: float = _TRAIL_MAX_AGE_SECONDS,
+        max_points: int = _TRAIL_MAX_POINTS,
+    ) -> None:
+        self._max_age_seconds = max_age_seconds
+        self._max_points = max_points
+        self._points: List[Tuple[Tuple[int, int], float]] = []
+
+    def record(self, cursor: Cursor, width: int, height: int) -> None:
+        """Records the current cursor position and prunes expired ones.
+
+        Args:
+            cursor: The current smoothed cursor position (normalized).
+            width: Frame width in pixels, for normalized-to-pixel conversion.
+            height: Frame height in pixels, for normalized-to-pixel conversion.
+        """
+        now = time.monotonic()
+        point = (int(cursor.x * width), int(cursor.y * height))
+        self._points.append((point, now))
+
+        cutoff = now - self._max_age_seconds
+        self._points = [(p, t) for (p, t) in self._points if t >= cutoff]
+        if len(self._points) > self._max_points:
+            self._points = self._points[-self._max_points :]
+
+    def draw(self, image: np.ndarray) -> None:
+        """Draws every currently-live trail point, fading with age.
+
+        Automatically skips points that have expired since `record()`
+        was last called - the trail never becomes permanent and requires
+        no separate cleanup step.
+
+        Args:
+            image: BGR image to draw onto. Mutated in place.
+        """
+        if not self._points:
+            return
+
+        now = time.monotonic()
+        for point, recorded_at in self._points:
+            age = now - recorded_at
+            if age > self._max_age_seconds:
+                continue
+            fade = max(0.0, 1.0 - age / self._max_age_seconds)
+            radius = max(1, int(_TRAIL_BASE_RADIUS_PX * fade))
+            alpha = _TRAIL_BASE_ALPHA * fade
+            _draw_faded_circle(image, point, radius, _TRAIL_COLOR, alpha)
 
 
 class _GestureTransitionTracker:
@@ -233,6 +309,38 @@ class _HUDVisibilityToggle:
         return self._visible
 
 
+def get_tracking_confidence_label(hands: Optional[List[Hand]]) -> str:
+    """Classifies tracking quality from the primary hand's detection confidence.
+
+    Reads `Hand.confidence`, which `HandTracker.detect()` already
+    populates from MediaPipe's classification score - no new tracking
+    computation happens here, this only buckets an existing value into a
+    human-readable label. Falls back to a safe string rather than
+    crashing if no hand or no confidence value is available.
+
+    Args:
+        hands: The current frame's detected hands, or `None` if the
+            tracking stage did not run this cycle.
+
+    Returns:
+        One of "EXCELLENT", "GOOD", "POOR", "LOST", or "N/A".
+    """
+    if not hands:
+        return "LOST"
+
+    confidence = getattr(hands[0], "confidence", None)
+    if confidence is None:
+        return "N/A"
+
+    if confidence >= _CONFIDENCE_EXCELLENT_THRESHOLD:
+        return "EXCELLENT"
+    if confidence >= _CONFIDENCE_GOOD_THRESHOLD:
+        return "GOOD"
+    if confidence >= _CONFIDENCE_POOR_THRESHOLD:
+        return "POOR"
+    return "POOR"
+
+
 def draw_debug_hud(
     image: np.ndarray,
     fps: float,
@@ -290,9 +398,10 @@ def draw_debug_hud(
         _HUD_ORIGIN_Y - _HUD_PANEL_PADDING_PX + panel_height,
     )
 
-    overlay_layer = image.copy()
-    cv2.rectangle(overlay_layer, panel_top_left, panel_bottom_right, _HUD_PANEL_COLOR, -1)
-    cv2.addWeighted(overlay_layer, _HUD_PANEL_ALPHA, image, 1 - _HUD_PANEL_ALPHA, 0, dst=image)
+    panel_roi = image[panel_top_left[1]:panel_bottom_right[1], panel_top_left[0]:panel_bottom_right[0]]
+    roi_overlay = panel_roi.copy()
+    cv2.rectangle(roi_overlay, (0, 0), (roi_overlay.shape[1], roi_overlay.shape[0]), _HUD_PANEL_COLOR, -1)
+    cv2.addWeighted(roi_overlay, _HUD_PANEL_ALPHA, panel_roi, 1 - _HUD_PANEL_ALPHA, 0, dst=panel_roi)
 
     row = 0
 
@@ -328,32 +437,33 @@ def draw_debug_hud(
 
 
 def create_overlay_stage() -> StageFunc:
-    """Builds a pipeline stage that draws hands, cursor, and the debug HUD.
+    """Builds a pipeline stage that draws hands, cursor, trail, and the debug HUD.
 
     Reads `context["frame"]`, `context["hands"]`, `context["fps"]`,
     `context["mouse_enabled"]`, `context["gestures"]`,
     `context["action"]`, `context["cursor"]`, and
     `context["toggle_debug_requested"]`. Hand landmarks are drawn only
     if both a frame and hands are present, matching prior behavior. The
-    engine cursor is drawn whenever a cursor position is present,
-    regardless of whether a hand is currently detected. The debug HUD
-    (including the gesture-transition banner) is drawn only while the
-    internal HUD-visibility toggle is on - hiding the HUD never affects
-    hand landmarks or the cursor, and never touches the pipeline or the
-    camera feed itself.
+    cursor trail and the engine cursor are drawn whenever a cursor
+    position is present, regardless of whether a hand is currently
+    detected. The debug HUD (including the gesture-transition banner) is
+    drawn only while the internal HUD-visibility toggle is on - hiding
+    the HUD never affects hand landmarks, the trail, or the cursor, and
+    never touches the pipeline or the camera feed itself.
 
-    Gesture-transition and HUD-visibility state are tracked internally
-    via closure-owned helpers, matching the existing pattern used by
-    `mirror.py` (`last_flipped_frame_id`) and `mouse_controller.py`
-    (`previously_enabled`) for stage-local state that must persist
-    across pipeline executions but has no reason to be owned by the
-    calling application.
+    Gesture-transition, HUD-visibility, and cursor-trail state are
+    tracked internally via closure-owned helpers, matching the existing
+    pattern used by `mirror.py` (`last_flipped_frame_id`) and
+    `mouse_controller.py` (`previously_enabled`) for stage-local state
+    that must persist across pipeline executions but has no reason to be
+    owned by the calling application.
 
     Returns:
         A stage function suitable for `engine.pipeline.register_stage`.
     """
     transition_tracker = _GestureTransitionTracker()
     hud_toggle = _HUDVisibilityToggle()
+    trail_tracker = _CursorTrailTracker()
 
     def _overlay_stage(context: PipelineContext) -> PipelineContext:
         frame = context.get("frame")
@@ -373,6 +483,9 @@ def create_overlay_stage() -> StageFunc:
         hand_count = len(hands) if hands is not None else 0
 
         if isinstance(cursor, Cursor):
+            height, width = frame.image.shape[:2]
+            trail_tracker.record(cursor, width, height)
+            trail_tracker.draw(frame.image)
             dragging = action in _DRAGGING_ACTIONS
             draw_cursor(frame.image, cursor, dragging)
 

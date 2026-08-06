@@ -6,6 +6,7 @@ display), runs it until stopped, and shuts down cleanly.
 
 from __future__ import annotations
 
+from apps.reality_painter.sketch import Canvas, create_painting_stage
 from engine.core.config import config as EngineConfig
 from engine.core.emergency_exit import EmergencyExit, create_emergency_exit_stage
 from engine.core.engine import Engine
@@ -45,6 +46,7 @@ def run() -> None:
     action_mapper = ActionMapper()
     mouse_toggle = MouseToggle()
     mouse_controller = MouseController()
+    canvas = Canvas()
     fps_counter = FPSCounter()
     display = DisplayWindow()
     emergency_exit = EmergencyExit()
@@ -59,6 +61,7 @@ def run() -> None:
     engine.pipeline.register_stage("action", create_action_stage(action_mapper))
     engine.pipeline.register_stage("mouse_toggle", create_mouse_toggle_stage(mouse_toggle))
     engine.pipeline.register_stage("mouse_controller", create_mouse_controller_stage(mouse_controller))
+    engine.pipeline.register_stage("painting", create_painting_stage(canvas))
     engine.pipeline.register_stage("overlay", create_overlay_stage())
     engine.pipeline.register_stage("display", create_display_stage(display))
 
