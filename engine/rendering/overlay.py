@@ -2,11 +2,11 @@
 
 Draws landmarks, their connections, the engine cursor, a brief gesture
 transition banner, and a grouped developer debug HUD (FPS, tracking
-status, gesture, action, cursor position, mouse state, hand count) using
-OpenCV drawing functions only. No window display, no gesture/action/
-toggle/cursor/tracking decision logic - this module only renders values
-that other stages have already computed and placed in the pipeline
-context.
+confidence, gesture, action, cursor position, mouse state, hand count)
+using OpenCV drawing functions only. No window display, no gesture/
+action/toggle/cursor/tracking decision logic - this module only renders
+values that other stages have already computed and placed in the
+pipeline context.
 """
 
 from __future__ import annotations
@@ -17,12 +17,15 @@ from typing import List, Optional, Tuple
 import cv2
 import numpy as np
 
+from engine.core.logger import get_logger
 from engine.core.pipeline import PipelineContext, StageFunc
 from engine.interaction.action import Action
 from engine.interaction.cursor import Cursor
 from engine.interaction.Gesture import Gesture
 from engine.tracking.hand import Hand
 from engine.vision.frame import Frame
+
+logger = get_logger(__name__)
 
 _LANDMARK_CONNECTIONS: List[Tuple[int, int]] = [
     (0, 1), (1, 2), (2, 3), (3, 4),           # thumb
@@ -56,6 +59,11 @@ _DRAGGING_ACTIONS = (Action.LEFT_CLICK, Action.DRAG)
 
 # --- Gesture transition feedback ---------------------------------------
 _GESTURE_TRANSITION_DISPLAY_SECONDS = 0.5
+
+# --- Tracking confidence buckets ----------------------------------------
+_CONFIDENCE_EXCELLENT_THRESHOLD = 0.90
+_CONFIDENCE_GOOD_THRESHOLD = 0.75
+_CONFIDENCE_POOR_THRESHOLD = 0.50
 
 
 def draw_hands(image: np.ndarray, hands: List[Hand]) -> np.ndarray:
@@ -112,6 +120,38 @@ def draw_cursor(image: np.ndarray, cursor: Cursor, dragging: bool) -> np.ndarray
     return image
 
 
+def get_tracking_confidence_label(hands: Optional[List[Hand]]) -> str:
+    """Classifies tracking quality from the primary hand's detection confidence.
+
+    Reads `Hand.confidence`, which `HandTracker.detect()` already
+    populates from MediaPipe's classification score - no new tracking
+    computation happens here, this only buckets an existing value into a
+    human-readable label. Falls back to a safe string rather than
+    crashing if no hand or no confidence value is available.
+
+    Args:
+        hands: The current frame's detected hands, or `None` if the
+            tracking stage did not run this cycle.
+
+    Returns:
+        One of "EXCELLENT", "GOOD", "POOR", "LOST", or "N/A".
+    """
+    if not hands:
+        return "LOST"
+
+    confidence = getattr(hands[0], "confidence", None)
+    if confidence is None:
+        return "N/A"
+
+    if confidence >= _CONFIDENCE_EXCELLENT_THRESHOLD:
+        return "EXCELLENT"
+    if confidence >= _CONFIDENCE_GOOD_THRESHOLD:
+        return "GOOD"
+    if confidence >= _CONFIDENCE_POOR_THRESHOLD:
+        return "POOR"
+    return "POOR"
+
+
 class _GestureTransitionTracker:
     """Tracks recent gesture changes so Overlay can show a brief transition banner.
 
@@ -158,6 +198,41 @@ class _GestureTransitionTracker:
         return self._transition_text
 
 
+class _HUDVisibilityToggle:
+    """Tracks a persistent visible/hidden flag for the developer HUD panel.
+
+    Pure on/off state, following the same pattern as
+    `engine.interaction.mouse_toggle.MouseToggle`. It never touches
+    OpenCV, windows, or keys itself - it only decides, each frame,
+    whether `draw_debug_hud` is allowed to draw. Hand landmarks, the
+    cursor, and the gesture-transition banner are drawn independently of
+    this flag and are unaffected by it.
+    """
+
+    def __init__(self, visible: bool = True) -> None:
+        """Creates a HUD visibility toggle.
+
+        Args:
+            visible: Initial state. The HUD is visible by default.
+        """
+        self._visible = visible
+
+    def update(self, toggle_requested: bool) -> bool:
+        """Applies a pending toggle request (if any) and returns current state.
+
+        Args:
+            toggle_requested: True if the HUD-toggle key was pressed
+                since this was last checked.
+
+        Returns:
+            The current visibility state, after applying the toggle.
+        """
+        if toggle_requested:
+            self._visible = not self._visible
+            logger.info("Debug HUD %s.", "shown" if self._visible else "hidden")
+        return self._visible
+
+
 def draw_debug_hud(
     image: np.ndarray,
     fps: float,
@@ -166,6 +241,7 @@ def draw_debug_hud(
     action: Optional[Action],
     cursor: Optional[Cursor],
     hand_count: int,
+    tracking_label: str,
     transition_text: Optional[str],
 ) -> np.ndarray:
     """Draws a grouped developer debug panel in the upper-left corner.
@@ -185,22 +261,19 @@ def draw_debug_hud(
         action: The current frame's mapped action, or `None`.
         cursor: The current smoothed cursor position, or `None`.
         hand_count: Number of hands detected this frame.
+        tracking_label: Pre-classified tracking confidence label (e.g.
+            "EXCELLENT", "GOOD", "POOR", "LOST", "N/A").
         transition_text: An active "PREVIOUS -> CURRENT" gesture
             transition string, or `None` if none is currently active.
 
     Returns:
         The same image, with the debug panel drawn on it.
     """
-    # Tracking confidence classification (Excellent/Good/Poor/Lost) is a
-    # separate feature; this is a minimal placeholder using only data
-    # already available (hand presence), so it can be swapped for real
-    # confidence output later without changing any other stage.
-    tracking_status = "Active" if hand_count > 0 else "Lost"
     cursor_text = f"({cursor.x:.2f}, {cursor.y:.2f})" if cursor is not None else "NONE"
 
     body_lines = [
         f"FPS:      {fps:.1f}",
-        f"Tracking: {tracking_status}",
+        f"Tracking: {tracking_label}",
         f"Gesture:  {gesture.name if gesture is not None else 'NONE'}",
         f"Action:   {action.name if action is not None else 'NONE'}",
         f"Cursor:   {cursor_text}",
@@ -259,15 +332,18 @@ def create_overlay_stage() -> StageFunc:
 
     Reads `context["frame"]`, `context["hands"]`, `context["fps"]`,
     `context["mouse_enabled"]`, `context["gestures"]`,
-    `context["action"]`, and `context["cursor"]`. Hand landmarks are
-    drawn only if both a frame and hands are present, matching prior
-    behavior. The engine cursor is drawn whenever a cursor position is
-    present, regardless of whether a hand is currently detected (so the
-    last known cursor stays visible). The debug HUD, including the
-    gesture-transition banner, is drawn whenever a frame is present.
+    `context["action"]`, `context["cursor"]`, and
+    `context["toggle_debug_requested"]`. Hand landmarks are drawn only
+    if both a frame and hands are present, matching prior behavior. The
+    engine cursor is drawn whenever a cursor position is present,
+    regardless of whether a hand is currently detected. The debug HUD
+    (including the gesture-transition banner) is drawn only while the
+    internal HUD-visibility toggle is on - hiding the HUD never affects
+    hand landmarks or the cursor, and never touches the pipeline or the
+    camera feed itself.
 
-    Gesture-transition state is tracked internally via a closure-owned
-    `_GestureTransitionTracker`, matching the existing pattern used by
+    Gesture-transition and HUD-visibility state are tracked internally
+    via closure-owned helpers, matching the existing pattern used by
     `mirror.py` (`last_flipped_frame_id`) and `mouse_controller.py`
     (`previously_enabled`) for stage-local state that must persist
     across pipeline executions but has no reason to be owned by the
@@ -277,6 +353,7 @@ def create_overlay_stage() -> StageFunc:
         A stage function suitable for `engine.pipeline.register_stage`.
     """
     transition_tracker = _GestureTransitionTracker()
+    hud_toggle = _HUDVisibilityToggle()
 
     def _overlay_stage(context: PipelineContext) -> PipelineContext:
         frame = context.get("frame")
@@ -299,18 +376,28 @@ def create_overlay_stage() -> StageFunc:
             dragging = action in _DRAGGING_ACTIONS
             draw_cursor(frame.image, cursor, dragging)
 
+        # Always updated, regardless of HUD visibility, so a transition
+        # that occurs while the HUD is hidden is still timed correctly
+        # and appears immediately if the HUD is re-shown mid-transition.
         transition_text = transition_tracker.update(primary_gesture)
 
-        draw_debug_hud(
-            frame.image,
-            fps,
-            mouse_enabled,
-            primary_gesture,
-            action,
-            cursor,
-            hand_count,
-            transition_text,
-        )
+        toggle_debug_requested = context.pop("toggle_debug_requested", False)
+        hud_visible = hud_toggle.update(toggle_debug_requested)
+
+        if hud_visible:
+            tracking_label = get_tracking_confidence_label(hands)
+            draw_debug_hud(
+                frame.image,
+                fps,
+                mouse_enabled,
+                primary_gesture,
+                action,
+                cursor,
+                hand_count,
+                tracking_label,
+                transition_text,
+            )
 
         return context
+
     return _overlay_stage
