@@ -63,7 +63,7 @@ def run() -> None:
     engine.pipeline.register_stage("mouse_toggle", create_mouse_toggle_stage(mouse_toggle))
     engine.pipeline.register_stage("mouse_controller", create_mouse_controller_stage(mouse_controller))
     engine.pipeline.register_stage("painting", create_painting_stage(canvas, tool_state))
-    engine.pipeline.register_stage("overlay",create_overlay_stage())
+    engine.pipeline.register_stage("overlay", create_overlay_stage())
     engine.pipeline.register_stage("display", create_display_stage(display))
 
     logger.info("Starting engine.")
