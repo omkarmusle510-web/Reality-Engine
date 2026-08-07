@@ -1,12 +1,30 @@
 """Hand landmark overlay drawing for the Reality Engine rendering layer.
 
-Draws landmarks, their connections, the engine cursor, a brush preview, 
-a short fading cursor trail, a brief gesture transition banner, and a grouped
-developer debug HUD (FPS, tracking confidence, gesture, action, cursor
-position, mouse state, hand count) using OpenCV drawing functions only.
-No window display, no gesture/action/toggle/cursor/tracking decision
-logic - this module only renders values that other stages have already
-computed and placed in the pipeline context.
+Draws landmarks, their connections, the engine cursor, a brush preview,
+a short fading cursor trail, a brief gesture transition banner, and a
+grouped developer debug HUD (FPS, tracking confidence, gesture, action,
+cursor position, mouse state, hand count) using OpenCV drawing functions
+only. No window display, no gesture/action/toggle/cursor/tracking
+decision logic - this module only renders values that other stages have
+already computed and placed in the pipeline context.
+
+Phase 10 splits the HUD into two independent layers:
+    - A "user HUD" (current tool: brush/shape type, size, color, eraser
+      state) that stays on by default while drawing, since that is the
+      information relevant to painting itself.
+    - A "developer HUD" (FPS, tracking confidence, gesture, action,
+      cursor coordinates, hand count) that remains optional/toggleable,
+      exactly as before.
+
+This module intentionally has NO dependency on any `apps.*` package
+(e.g. Reality Painter's brush/shape/menu modules) - Reality Engine must
+stay reusable by any application built on it. Any application-specific
+value this module renders (tool name, brush type, shape mode, ...) is
+read from the shared `PipelineContext` as a plain, optionally-present
+value, never imported directly. In particular, a radial menu (or any
+other app-specific overlay UI) is expected to be drawn by the owning
+application's own pipeline stage before `overlay` runs - not by this
+module - so Reality Engine never needs to know such a thing exists.
 """
 
 from __future__ import annotations
@@ -50,19 +68,39 @@ _HUD_PANEL_COLOR = (0, 0, 0)
 _HUD_PANEL_ALPHA = 0.45
 _HUD_PANEL_WIDTH_PX = 250
 
+# --- User HUD (top-right, drawing-relevant info only) ---------------------
+_USER_HUD_FONT = cv2.FONT_HERSHEY_SIMPLEX
+_USER_HUD_LINE_HEIGHT_PX = 22
+_USER_HUD_PANEL_PADDING_PX = 10
+_USER_HUD_PANEL_WIDTH_PX = 210
+_USER_HUD_PANEL_COLOR = (0, 0, 0)
+_USER_HUD_PANEL_ALPHA = 0.45
+_USER_HUD_LABEL_COLOR = (255, 255, 255)
+_USER_HUD_MARGIN_PX = 10
+_USER_HUD_SWATCH_SIZE_PX = 14
+
 # --- Cursor visualization ----------------------------------------------
 _CURSOR_RADIUS_PX = 8
 _CURSOR_CROSSHAIR_LENGTH_PX = 14
 _CURSOR_IDLE_COLOR = (0, 255, 255)   # yellow
 _CURSOR_DRAG_COLOR = (0, 0, 255)     # red
+_CURSOR_OUTER_RING_RADIUS_PX = 16
+_CURSOR_CENTER_DOT_RADIUS_PX = 2
+_CURSOR_PULSE_PERIOD_SECONDS = 0.6
+_CURSOR_PULSE_RING_MIN_ALPHA = 0.15
+_CURSOR_PULSE_RING_MAX_ALPHA = 0.55
 _DRAGGING_ACTIONS = (Action.LEFT_CLICK, Action.DRAG)
 
 # --- Brush preview ---------------------------------------------------------
-# These render optional, already-decided values from context (brush_size,
-# brush_color, eraser_active) if present - Overlay makes no decisions
-# about brush size, color, or eraser state itself, the same way it
-# already only visualizes cursor/action without computing them.
+# Renders already-decided values from context (brush_size, brush_color,
+# eraser_active, and the optional brush_type_name/shape_type - see the
+# module docstring) - Overlay makes no decisions about brush size,
+# color, tool, or shape itself, the same way it already only visualizes
+# cursor/action without computing them.
 _ERASER_PREVIEW_COLOR = (255, 255, 255)  # white ring while erasing
+_BRUSH_PREVIEW_SMOOTHING = 0.35  # eases the preview ring radius toward brush_size
+_BRUSH_PREVIEW_LABEL_COLOR = (255, 255, 255)
+_BRUSH_PREVIEW_LABEL_OFFSET_PX = 10
 
 # --- Cursor trail --------------------------------------------------------
 _TRAIL_MAX_AGE_SECONDS = 0.35
@@ -104,18 +142,24 @@ def draw_hands(image: np.ndarray, hands: List[Hand]) -> np.ndarray:
     return image
 
 
-def draw_cursor(image: np.ndarray, cursor: Cursor, dragging: bool) -> np.ndarray:
-    """Draws the engine cursor (circle + crosshair) at its current position.
+def draw_cursor(image: np.ndarray, cursor: Cursor, dragging: bool, pulse_phase: float = 0.0) -> np.ndarray:
+    """Draws the engine cursor (outer ring, crosshair, and center dot).
 
     Purely visual - this has no effect on the OS cursor, which is owned
     entirely by `MouseController`. Color communicates state at a glance:
-    red while dragging, yellow while idle.
+    red while dragging, yellow while idle. A soft outer ring pulses
+    gently while dragging, giving lightweight, continuous feedback that
+    a stroke/shape/selection is actively being held without needing any
+    extra state beyond `dragging` and a time-based phase.
 
     Args:
         image: BGR image to draw on. Mutated in place.
         cursor: The current smoothed engine cursor position (normalized).
         dragging: True if the current action implies the mouse button is
             currently held down (`Action.LEFT_CLICK` or `Action.DRAG`).
+        pulse_phase: A value in [0, 1) driving the outer ring's pulse
+            animation while dragging. Time-based, not frame-count-based,
+            so pulse speed is independent of frame rate.
 
     Returns:
         The same image, with the cursor drawn on it.
@@ -124,47 +168,88 @@ def draw_cursor(image: np.ndarray, cursor: Cursor, dragging: bool) -> np.ndarray
     center = (int(cursor.x * width), int(cursor.y * height))
     color = _CURSOR_DRAG_COLOR if dragging else _CURSOR_IDLE_COLOR
 
-    cv2.circle(image, center, _CURSOR_RADIUS_PX, color, 2)
-    cv2.circle(image, center, 2, color, -1)
+    if dragging:
+        pulse = 0.5 - 0.5 * np.cos(2 * np.pi * pulse_phase)  # smooth 0->1->0
+        alpha = _CURSOR_PULSE_RING_MIN_ALPHA + pulse * (_CURSOR_PULSE_RING_MAX_ALPHA - _CURSOR_PULSE_RING_MIN_ALPHA)
+        _draw_faded_circle(image, center, _CURSOR_OUTER_RING_RADIUS_PX, color, alpha)
+
+    cv2.circle(image, center, _CURSOR_RADIUS_PX, color, 2, cv2.LINE_AA)
+    cv2.circle(image, center, _CURSOR_CENTER_DOT_RADIUS_PX, color, -1, cv2.LINE_AA)
 
     half_length = _CURSOR_CROSSHAIR_LENGTH_PX
-    cv2.line(image, (center[0] - half_length, center[1]), (center[0] + half_length, center[1]), color, 1)
-    cv2.line(image, (center[0], center[1] - half_length), (center[0], center[1] + half_length), color, 1)
+    cv2.line(image, (center[0] - half_length, center[1]), (center[0] + half_length, center[1]), color, 1, cv2.LINE_AA)
+    cv2.line(image, (center[0], center[1] - half_length), (center[0], center[1] + half_length), color, 1, cv2.LINE_AA)
 
     return image
+
+
+class _BrushPreviewSmoother:
+    """Eases the rendered brush-preview radius toward the target brush size.
+
+    Purely a rendering aid - mirrors the same EMA smoothing pattern
+    `apps.reality_painter.sketch.ToolState` already applies to the brush
+    size *value*, but applied here to the *drawn* radius, so a brush
+    size change (e.g. from `[`/`]` or the radial menu) eases visually
+    instead of snapping, without Overlay needing to know how or why the
+    size changed.
+    """
+
+    def __init__(self, smoothing_factor: float = _BRUSH_PREVIEW_SMOOTHING) -> None:
+        self._smoothing_factor = smoothing_factor
+        self._current_radius: Optional[float] = None
+
+    def update(self, target_radius: float) -> float:
+        """Advances the smoothed radius one step toward `target_radius`."""
+        if self._current_radius is None:
+            self._current_radius = target_radius
+        else:
+            self._current_radius += self._smoothing_factor * (target_radius - self._current_radius)
+        return self._current_radius
 
 
 def draw_brush_preview(
     image: np.ndarray,
     cursor: Cursor,
-    brush_size: int,
+    brush_radius: float,
     color: Tuple[int, int, int],
     eraser_active: bool,
+    label: Optional[str] = None,
 ) -> np.ndarray:
-    """Draws a ring around the cursor showing the current brush footprint.
+    """Draws a ring around the cursor showing the current brush/eraser footprint.
 
     Purely visual: the ring's radius mirrors whatever brush size was
     already decided upstream (by `ToolState` in Reality Painter) - this
     function makes no decision about size, color, or tool selection, it
     only renders the values it is given. While the eraser is active, the
     ring is drawn in a neutral white regardless of the selected palette
-    color, so it's visually distinct from a paint preview.
+    color, so it's visually distinct from a paint preview. An optional
+    short label (e.g. a brush or shape name) can be drawn just below the
+    ring when the caller has one available - Overlay never invents this
+    text itself, it only draws a string it was given.
 
     Args:
         image: BGR image to draw on. Mutated in place.
         cursor: The current smoothed cursor position (normalized).
-        brush_size: Current brush size in pixels.
+        brush_radius: Current (already-smoothed) brush radius in pixels.
         color: Current brush BGR color.
         eraser_active: Whether the eraser tool is currently active.
+        label: Optional short text (e.g. brush type or shape name) to
+            draw beneath the preview ring. Omitted if `None`.
 
     Returns:
-        The same image, with the brush preview ring drawn on it.
+        The same image, with the brush preview ring (and optional label)
+        drawn on it.
     """
     height, width = image.shape[:2]
     center = (int(cursor.x * width), int(cursor.y * height))
-    radius = max(1, brush_size // 2)
+    radius = max(1, int(round(brush_radius)))
     ring_color = _ERASER_PREVIEW_COLOR if eraser_active else color
     cv2.circle(image, center, radius, ring_color, 1, cv2.LINE_AA)
+
+    if label:
+        text_origin = (center[0] - len(label) * 3, center[1] + radius + _BRUSH_PREVIEW_LABEL_OFFSET_PX)
+        cv2.putText(image, label, text_origin, _HUD_FONT, 0.45, _BRUSH_PREVIEW_LABEL_COLOR, 1, cv2.LINE_AA)
+
     return image
 
 
@@ -179,8 +264,8 @@ def _draw_faded_circle(
 
     Blends only the circle's own bounding box, not the full frame - the
     same region-of-interest approach already used for the HUD panel
-    background, so drawing several trail points per frame stays cheap
-    regardless of camera resolution.
+    backgrounds, so drawing several trail points or a pulsing ring per
+    frame stays cheap regardless of camera resolution.
 
     Args:
         image: BGR image to draw onto. Mutated in place.
@@ -322,15 +407,16 @@ class _HUDVisibilityToggle:
     `engine.interaction.mouse_toggle.MouseToggle`. It never touches
     OpenCV, windows, or keys itself - it only decides, each frame,
     whether `draw_debug_hud` is allowed to draw. Hand landmarks, the
-    cursor, and the gesture-transition banner are drawn independently of
-    this flag and are unaffected by it.
+    cursor, the user HUD, and the gesture-transition banner are drawn
+    independently of this flag and are unaffected by it.
     """
 
     def __init__(self, visible: bool = True) -> None:
         """Creates a HUD visibility toggle.
 
         Args:
-            visible: Initial state. The HUD is visible by default.
+            visible: Initial state. The developer HUD is visible by
+                default.
         """
         self._visible = visible
 
@@ -392,11 +478,8 @@ def draw_debug_hud(
     hand_count: int,
     tracking_label: str,
     transition_text: Optional[str],
-    brush_size: Optional[int] = None,
-    brush_color_name: Optional[str] = None,
-    eraser_active: Optional[bool] = None,
 ) -> np.ndarray:
-    """Draws a grouped developer debug panel in the upper-left corner.
+    """Draws the developer debug panel (upper-left corner).
 
     Purely a rendering function: it draws whatever values it is given
     and makes no decisions about FPS, mouse-control state, gesture
@@ -404,6 +487,11 @@ def draw_debug_hud(
     itself. A semi-transparent panel is drawn behind the text so the HUD
     stays readable and visually distinct from hand landmarks and the
     cursor, which are drawn directly onto the camera feed elsewhere.
+
+    Tool/brush/color information intentionally does NOT live here - see
+    `draw_user_hud` - since that is drawing-relevant information the
+    user HUD shows regardless of whether the developer HUD is toggled
+    on.
 
     Args:
         image: BGR image to draw on. Mutated in place.
@@ -417,10 +505,6 @@ def draw_debug_hud(
             "EXCELLENT", "GOOD", "POOR", "LOST", "N/A").
         transition_text: An active "PREVIOUS -> CURRENT" gesture
             transition string, or `None` if none is currently active.
-        brush_size: Current brush size in pixels, or `None` if the
-            painting stage isn't present in this application's pipeline.
-        brush_color_name: Current brush color's display name, or `None`.
-        eraser_active: Whether the eraser tool is active, or `None`.
 
     Returns:
         The same image, with the debug panel drawn on it.
@@ -436,13 +520,6 @@ def draw_debug_hud(
         f"Mouse:    {'ON' if mouse_enabled else 'OFF'}",
         f"Hands:    {hand_count}",
     ]
-
-    if brush_size is not None:
-        tool_label = "ERASER" if eraser_active else "BRUSH"
-        body_lines.append(f"Tool:     {tool_label}")
-        body_lines.append(f"Brush:    {brush_size}px")
-        if brush_color_name is not None:
-            body_lines.append(f"Color:    {brush_color_name}")
 
     # Title + separator + body lines (+ optional transition line).
     total_rows = 2 + len(body_lines) + (1 if transition_text else 0)
@@ -491,27 +568,135 @@ def draw_debug_hud(
     return image
 
 
+def draw_user_hud(
+    image: np.ndarray,
+    brush_size: Optional[int],
+    brush_color_name: Optional[str],
+    brush_color: Optional[Tuple[int, int, int]],
+    eraser_active: Optional[bool],
+    tool_name: Optional[str] = None,
+    shape_name: Optional[str] = None,
+) -> np.ndarray:
+    """Draws the always-available user HUD (upper-right corner).
+
+    Shows only what's relevant while actively drawing: the active tool,
+    brush size, color (as a name plus a small swatch), and eraser state.
+    A no-op if no brush/tool information is present in context yet
+    (e.g. before the first frame reaches the painting stage), so this
+    never draws a panel of placeholder values.
+
+    `tool_name` and `shape_name` are optional, forward-compatible
+    values: this module has no dependency on any specific application's
+    tool/shape types, so it draws them only if the caller's pipeline
+    context happens to include them, and simply omits those lines
+    otherwise.
+
+    Args:
+        image: BGR image to draw on. Mutated in place.
+        brush_size: Current brush size in pixels, or `None` if unknown.
+        brush_color_name: Current brush color's display name, or `None`.
+        brush_color: Current brush BGR color, or `None`.
+        eraser_active: Whether the eraser tool is active, or `None`.
+        tool_name: Optional display name of the active brush/tool type.
+        shape_name: Optional display name of the active shape tool, if
+            any is currently selected.
+
+    Returns:
+        The same image, with the user HUD drawn on it (if applicable).
+    """
+    if brush_size is None:
+        return image
+
+    body_lines = []
+    if shape_name:
+        body_lines.append(f"Shape: {shape_name}")
+    elif tool_name:
+        body_lines.append(f"Tool:  {'Eraser' if eraser_active else tool_name}")
+    else:
+        body_lines.append(f"Tool:  {'Eraser' if eraser_active else 'Brush'}")
+    body_lines.append(f"Size:  {brush_size}px")
+    if brush_color_name and not eraser_active:
+        body_lines.append(f"Color: {brush_color_name}")
+
+    panel_height = _USER_HUD_PANEL_PADDING_PX * 2 + len(body_lines) * _USER_HUD_LINE_HEIGHT_PX
+    _, width = image.shape[:2]
+    panel_right = width - _USER_HUD_MARGIN_PX
+    panel_left = panel_right - _USER_HUD_PANEL_WIDTH_PX
+    panel_top = _USER_HUD_MARGIN_PX
+    panel_bottom = panel_top + panel_height
+
+    panel_roi = image[panel_top:panel_bottom, panel_left:panel_right]
+    if panel_roi.size == 0:
+        return image
+    roi_overlay = panel_roi.copy()
+    cv2.rectangle(roi_overlay, (0, 0), (roi_overlay.shape[1], roi_overlay.shape[0]), _USER_HUD_PANEL_COLOR, -1)
+    cv2.addWeighted(roi_overlay, _USER_HUD_PANEL_ALPHA, panel_roi, 1 - _USER_HUD_PANEL_ALPHA, 0, dst=panel_roi)
+
+    text_x = panel_left + _USER_HUD_PANEL_PADDING_PX
+    for index, line in enumerate(body_lines):
+        y = panel_top + _USER_HUD_PANEL_PADDING_PX + (index + 1) * _USER_HUD_LINE_HEIGHT_PX - 6
+        cv2.putText(image, line, (text_x, y), _USER_HUD_FONT, 0.5, _USER_HUD_LABEL_COLOR, 1, cv2.LINE_AA)
+
+    if brush_color is not None and not eraser_active:
+        swatch_y = panel_top + panel_height - _USER_HUD_PANEL_PADDING_PX - _USER_HUD_SWATCH_SIZE_PX
+        swatch_x = panel_right - _USER_HUD_PANEL_PADDING_PX - _USER_HUD_SWATCH_SIZE_PX
+        cv2.rectangle(
+            image,
+            (swatch_x, swatch_y),
+            (swatch_x + _USER_HUD_SWATCH_SIZE_PX, swatch_y + _USER_HUD_SWATCH_SIZE_PX),
+            brush_color,
+            -1,
+        )
+        cv2.rectangle(
+            image,
+            (swatch_x, swatch_y),
+            (swatch_x + _USER_HUD_SWATCH_SIZE_PX, swatch_y + _USER_HUD_SWATCH_SIZE_PX),
+            (255, 255, 255),
+            1,
+        )
+
+    return image
+
+
 def create_overlay_stage() -> StageFunc:
-    """Builds a pipeline stage that draws hands, cursor, trail, and the debug HUD.
+    """Builds a pipeline stage that draws hands, cursor, previews, and HUDs.
 
     Reads `context["frame"]`, `context["hands"]`, `context["fps"]`,
     `context["mouse_enabled"]`, `context["gestures"]`,
-    `context["action"]`, `context["cursor"]`, and
-    `context["toggle_debug_requested"]`. Hand landmarks are drawn only
-    if both a frame and hands are present, matching prior behavior. The
-    cursor trail and the engine cursor are drawn whenever a cursor
-    position is present, regardless of whether a hand is currently
-    detected. The debug HUD (including the gesture-transition banner) is
-    drawn only while the internal HUD-visibility toggle is on - hiding
-    the HUD never affects hand landmarks, the trail, or the cursor, and
-    never touches the pipeline or the camera feed itself.
+    `context["action"]`, `context["cursor"]`,
+    `context["toggle_debug_requested"]`, `context["brush_size"]`,
+    `context["brush_color"]`, `context["brush_color_name"]`, and
+    `context["eraser_active"]`. It also reads two optional,
+    forward-compatible keys - `context["brush_type_name"]` and
+    `context["shape_type"]` - purely as opaque display strings, without
+    any dependency on where they came from.
 
-    Gesture-transition, HUD-visibility, and cursor-trail state are
-    tracked internally via closure-owned helpers, matching the existing
-    pattern used by `mirror.py` (`last_flipped_frame_id`) and
-    `mouse_controller.py` (`previously_enabled`) for stage-local state
-    that must persist across pipeline executions but has no reason to be
-    owned by the calling application.
+    Hand landmarks are drawn only if both a frame and hands are present,
+    matching prior behavior. The cursor trail, brush preview, and engine
+    cursor are drawn whenever a cursor position is present, regardless
+    of whether a hand is currently detected. Any application-specific
+    overlay (e.g. Reality Painter's radial menu) is expected to already
+    be baked into `context["frame"]` by an earlier stage in that
+    application's own pipeline - this module never imports or renders
+    such UI itself, keeping the engine reusable by any application.
+
+    The user HUD (tool/size/color/eraser) is always drawn once brush
+    information is available in context, independent of the developer
+    HUD's visibility. The developer HUD (FPS, tracking confidence,
+    gesture, action, cursor position, mouse state, hand count, plus the
+    gesture-transition banner) is drawn only while the internal
+    HUD-visibility toggle is on. Neither HUD crops, resizes, or reduces
+    the usable camera/drawing area - both are drawn as translucent
+    panels over the existing frame, matching the "maximum drawing area"
+    requirement.
+
+    Gesture-transition, HUD-visibility, cursor-trail, and brush-preview
+    smoothing state are tracked internally via closure-owned helpers,
+    matching the existing pattern used by `mirror.py`
+    (`last_flipped_frame_id`) and `mouse_controller.py`
+    (`previously_enabled`) for stage-local state that must persist
+    across pipeline executions but has no reason to be owned by the
+    calling application.
 
     Returns:
         A stage function suitable for `engine.pipeline.register_stage`.
@@ -519,6 +704,7 @@ def create_overlay_stage() -> StageFunc:
     transition_tracker = _GestureTransitionTracker()
     hud_toggle = _HUDVisibilityToggle()
     trail_tracker = _CursorTrailTracker()
+    brush_preview_smoother = _BrushPreviewSmoother()
 
     def _overlay_stage(context: PipelineContext) -> PipelineContext:
         frame = context.get("frame")
@@ -540,15 +726,39 @@ def create_overlay_stage() -> StageFunc:
         brush_color = context.get("brush_color")
         brush_color_name = context.get("brush_color_name")
         eraser_active = context.get("eraser_active")
+        brush_type_name = context.get("brush_type_name")
+        shape_type = context.get("shape_type")
 
         if isinstance(cursor, Cursor):
             height, width = frame.image.shape[:2]
             trail_tracker.record(cursor, width, height)
             trail_tracker.draw(frame.image)
+
             if brush_size is not None and brush_color is not None:
-                draw_brush_preview(frame.image, cursor, brush_size, brush_color, bool(eraser_active))
+                smoothed_radius = brush_preview_smoother.update(max(1, brush_size) / 2.0)
+                preview_label = shape_type or brush_type_name
+                draw_brush_preview(
+                    frame.image,
+                    cursor,
+                    smoothed_radius,
+                    brush_color,
+                    bool(eraser_active),
+                    preview_label,
+                )
+
             dragging = action in _DRAGGING_ACTIONS
-            draw_cursor(frame.image, cursor, dragging)
+            pulse_phase = (time.monotonic() % _CURSOR_PULSE_PERIOD_SECONDS) / _CURSOR_PULSE_PERIOD_SECONDS
+            draw_cursor(frame.image, cursor, dragging, pulse_phase)
+
+        draw_user_hud(
+            frame.image,
+            brush_size,
+            brush_color_name,
+            brush_color,
+            eraser_active,
+            tool_name=brush_type_name.title() if isinstance(brush_type_name, str) else None,
+            shape_name=shape_type.title() if isinstance(shape_type, str) else None,
+        )
 
         # Always updated, regardless of HUD visibility, so a transition
         # that occurs while the HUD is hidden is still timed correctly
@@ -570,9 +780,6 @@ def create_overlay_stage() -> StageFunc:
                 hand_count,
                 tracking_label,
                 transition_text,
-                brush_size,
-                brush_color_name,
-                eraser_active,
             )
 
         return context

@@ -11,6 +11,21 @@ MediaPipe, no OS mouse APIs, no gesture recognition happens here - this
 module only draws BGR pixels onto a persistent buffer using OpenCV
 (plus stdlib file I/O for saving), driven by values other stages
 already computed.
+
+Phase 10 integrates three standalone, previously-accepted modules
+without duplicating their logic:
+    - `apps.reality_painter.brushes`: brush stroke rendering. `Canvas`
+      delegates paint-stroke drawing to whichever `Brush` `ToolState`
+      currently has selected; Canvas itself no longer decides how a
+      stroke looks, only when and where one happens.
+    - `apps.reality_painter.shapes`: drag-to-draw shapes. `Canvas`
+      delegates both preview and final rendering to whichever `Shape`
+      `ToolState` currently has selected.
+    - `apps.reality_painter.menu`: a radial menu used as the entry
+      point for selecting Brush, Color, Eraser, Undo, Save, and Clear.
+      The menu only ever reports a hovered/selected item id; this
+      module alone decides what each id means in terms of Canvas and
+      ToolState calls.
 """
 
 from __future__ import annotations
@@ -23,6 +38,9 @@ from typing import Deque, Dict, List, Optional, Tuple
 import cv2
 import numpy as np
 
+from apps.reality_painter.brushes import Brush, create_brush
+from apps.reality_painter.menu import Menu, MenuItem, render_menu
+from apps.reality_painter.shapes import Shape, create_shape
 from engine.core.logger import get_logger
 from engine.core.pipeline import PipelineContext, StageFunc
 from engine.interaction.action import Action
@@ -63,6 +81,22 @@ _COLOR_SELECT_KEYS: Dict[int, int] = {ord(str(i + 1)): i for i in range(len(_PAL
 # --- Eraser -----------------------------------------------------------------
 _ERASER_TOGGLE_KEYS = (ord("e"), ord("E"))
 
+# --- Brush type ---------------------------------------------------------
+# Selectable `apps.reality_painter.brushes.Brush` implementations. Cycling
+# (rather than a dedicated key per type, as the palette uses) keeps this
+# open to future brush types without needing new keys reserved for them.
+_BRUSH_TYPES: List[str] = ["hard", "soft", "marker", "highlighter"]
+_BRUSH_CYCLE_KEYS = (ord("b"), ord("B"))
+
+# --- Shape tool -----------------------------------------------------------
+# `None` represents "shape tool off" (freehand brush drawing applies
+# instead); the remaining entries are `apps.reality_painter.shapes.Shape`
+# registry keys. Cycling through a single list keeps "off" a first-class,
+# equally-reachable state rather than a separate toggle plus a separate
+# cycle.
+_SHAPE_TYPES: List[Optional[str]] = [None, "line", "rectangle", "circle"]
+_SHAPE_CYCLE_KEYS = (ord("g"), ord("G"))
+
 # --- Undo / Redo --------------------------------------------------------------
 # Bounded history depth. Each entry is a full copy of the canvas's color
 # layer and paint mask (~1.2MB combined at a typical 640x480 feed), so a
@@ -83,15 +117,34 @@ _SAVE_DIRECTORY = "saved_canvases"
 _SAVE_FILENAME_PREFIX = "reality_painter"
 _SAVE_FILENAME_TIMESTAMP_FORMAT = "%Y%m%d_%H%M%S"
 
+# --- Radial menu ------------------------------------------------------------
+# The menu is the single entry point for these six actions; each item's
+# id is interpreted only in `_apply_menu_selection`, never inside
+# `menu.py` itself. Brush size and the shape tool remain key-driven
+# (see `_BRUSH_CYCLE_KEYS`/`_SHAPE_CYCLE_KEYS`/bracket keys above) since
+# they weren't part of the requested menu surface.
+_MENU_TOGGLE_KEYS = (ord("q"), ord("Q"))
+_MENU_ITEMS: List[MenuItem] = [
+    MenuItem("undo", "Undo"),
+    MenuItem("brush", "Brush"),
+    MenuItem("save", "Save"),
+    MenuItem("color", "Color"),
+    MenuItem("eraser", "Eraser"),
+    MenuItem("clear", "Clear"),
+]
+
 
 class ToolState:
     """Tracks the currently active painting tool settings.
 
-    Owns brush size (with smoothing), the selected palette color, and
-    whether the eraser is active. Pure state - no drawing happens here,
-    no gesture or cursor computation happens here. Reacts only to raw
-    key codes handed to it by the painting stage; it has no dependency
-    on Display, OpenCV windows, or any input mechanism itself.
+    Owns brush size (with smoothing), the selected palette color,
+    whether the eraser is active, the selected `Brush` implementation,
+    and the selected `Shape` tool (or none, for freehand brush mode).
+    Pure state - no drawing happens here, no gesture or cursor
+    computation happens here. Reacts to raw key codes handed to it by
+    the painting stage, and to menu selections applied via its public
+    `cycle_*`/`toggle_*` methods; it has no dependency on Display,
+    OpenCV windows, `Menu`, or any input mechanism itself.
     """
 
     def __init__(self) -> None:
@@ -99,6 +152,17 @@ class ToolState:
         self._current_size = float(_BRUSH_DEFAULT_SIZE_PX)
         self._color_index = 0
         self._eraser_active = False
+
+        # Brush instances are stateless renderers (see brushes.py), so
+        # one of each is created once and reused for the tool state's
+        # lifetime rather than reallocated on every selection change.
+        self._brush_index = 0
+        self._brushes: Dict[str, Brush] = {name: create_brush(name) for name in _BRUSH_TYPES}
+
+        self._shape_index = 0
+        self._shapes: Dict[str, Shape] = {
+            name: create_shape(name) for name in _SHAPE_TYPES if name is not None
+        }
 
     def update(self, key_pressed: Optional[int]) -> None:
         """Applies a pending key press (if any) and advances size smoothing.
@@ -121,10 +185,42 @@ class ToolState:
             self._color_index = _COLOR_SELECT_KEYS[key_pressed]
             logger.info("Color selected: %s.", self.color_name)
         elif key_pressed in _ERASER_TOGGLE_KEYS:
-            self._eraser_active = not self._eraser_active
-            logger.info("Eraser %s.", "activated" if self._eraser_active else "deactivated")
+            self.toggle_eraser()
+        elif key_pressed in _BRUSH_CYCLE_KEYS:
+            self.cycle_brush()
+        elif key_pressed in _SHAPE_CYCLE_KEYS:
+            self.cycle_shape()
 
         self._current_size += _BRUSH_SIZE_SMOOTHING * (self._target_size - self._current_size)
+
+    def cycle_color(self) -> None:
+        """Advances to the next palette color, wrapping around.
+
+        Equivalent to pressing a numeric palette key, but position-
+        independent - this is what lets the radial menu's "Color" item
+        change color without knowing the palette's key bindings.
+        """
+        self._color_index = (self._color_index + 1) % len(_PALETTE)
+        logger.info("Color selected: %s.", self.color_name)
+
+    def toggle_eraser(self) -> None:
+        """Toggles the eraser tool on/off."""
+        self._eraser_active = not self._eraser_active
+        logger.info("Eraser %s.", "activated" if self._eraser_active else "deactivated")
+
+    def cycle_brush(self) -> None:
+        """Advances to the next brush type, wrapping around."""
+        self._brush_index = (self._brush_index + 1) % len(_BRUSH_TYPES)
+        logger.info("Brush selected: %s.", self.brush_type_name)
+
+    def cycle_shape(self) -> None:
+        """Advances to the next shape tool, wrapping around.
+
+        Includes `None` (shape tool off, freehand brush drawing applies)
+        as one of the positions in the cycle.
+        """
+        self._shape_index = (self._shape_index + 1) % len(_SHAPE_TYPES)
+        logger.info("Shape tool selected: %s.", self.shape_type or "off (brush)")
 
     @property
     def brush_size(self) -> int:
@@ -146,6 +242,31 @@ class ToolState:
         """True if the eraser tool is currently active."""
         return self._eraser_active
 
+    @property
+    def brush_type_name(self) -> str:
+        """Currently selected brush type's registry name (e.g. "hard")."""
+        return _BRUSH_TYPES[self._brush_index]
+
+    @property
+    def brush(self) -> Brush:
+        """The currently selected `Brush` instance.
+
+        Returns the same cached instance across calls (see `__init__`),
+        so selecting a brush never allocates.
+        """
+        return self._brushes[self.brush_type_name]
+
+    @property
+    def shape_type(self) -> Optional[str]:
+        """Currently selected shape tool's registry name, or `None` if off."""
+        return _SHAPE_TYPES[self._shape_index]
+
+    @property
+    def shape(self) -> Optional[Shape]:
+        """The currently selected `Shape` instance, or `None` if shape mode is off."""
+        shape_type = self.shape_type
+        return self._shapes[shape_type] if shape_type is not None else None
+
 
 _CanvasSnapshot = Tuple[np.ndarray, np.ndarray]
 
@@ -161,14 +282,27 @@ class Canvas:
     changing frame to frame - undo, redo, and clear only ever mutate
     this canvas's own buffers, never the frame the camera produced.
 
+    Brush strokes are rendered by delegating to whichever `Brush` the
+    caller supplies (see `extend_stroke`) - Canvas owns stroke lifecycle
+    (history snapshots, last-point tracking) but never brush-specific
+    drawing logic. Erasing remains Canvas's own responsibility, since it
+    isn't a "how does this look" decision a `Brush` makes but a direct
+    mask/layer clear.
+
+    Shape tools (`Shape` instances) render into a second, scratch
+    layer/mask pair owned by this class, so an in-progress shape drag
+    can be redrawn as a live preview every frame (`preview_shape`)
+    without touching committed artwork, and only reaches the persistent
+    buffers once the drag ends (`commit_shape`).
+
     Memory strategy for undo/redo (see also module-level
     `_UNDO_MAX_LEVELS`): each history entry is a full copy of the color
     layer and paint mask. Both the undo and redo stacks are bounded
     `deque`s, so total history memory is hard-capped regardless of
     session length - the oldest entry is evicted in O(1) once the cap is
     reached. A snapshot is only captured once per stroke (at its first
-    drawn segment), not once per frame, so holding a drag for many
-    pipeline cycles costs exactly one snapshot, not one per frame.
+    drawn segment) or once per committed shape, not once per frame, so
+    holding a drag for many pipeline cycles costs exactly one snapshot.
     """
 
     def __init__(self) -> None:
@@ -178,6 +312,15 @@ class Canvas:
         self._undo_stack: Deque[_CanvasSnapshot] = deque(maxlen=_UNDO_MAX_LEVELS)
         self._redo_stack: Deque[_CanvasSnapshot] = deque(maxlen=_UNDO_MAX_LEVELS)
         self._stroke_snapshotted = False
+
+        # Scratch buffers for the in-progress shape-tool preview. Never
+        # part of undo/redo history and never composited into `_layer`
+        # directly - only ever blended onto the outgoing frame in
+        # `composite_onto`, so a preview can be redrawn from scratch
+        # every frame without any persistent side effect.
+        self._scratch_layer: Optional[np.ndarray] = None
+        self._scratch_mask: Optional[np.ndarray] = None
+        self._shape_start_point: Optional[Tuple[int, int]] = None
 
     def prepare(self, height: int, width: int) -> None:
         """Lazily (re)creates the canvas buffer to match the frame size.
@@ -198,7 +341,10 @@ class Canvas:
 
         self._layer = np.zeros((height, width, 3), dtype=np.uint8)
         self._mask = np.zeros((height, width), dtype=np.uint8)
+        self._scratch_layer = np.zeros((height, width, 3), dtype=np.uint8)
+        self._scratch_mask = np.zeros((height, width), dtype=np.uint8)
         self._last_point = None
+        self._shape_start_point = None
         self._undo_stack.clear()
         self._redo_stack.clear()
         self._stroke_snapshotted = False
@@ -237,13 +383,16 @@ class Canvas:
         thickness: int,
         antialiased: bool,
     ) -> None:
-        """Draws one segment of the current stroke (paint or erase).
+        """Draws one segment of the current erase stroke directly.
 
-        Shared by `extend_stroke` and `erase_stroke` so both go through
-        the same interpolation path: a single `cv2.line` call per pair
-        of consecutive points, which handles arbitrarily long segments
-        in roughly constant overhead - this is what keeps fast movement
-        from producing gaps, for both painting and erasing alike.
+        Used by `erase_stroke` only - paint strokes are now rendered by
+        delegating to a `Brush` (see `extend_stroke`), since how a paint
+        stroke looks is a brush decision, not a Canvas one. Erasing has
+        no equivalent "look" to delegate: it always clears the mask to
+        exactly 0 with a hard edge, so it stays Canvas's own direct
+        responsibility. A single `cv2.line` call per pair of consecutive
+        points handles arbitrarily long segments in roughly constant
+        overhead - this is what keeps fast movement from producing gaps.
 
         Args:
             point: Pixel-space (x, y) position to extend the stroke to.
@@ -273,15 +422,28 @@ class Canvas:
 
         self._last_point = point
 
-    def extend_stroke(self, point: Tuple[int, int], color: Tuple[int, int, int], thickness: int) -> None:
-        """Extends the current stroke to a new pixel position with paint.
+    def extend_stroke(self, point: Tuple[int, int], brush: Brush, color: Tuple[int, int, int], thickness: int) -> None:
+        """Extends the current stroke to a new pixel position using the given brush.
+
+        Delegates the actual rendering (shape, opacity, blending) to
+        `brush.stroke_segment` - see `apps.reality_painter.brushes` - so
+        Canvas never hardcodes how a stroke looks. Canvas retains only
+        stroke lifecycle: opening one undo entry per stroke via
+        `_begin_stroke_if_needed`, and tracking the last drawn point so
+        the brush can interpolate between consecutive segments.
 
         Args:
             point: Pixel-space (x, y) position to extend the stroke to.
+            brush: The `Brush` responsible for rendering this segment.
             color: BGR brush color for this stroke segment.
             thickness: Brush thickness in pixels.
         """
-        self._draw_segment(point, color, 255, thickness, antialiased=True)
+        if self._layer is None or self._mask is None:
+            return
+
+        self._begin_stroke_if_needed()
+        brush.stroke_segment(self._layer, self._mask, self._last_point, point, color, thickness)
+        self._last_point = point
 
     def erase_stroke(self, point: Tuple[int, int], thickness: int) -> None:
         """Extends the current stroke to a new pixel position, erasing paint.
@@ -308,6 +470,93 @@ class Canvas:
         """
         self._last_point = None
         self._stroke_snapshotted = False
+
+    def has_active_shape(self) -> bool:
+        """True if a shape drag is currently in progress (an anchor point is set)."""
+        return self._shape_start_point is not None
+
+    def begin_shape(self, point: Tuple[int, int]) -> None:
+        """Marks the start of a new shape drag at the given pixel position.
+
+        Args:
+            point: Pixel-space (x, y) anchor position for the shape.
+        """
+        self._shape_start_point = point
+
+    def preview_shape(
+        self,
+        shape: Shape,
+        point: Tuple[int, int],
+        color: Tuple[int, int, int],
+        thickness: int,
+    ) -> None:
+        """Renders a temporary preview of the in-progress shape.
+
+        Drawn into the scratch layer/mask, never the persistent canvas
+        buffers - the scratch buffers are cleared and redrawn from
+        scratch each call, so the preview tracks the current drag
+        position without leaving any trace of earlier preview frames.
+        `composite_onto` blends the scratch buffers over the outgoing
+        frame after the persistent canvas, so the preview is visible
+        without ever being committed.
+
+        Args:
+            shape: The `Shape` to render.
+            point: Pixel-space (x, y) of the current drag position.
+            color: BGR shape color.
+            thickness: Outline thickness in pixels.
+        """
+        if self._scratch_layer is None or self._scratch_mask is None or self._shape_start_point is None:
+            return
+        self._scratch_layer[:] = 0
+        self._scratch_mask[:] = 0
+        shape.draw_preview(self._scratch_layer, self._scratch_mask, self._shape_start_point, point, color, thickness)
+
+    def commit_shape(
+        self,
+        shape: Shape,
+        point: Tuple[int, int],
+        color: Tuple[int, int, int],
+        thickness: int,
+    ) -> None:
+        """Commits the in-progress shape onto the persistent canvas.
+
+        Pushes one undo snapshot before committing - the same "one
+        history entry per edit" rule strokes and `clear()` already
+        follow - then renders the final shape directly onto the
+        persistent layer/mask via `shape.draw_final`, and clears the
+        scratch preview and drag state so the next shape starts fresh.
+
+        Args:
+            shape: The `Shape` to render.
+            point: Pixel-space (x, y) where the drag ended.
+            color: BGR shape color.
+            thickness: Outline thickness in pixels.
+        """
+        if self._layer is None or self._mask is None or self._shape_start_point is None:
+            return
+
+        self._undo_stack.append(self._snapshot())
+        self._redo_stack.clear()
+        shape.draw_final(self._layer, self._mask, self._shape_start_point, point, color, thickness)
+        self._shape_start_point = None
+        self._clear_scratch()
+        logger.info("Shape committed (%d undo entries).", len(self._undo_stack))
+
+    def cancel_shape(self) -> None:
+        """Abandons the in-progress shape drag without committing anything.
+
+        Used when the drag ends without a valid end position to commit
+        to (e.g. the tracked hand disappeared mid-drag).
+        """
+        self._shape_start_point = None
+        self._clear_scratch()
+
+    def _clear_scratch(self) -> None:
+        """Clears the shape-preview scratch buffers, if allocated."""
+        if self._scratch_layer is not None and self._scratch_mask is not None:
+            self._scratch_layer[:] = 0
+            self._scratch_mask[:] = 0
 
     def undo(self) -> bool:
         """Reverts the canvas to its state before the most recent stroke.
@@ -380,12 +629,15 @@ class Canvas:
         return True
 
     def composite_onto(self, image: np.ndarray) -> None:
-        """Blends all painted strokes onto the given image, in place.
+        """Blends painted strokes and any in-progress shape preview onto the given image.
 
         Only pixels the user has actually painted (mask nonzero) are
         copied - unpainted or erased canvas area leaves the camera image
         untouched, so the canvas never obscures the live feed except
-        where strokes currently exist.
+        where strokes currently exist. The shape-preview scratch buffer
+        is blended on top of that, using the same nonzero-mask rule, so
+        an in-progress shape drag is visible without ever touching the
+        persistent canvas buffers.
 
         Args:
             image: BGR image to draw onto (typically the current
@@ -398,6 +650,11 @@ class Canvas:
 
         painted = self._mask.astype(bool)
         image[painted] = self._layer[painted]
+
+        if self._scratch_layer is not None and self._scratch_mask is not None:
+            preview_painted = self._scratch_mask.astype(bool)
+            if preview_painted.any():
+                image[preview_painted] = self._scratch_layer[preview_painted]
 
 
 def save_canvas_image(merged_image: np.ndarray) -> Optional[str]:
@@ -440,32 +697,87 @@ def save_canvas_image(merged_image: np.ndarray) -> Optional[str]:
     return path
 
 
+def _apply_menu_selection(selection: str, canvas: Canvas, tool_state: ToolState) -> bool:
+    """Executes a confirmed radial-menu selection.
+
+    `menu.py` reports selection as pure state - an item id and nothing
+    more (see `Menu.consume_selection`) - so this is the one place that
+    interpretation happens, keeping the menu itself completely unaware
+    of Canvas, ToolState, brushes, or saving.
+
+    "save" is deferred rather than performed here: it returns True so
+    the caller can perform the actual file write only after this
+    cycle's `canvas.composite_onto` has run, the same ordering the
+    key-based save shortcut already relies on.
+
+    Args:
+        selection: The confirmed menu item's id.
+        canvas: The active `Canvas`.
+        tool_state: The active `ToolState`.
+
+    Returns:
+        True if "save" was selected (deferred to the caller), False
+        otherwise.
+    """
+    if selection == "undo":
+        canvas.undo()
+    elif selection == "clear":
+        canvas.clear()
+    elif selection == "eraser":
+        tool_state.toggle_eraser()
+    elif selection == "color":
+        tool_state.cycle_color()
+    elif selection == "brush":
+        tool_state.cycle_brush()
+    elif selection == "save":
+        return True
+
+    return False
+
+
 def create_painting_stage(canvas: Canvas, tool_state: ToolState) -> StageFunc:
     """Builds a pipeline stage that paints, erases, and manages canvas history.
 
     Reads `context["frame"]`, `context["cursor"]`, `context["action"]`,
-    and `context["key_pressed"]`. Drawing is driven entirely by the same
-    `Action` values `MouseController` already reacts to (`LEFT_CLICK`
-    starts a stroke, `DRAG` continues it; anything else ends the current
-    stroke) - this reuses the existing gesture -> action decision already
-    made by `ActionMapper` rather than inventing a second interpretation
-    of gestures. `context["key_pressed"]` (a generic raw key code from
-    Display) drives brush size, color selection, the eraser toggle,
-    undo, redo, clear, and save; Display itself has no knowledge of what
-    any of these keys mean, keeping that interpretation entirely inside
-    Reality Painter.
+    and `context["key_pressed"]`. `context["key_pressed"]` (a generic
+    raw key code from Display) drives brush size, brush type, the shape
+    tool, undo, redo, clear, save, and the radial menu's open/close
+    toggle; Display itself has no knowledge of what any of these keys
+    mean, keeping that interpretation entirely inside Reality Painter.
+
+    A `Menu` (see `apps.reality_painter.menu`) is owned internally by
+    this stage's closure, the same pattern `overlay.py` already uses for
+    stage-local state (`_GestureTransitionTracker`, `_HUDVisibilityToggle`,
+    etc.) that must persist across pipeline executions without being
+    wired through `app.py`. While the menu is open, it is the sole
+    consumer of `context["action"]` (a pinch/`Action.LEFT_CLICK`
+    confirms the hovered item) and drawing is suspended entirely; the
+    menu itself only ever reports a hovered/selected item id via its
+    public interface, never touching Canvas or ToolState directly -
+    `_apply_menu_selection` is what turns a selection into a concrete
+    action.
+
+    Drawing (when the menu is closed) is driven by the same `Action`
+    values `MouseController` already reacts to (`LEFT_CLICK` starts a
+    stroke/shape, `DRAG` continues it; anything else ends it) - this
+    reuses the existing gesture -> action decision already made by
+    `ActionMapper`. Freehand strokes are rendered by delegating to
+    `tool_state.brush` (paint) or `Canvas.erase_stroke` (erase); when
+    `tool_state.shape` is set, drags render through `Canvas`'s
+    preview/commit shape methods instead, delegating to
+    `tool_state.shape` for the actual rendering.
 
     Writes `context["brush_size"]`, `context["brush_color"]`,
     `context["brush_color_name"]`, and `context["eraser_active"]` every
     cycle so the overlay stage can display them, without Overlay needing
     any import-level dependency on this module.
 
-    The canvas is composited onto the frame every cycle - after any
-    stroke, undo, redo, or clear update - so painted content (or its
-    absence, after a clear) is visible immediately and stays visible on
-    every subsequent frame even after the hand moves away. The camera
-    frame itself is never the canvas and is never persistently modified;
-    it's re-read fresh from the camera every cycle by the vision stage.
+    The canvas (and any open menu) is composited/drawn onto the frame
+    every cycle, so painted content, an in-progress shape preview, and
+    the menu are all visible immediately and stay visible on every
+    subsequent frame. The camera frame itself is never the canvas and is
+    never persistently modified; it's re-read fresh from the camera
+    every cycle by the vision stage.
 
     Args:
         canvas: A `Canvas` instance, owned by the caller so painted
@@ -476,6 +788,7 @@ def create_painting_stage(canvas: Canvas, tool_state: ToolState) -> StageFunc:
     Returns:
         A stage function suitable for `engine.pipeline.register_stage`.
     """
+    menu = Menu(_MENU_ITEMS)
 
     def _painting_stage(context: PipelineContext) -> PipelineContext:
         frame = context.get("frame")
@@ -497,19 +810,54 @@ def create_painting_stage(canvas: Canvas, tool_state: ToolState) -> StageFunc:
 
         cursor = context.get("cursor")
         action = context.get("action")
+        cursor_point = (int(cursor.x * width), int(cursor.y * height)) if isinstance(cursor, Cursor) else None
 
-        if isinstance(cursor, Cursor) and action in _DRAWING_ACTIONS:
-            point = (int(cursor.x * width), int(cursor.y * height))
-            if tool_state.eraser_active:
-                canvas.erase_stroke(point, tool_state.brush_size)
+        # --- Radial menu: open/close on demand, hover, confirm ----------
+        if key_pressed in _MENU_TOGGLE_KEYS:
+            if menu.is_visible:
+                menu.close()
+            elif cursor_point is not None:
+                menu.open(cursor_point)
+
+        save_requested = key_pressed in _SAVE_KEYS
+
+        if menu.is_visible:
+            if cursor_point is not None:
+                menu.update(cursor_point)
+            if action == Action.LEFT_CLICK:
+                menu.confirm()
+
+        selection = menu.consume_selection()
+        if selection is not None:
+            save_requested = _apply_menu_selection(selection, canvas, tool_state) or save_requested
+
+        # --- Drawing (suspended entirely while the menu is open) --------
+        if not menu.is_visible:
+            shape = tool_state.shape
+            if shape is not None:
+                if cursor_point is not None and action in _DRAWING_ACTIONS:
+                    if not canvas.has_active_shape():
+                        canvas.begin_shape(cursor_point)
+                    canvas.preview_shape(shape, cursor_point, tool_state.color, tool_state.brush_size)
+                elif canvas.has_active_shape():
+                    if cursor_point is not None:
+                        canvas.commit_shape(shape, cursor_point, tool_state.color, tool_state.brush_size)
+                    else:
+                        canvas.cancel_shape()
+            elif cursor_point is not None and action in _DRAWING_ACTIONS:
+                if tool_state.eraser_active:
+                    canvas.erase_stroke(cursor_point, tool_state.brush_size)
+                else:
+                    canvas.extend_stroke(cursor_point, tool_state.brush, tool_state.color, tool_state.brush_size)
             else:
-                canvas.extend_stroke(point, tool_state.color, tool_state.brush_size)
-        else:
-            canvas.end_stroke()
+                canvas.end_stroke()
 
         canvas.composite_onto(frame.image)
 
-        if key_pressed in _SAVE_KEYS:
+        if menu.is_visible:
+            render_menu(frame.image, menu)
+
+        if save_requested:
             saved_path = save_canvas_image(frame.image)
             if saved_path is not None:
                 context["canvas_saved_path"] = saved_path
