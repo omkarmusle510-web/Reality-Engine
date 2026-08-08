@@ -32,3 +32,15 @@ venv/
 
 .env
 .env.example
+# OS
+ .DS_Store
+ Thumbs.db
+
++# Environment variables
++.env
++.env.*
++
+ # Testing
+ .pytest_cache/
+ # Runtime-generated artwork
+saved_canvases/
