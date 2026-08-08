@@ -10,6 +10,7 @@ import os
 
 from apps.reality_painter.ai.manager import AIManager
 from apps.reality_painter.ai.prompt_builder import PromptBuilder
+from apps.reality_painter.ai.providers.cloudflare import CloudflareProvider
 from apps.reality_painter.ai.providers.gemini import GeminiProvider
 from apps.reality_painter.ai.sketch_analyzer import SketchAnalyzer
 from apps.reality_painter.sketch import Canvas, ToolState, create_painting_stage
@@ -59,12 +60,26 @@ def run() -> None:
     emergency_exit = EmergencyExit()
 
     ai_manager = AIManager(prompt_builder=PromptBuilder(), sketch_analyzer=SketchAnalyzer())
+
+    # Registered first so AIManager.select_provider() (called with no
+    # `preferred` argument by sketch.py's AI trigger) picks Cloudflare
+    # over Gemini whenever both are available - registration order is
+    # the existing preference mechanism (see AIManager.select_provider),
+    # so this needs no change to the manager itself.
+    cloudflare_account_id = os.environ.get("CLOUDFLARE_ACCOUNT_ID")
+    cloudflare_api_token = os.environ.get("CLOUDFLARE_API_TOKEN")
+    if cloudflare_account_id and cloudflare_api_token:
+        ai_manager.register_provider(CloudflareProvider(account_id=cloudflare_account_id, api_token=cloudflare_api_token))
+        logger.info("Cloudflare provider registered - AI generation ('A' key) will prefer Cloudflare.")
+    else:
+        logger.warning("CLOUDFLARE_ACCOUNT_ID/CLOUDFLARE_API_TOKEN not set - Cloudflare provider unavailable.")
+
     gemini_api_key = os.environ.get("GEMINI_API_KEY")
     if gemini_api_key:
         ai_manager.register_provider(GeminiProvider(api_key=gemini_api_key))
-        logger.info("Gemini provider registered - AI generation ('A' key) is available.")
+        logger.info("Gemini provider registered - available as fallback for AI generation.")
     else:
-        logger.warning("GEMINI_API_KEY not set - AI generation ('A' key) will be unavailable.")
+        logger.warning("GEMINI_API_KEY not set - Gemini fallback provider unavailable.")
 
     engine.pipeline.register_stage("emergency_exit", create_emergency_exit_stage(emergency_exit))
     engine.pipeline.register_stage("vision", create_vision_stage(camera))
