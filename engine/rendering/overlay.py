@@ -478,6 +478,7 @@ def draw_debug_hud(
     hand_count: int,
     tracking_label: str,
     transition_text: Optional[str],
+    ai_status: Optional[str] = None,
 ) -> np.ndarray:
     """Draws the developer debug panel (upper-left corner).
 
@@ -505,6 +506,13 @@ def draw_debug_hud(
             "EXCELLENT", "GOOD", "POOR", "LOST", "N/A").
         transition_text: An active "PREVIOUS -> CURRENT" gesture
             transition string, or `None` if none is currently active.
+        ai_status: An opaque, already-computed AI request status string
+            (e.g. "idle", "processing", "success", "error"), or `None`
+            to omit the line entirely. Read from context and drawn
+            as-is - this module makes no AI decisions and has no
+            import-level dependency on any AI subsystem, the same
+            pattern already used for `brush_type_name`/`shape_type` in
+            `draw_user_hud`.
 
     Returns:
         The same image, with the debug panel drawn on it.
@@ -520,6 +528,8 @@ def draw_debug_hud(
         f"Mouse:    {'ON' if mouse_enabled else 'OFF'}",
         f"Hands:    {hand_count}",
     ]
+    if ai_status:
+        body_lines.append(f"AI:       {ai_status.upper()}")
 
     # Title + separator + body lines (+ optional transition line).
     total_rows = 2 + len(body_lines) + (1 if transition_text else 0)
@@ -780,6 +790,7 @@ def create_overlay_stage() -> StageFunc:
                 hand_count,
                 tracking_label,
                 transition_text,
+                ai_status=context.get("ai_status"),
             )
 
         return context
