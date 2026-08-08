@@ -25,47 +25,25 @@ A concrete provider only needs to:
        optimization, 3D generation) that go beyond plain generation.
     4. Optionally override `check_health()`.
 Everything else is provided by this base class.
+
+Shared data contracts (`AICapability`, `AIRequest`, `AIResponse`,
+`ProviderHealthStatus`, `ProviderHealth`) live in
+`apps.reality_painter.ai.models` and are imported from there, so this
+module holds no data-contract definitions of its own.
 """
 
 from __future__ import annotations
 
-import time
 from abc import ABC, abstractmethod
-from dataclasses import dataclass, field
-from enum import Enum
 from typing import Any, Dict, FrozenSet, Optional
 
-from apps.reality_painter.ai.manager import AICapability, AIRequest, AIResponse
-
-
-# --- Health -----------------------------------------------------------
-
-
-class ProviderHealthStatus(str, Enum):
-    """Coarse-grained health state of a provider."""
-
-    HEALTHY = "healthy"
-    DEGRADED = "degraded"
-    UNAVAILABLE = "unavailable"
-    UNKNOWN = "unknown"
-
-
-@dataclass(frozen=True)
-class ProviderHealth:
-    """The result of a single provider health check.
-
-    Attributes:
-        status: Coarse-grained health state.
-        message: Human-readable detail (e.g. an error summary), or
-            `None` if there's nothing more to say than `status`.
-        checked_at: Wall-clock time the check was performed
-            (`time.time()`).
-    """
-
-    status: ProviderHealthStatus
-    message: Optional[str] = None
-    checked_at: float = field(default_factory=time.time)
-
+from apps.reality_painter.ai.models import (
+    AICapability,
+    AIRequest,
+    AIResponse,
+    ProviderHealth,
+    ProviderHealthStatus,
+)
 
 # --- Provider base --------------------------------------------------------
 
