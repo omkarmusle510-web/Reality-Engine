@@ -31,7 +31,6 @@ without duplicating their logic:
 from __future__ import annotations
 
 import os
-import threading
 from collections import deque
 from datetime import datetime
 from typing import Deque, Dict, List, Optional, Tuple
@@ -40,7 +39,7 @@ import cv2
 import numpy as np
 
 from apps.reality_painter.ai.manager import AIManager
-from apps.reality_painter.ai.models import AICapability, AIResponse
+from apps.reality_painter.ai.models import AICapability
 from apps.reality_painter.brushes import Brush, create_brush
 from apps.reality_painter.menu import Menu, MenuItem, render_menu
 from apps.reality_painter.shapes import Shape, create_shape
@@ -120,6 +119,17 @@ _SAVE_DIRECTORY = "saved_canvases"
 _SAVE_FILENAME_PREFIX = "reality_painter"
 _SAVE_FILENAME_TIMESTAMP_FORMAT = "%Y%m%d_%H%M%S"
 
+# --- AI generation (true image-to-image) -------------------------------
+# A single key trigger for the first implementation - see
+# `create_painting_stage`. Deliberately synchronous/blocking (like the
+# save-to-disk path above), matching "safest minimal behavior" for this
+# phase; a future phase can move this off the pipeline thread.
+_AI_GENERATE_KEYS = (ord("a"), ord("A"))
+_AI_DEFAULT_PROMPT = (
+    "Transform this sketch into a finished, polished piece of artwork, "
+    "preserving its composition and subject."
+)
+
 # --- Radial menu ------------------------------------------------------------
 # The menu is the single entry point for these six actions; each item's
 # id is interpreted only in `_apply_menu_selection`, never inside
@@ -134,7 +144,6 @@ _MENU_ITEMS: List[MenuItem] = [
     MenuItem("color", "Color"),
     MenuItem("eraser", "Eraser"),
     MenuItem("clear", "Clear"),
-    MenuItem("ai_generate", "AI"),
 ]
 
 
@@ -633,23 +642,31 @@ class Canvas:
         return True
 
     def export_snapshot(self) -> Optional[np.ndarray]:
-        """Returns a read-only copy of the current painted artwork.
+        """Exports the current painted artwork as a standalone BGR image.
 
-        The sole public way for a caller outside this module (e.g. the
-        AI integration in `create_painting_stage`) to obtain the
-        canvas's current pixel content without reaching into the
-        private `_layer` buffer directly. Returns a copy, not a view,
-        so it is safe to hand to another thread - a concurrent stroke
-        on the pipeline thread can never mutate a snapshot already
-        handed out.
+        Renders only what the user has actually painted, onto a plain
+        white background - the live camera feed underneath is never
+        included. This is the "user drawing" referenced by the AI
+        subsystem's true image-to-image flow: the returned pixels are
+        what gets sent to a provider (e.g. Gemini) as the source image,
+        completely decoupled from whatever the camera happens to be
+        showing at generation time.
+
+        Returns a fresh copy; the persistent canvas buffers are never
+        mutated or exposed directly by this method.
 
         Returns:
-            A copy of the persistent BGR color layer, or `None` if the
-            canvas has not been initialized yet (no frame has arrived).
+            A BGR `numpy.ndarray` snapshot of the painted artwork, or
+            `None` if the canvas hasn't been initialized yet (no frame
+            has reached `prepare()` yet).
         """
-        if self._layer is None:
+        if self._layer is None or self._mask is None:
             return None
-        return self._layer.copy()
+
+        snapshot = np.full_like(self._layer, 255)
+        painted = self._mask.astype(bool)
+        snapshot[painted] = self._layer[painted]
+        return snapshot
 
     def composite_onto(self, image: np.ndarray) -> None:
         """Blends painted strokes and any in-progress shape preview onto the given image.
@@ -720,99 +737,47 @@ def save_canvas_image(merged_image: np.ndarray) -> Optional[str]:
     return path
 
 
-class _AIRequestRunner:
-    """Runs one Reality Painter AI generation request at a time, off-thread.
+def save_ai_image(image_bytes: bytes, mime_type: Optional[str]) -> Optional[str]:
+    """Saves AI-generated image bytes to disk, alongside user-saved canvases.
 
-    The AI subsystem (`apps.reality_painter.ai.manager.AIManager`) is
-    synchronous - `generate()` blocks until a provider responds. Calling
-    it directly from the painting stage would stall the camera, hand
-    tracking, cursor, drawing, and HUD for the duration of every
-    request. This class isolates that blocking call on a background
-    thread so the real-time pipeline never waits on it.
+    Uses the same `_SAVE_DIRECTORY` as `save_canvas_image` but a
+    distinct filename prefix, so AI-generated results are easy to tell
+    apart from the user's own saved canvases and never overwrite them.
+    The user's live canvas (`Canvas`'s persistent buffers) is never
+    touched by this function - saving an AI result is purely a
+    side-effect write to disk.
 
-    Explicit state machine: idle -> processing -> (success | error).
-    A new request started from success/error moves straight back to
-    processing, discarding the previous result - "returning to idle" is
-    implicit in starting fresh rather than a separate transition, since
-    nothing outside this class needs to distinguish "never run" from
-    "finished, ready for another." Only one request may be in flight at
-    a time; `start()` while already `processing` is a no-op, per the
-    "ignore repeated triggers" requirement.
+    Args:
+        image_bytes: Raw encoded image bytes, as returned by a
+            provider's `AIResponse.data["image_bytes"]`.
+        mime_type: The image's MIME type (e.g. "image/png"), used only
+            to pick a matching file extension. Falls back to `.png` for
+            an unrecognized or missing MIME type.
 
-    Thread safety: the worker thread only calls `AIManager.generate()`
-    and stores its outcome - it never touches OpenCV, the canvas, or any
-    GUI/window state. All shared state (`_state`, `_response`) is read
-    and written exclusively under `_lock`, so the pipeline thread can
-    poll `state()`/`result()` every frame with no risk of a torn read.
+    Returns:
+        The path the image was written to, or `None` if the write
+        failed.
     """
+    try:
+        os.makedirs(_SAVE_DIRECTORY, exist_ok=True)
+    except OSError:
+        logger.exception("Could not create save directory '%s'.", _SAVE_DIRECTORY)
+        return None
 
-    def __init__(self, ai_manager: AIManager) -> None:
-        """Creates a runner bound to the application's single `AIManager`.
+    extension = {"image/png": ".png", "image/jpeg": ".jpg", "image/webp": ".webp"}.get(mime_type or "", ".png")
+    timestamp = datetime.now().strftime(_SAVE_FILENAME_TIMESTAMP_FORMAT)
+    filename = f"{_SAVE_FILENAME_PREFIX}_ai_{timestamp}{extension}"
+    path = os.path.join(_SAVE_DIRECTORY, filename)
 
-        Args:
-            ai_manager: The application's `AIManager` instance, owned by
-                the caller so it persists across pipeline executions.
-        """
-        self._ai_manager = ai_manager
-        self._lock = threading.Lock()
-        self._state = "idle"
-        self._response: Optional[AIResponse] = None
+    try:
+        with open(path, "wb") as file:
+            file.write(image_bytes)
+    except OSError:
+        logger.exception("Failed to write AI-generated image to '%s'.", path)
+        return None
 
-    def state(self) -> str:
-        """Current state: one of "idle", "processing", "success", "error"."""
-        with self._lock:
-            return self._state
-
-    def result(self) -> Optional[AIResponse]:
-        """The most recently completed response, or `None` if none yet.
-
-        Remains available (not consumed/cleared) after a completed
-        request until the next `start()` call, so the pipeline can read
-        it every frame for as long as it stays relevant to the HUD.
-        """
-        with self._lock:
-            return self._response
-
-    def start(self, sketch: np.ndarray) -> bool:
-        """Starts a background AI request if one isn't already running.
-
-        Args:
-            sketch: Canvas pixel data (see `Canvas.export_snapshot`) to
-                analyze and generate from.
-
-        Returns:
-            True if a new request was started. False if a request was
-            already `processing`, in which case this call is a no-op
-            and the trigger is ignored.
-        """
-        with self._lock:
-            if self._state == "processing":
-                return False
-            self._state = "processing"
-            self._response = None
-
-        thread = threading.Thread(target=self._run, args=(sketch,), daemon=True)
-        thread.start()
-        return True
-
-    def _run(self, sketch: np.ndarray) -> None:
-        """Worker entry point. Runs on a background thread.
-
-        Never raises back into the thread machinery: any exception from
-        `AIManager.generate()` (which itself already converts provider
-        failures into a failed `AIResponse`) is caught here as a final
-        safety net so a malfunctioning provider can never crash Reality
-        Painter or leave the runner stuck in `processing`.
-        """
-        try:
-            response = self._ai_manager.generate(AICapability.IMAGE_GENERATION, sketch=sketch)
-        except Exception as exc:
-            logger.exception("AI request raised unexpectedly.")
-            response = AIResponse(request_id="", success=False, error=str(exc))
-
-        with self._lock:
-            self._response = response
-            self._state = "success" if response.success else "error"
+    logger.info("AI-generated image saved to '%s'.", path)
+    return path
 
 
 def _apply_menu_selection(selection: str, canvas: Canvas, tool_state: ToolState) -> bool:
@@ -854,28 +819,35 @@ def _apply_menu_selection(selection: str, canvas: Canvas, tool_state: ToolState)
 
 
 def create_painting_stage(
-    canvas: Canvas,
-    tool_state: ToolState,
-    ai_manager: Optional[AIManager] = None,
+    canvas: Canvas, tool_state: ToolState, ai_manager: Optional[AIManager] = None
 ) -> StageFunc:
     """Builds a pipeline stage that paints, erases, and manages canvas history.
 
     Reads `context["frame"]`, `context["cursor"]`, `context["action"]`,
     and `context["key_pressed"]`. `context["key_pressed"]` (a generic
     raw key code from Display) drives brush size, brush type, the shape
-    tool, undo, redo, clear, save, and the radial menu's open/close
-    toggle; Display itself has no knowledge of what any of these keys
-    mean, keeping that interpretation entirely inside Reality Painter.
+    tool, undo, redo, clear, save, AI generation, and the radial menu's
+    open/close toggle; Display itself has no knowledge of what any of
+    these keys mean, keeping that interpretation entirely inside
+    Reality Painter.
 
-    If `ai_manager` is given, the radial menu's "AI" item is wired to a
-    background `_AIRequestRunner` bound to it: selecting "AI" hands the
-    current `canvas.export_snapshot()` to the runner, which calls
-    `ai_manager.generate()` on its own thread so the real-time pipeline
-    never blocks on a provider response. `context["ai_status"]` (and,
-    once available, `context["ai_result"]`/`context["ai_error"]`) is
-    written every cycle so the overlay stage can display it. If
-    `ai_manager` is omitted, selecting "AI" is a silent no-op and no AI
-    context keys are ever written - AI remains fully optional.
+    If `ai_manager` is supplied, pressing the AI-generate key
+    (`_AI_GENERATE_KEYS`) exports the current drawing via
+    `Canvas.export_snapshot()` and runs a synchronous, true
+    image-to-image `AIManager.generate()` call - the actual canvas
+    pixels plus a generated prompt are sent to whichever provider is
+    registered (e.g. Gemini), never a text-only approximation. This
+    blocks the pipeline thread for the duration of the call, matching
+    the existing synchronous save-to-disk path; a future phase can move
+    it off-thread. The result is never composited onto the user's live
+    canvas automatically - a successful generation is instead written
+    to `saved_canvases/` under a distinct filename via
+    `save_ai_image()`, and `context["ai_status"]`
+    (`"succeeded"`/`"failed"`) plus `context["ai_result"]` (the saved
+    path, or an error message on failure) are set so a caller can
+    surface it. If `ai_manager` is `None` (the default), the AI-generate
+    key is a no-op - this stage remains fully usable without any AI
+    subsystem wired in, exactly as before this capability existed.
 
     A `Menu` (see `apps.reality_painter.menu`) is owned internally by
     this stage's closure, the same pattern `overlay.py` already uses for
@@ -916,12 +888,14 @@ def create_painting_stage(
             strokes and history persist across pipeline executions.
         tool_state: A `ToolState` instance, owned by the caller so tool
             settings persist across pipeline executions.
+        ai_manager: An `AIManager` instance to use for the AI-generate
+            key, or `None` to disable that key entirely. Owned by the
+            caller (see `apps/reality_painter/app.py`).
 
     Returns:
         A stage function suitable for `engine.pipeline.register_stage`.
     """
     menu = Menu(_MENU_ITEMS)
-    ai_runner = _AIRequestRunner(ai_manager) if ai_manager is not None else None
 
     def _painting_stage(context: PipelineContext) -> PipelineContext:
         frame = context.get("frame")
@@ -961,12 +935,7 @@ def create_painting_stage(
                 menu.confirm()
 
         selection = menu.consume_selection()
-        if selection == "ai_generate":
-            if ai_runner is not None:
-                snapshot = canvas.export_snapshot()
-                if snapshot is not None:
-                    ai_runner.start(snapshot)
-        elif selection is not None:
+        if selection is not None:
             save_requested = _apply_menu_selection(selection, canvas, tool_state) or save_requested
 
         # --- Drawing (suspended entirely while the menu is open) --------
@@ -1000,17 +969,36 @@ def create_painting_stage(
             if saved_path is not None:
                 context["canvas_saved_path"] = saved_path
 
+        # --- AI generation (true image-to-image; see docstring) ---------
+        if ai_manager is not None and key_pressed in _AI_GENERATE_KEYS:
+            snapshot = canvas.export_snapshot()
+            if snapshot is None:
+                context["ai_status"] = "failed"
+                context["ai_result"] = "Canvas not yet initialized."
+                logger.warning("AI generation requested before canvas initialization.")
+            else:
+                logger.info("AI generation requested; dispatching canvas snapshot to AIManager.")
+                response = ai_manager.generate(
+                    AICapability.IMAGE_GENERATION,
+                    user_input=_AI_DEFAULT_PROMPT,
+                    sketch=snapshot,
+                    context={"canvas": {"width": width, "height": height}},
+                )
+                image_bytes = response.data.get("image_bytes") if isinstance(response.data, dict) else None
+                if response.success and image_bytes:
+                    mime_type = response.data.get("mime_type") if isinstance(response.data, dict) else None
+                    saved_ai_path = save_ai_image(image_bytes, mime_type)
+                    context["ai_status"] = "succeeded" if saved_ai_path else "failed"
+                    context["ai_result"] = saved_ai_path or "Generated image could not be saved to disk."
+                else:
+                    context["ai_status"] = "failed"
+                    context["ai_result"] = response.error or "AI generation returned no image."
+                    logger.warning("AI generation failed: %s", context["ai_result"])
+
         context["brush_size"] = tool_state.brush_size
         context["brush_color"] = tool_state.color
         context["brush_color_name"] = tool_state.color_name
         context["eraser_active"] = tool_state.eraser_active
-
-        if ai_runner is not None:
-            context["ai_status"] = ai_runner.state()
-            ai_response = ai_runner.result()
-            if ai_response is not None:
-                context["ai_result"] = ai_response.data if ai_response.success else None
-                context["ai_error"] = ai_response.error if not ai_response.success else None
 
         return context
 

@@ -8,10 +8,9 @@ from __future__ import annotations
 
 import os
 
-from apps.reality_painter.ai.cache import InMemoryGenerationCache
 from apps.reality_painter.ai.manager import AIManager
-from apps.reality_painter.ai.models import AICapability
 from apps.reality_painter.ai.prompt_builder import PromptBuilder
+from apps.reality_painter.ai.providers.gemini import GeminiProvider
 from apps.reality_painter.ai.sketch_analyzer import SketchAnalyzer
 from apps.reality_painter.sketch import Canvas, ToolState, create_painting_stage
 from engine.core.config import config as EngineConfig
@@ -32,59 +31,6 @@ from engine.vision.mirror import create_mirror_stage
 from engine.vision.pipeline import create_vision_stage
 
 logger = get_logger(__name__)
-
-
-def _build_ai_manager() -> AIManager:
-    """Builds the application's single `AIManager`.
-
-    Constructed exactly once, here, and passed into the painting stage
-    - never recreated per frame. Registers `GeminiProvider`/
-    `GroqProvider` only when their API key is present in the
-    environment; a missing key, a missing optional SDK dependency
-    (`google-generativeai`, `groq` - neither is a hard requirement of
-    this repository), or any other provider construction error is
-    logged and skipped rather than raised. AI is an optional subsystem:
-    Reality Painter must start and run normally with zero providers
-    registered, in which case `AIManager.generate()` still returns a
-    clean failed `AIResponse` rather than the app ever seeing an
-    exception.
-    """
-    ai_manager = AIManager(
-        prompt_builder=PromptBuilder(),
-        sketch_analyzer=SketchAnalyzer(),
-        cache=InMemoryGenerationCache(),
-    )
-
-    gemini_api_key = os.environ.get("GEMINI_API_KEY")
-    if gemini_api_key:
-        try:
-            from apps.reality_painter.ai.providers.gemini import GeminiProvider
-
-            ai_manager.register_provider(
-                GeminiProvider(
-                    api_key=gemini_api_key,
-                    model_name=os.environ.get("GEMINI_MODEL", "gemini-1.5-flash"),
-                    capabilities=frozenset({AICapability.IMAGE_GENERATION}),
-                )
-            )
-        except Exception:
-            logger.exception("Gemini provider unavailable - continuing without it.")
-
-    groq_api_key = os.environ.get("GROQ_API_KEY")
-    if groq_api_key:
-        try:
-            from apps.reality_painter.ai.providers.groq import GroqProvider
-
-            ai_manager.register_provider(
-                GroqProvider(
-                    api_key=groq_api_key,
-                    model_name=os.environ.get("GROQ_MODEL", "llama-3.1-8b-instant"),
-                )
-            )
-        except Exception:
-            logger.exception("Groq provider unavailable - continuing without it.")
-
-    return ai_manager
 
 
 def run() -> None:
@@ -108,10 +54,17 @@ def run() -> None:
     mouse_controller = MouseController()
     canvas = Canvas()
     tool_state = ToolState()
-    ai_manager = _build_ai_manager()
     fps_counter = FPSCounter()
     display = DisplayWindow()
     emergency_exit = EmergencyExit()
+
+    ai_manager = AIManager(prompt_builder=PromptBuilder(), sketch_analyzer=SketchAnalyzer())
+    gemini_api_key = os.environ.get("GEMINI_API_KEY")
+    if gemini_api_key:
+        ai_manager.register_provider(GeminiProvider(api_key=gemini_api_key))
+        logger.info("Gemini provider registered - AI generation ('A' key) is available.")
+    else:
+        logger.warning("GEMINI_API_KEY not set - AI generation ('A' key) will be unavailable.")
 
     engine.pipeline.register_stage("emergency_exit", create_emergency_exit_stage(emergency_exit))
     engine.pipeline.register_stage("vision", create_vision_stage(camera))

@@ -85,6 +85,12 @@ class AIRequest:
         status: Current lifecycle status. Mutated in place by
             `AIManager` as the request progresses.
         created_at: Wall-clock creation time (`time.time()`).
+        canvas_image: The raw sketch/canvas pixels this request was
+            built from (e.g. a `numpy.ndarray`), passed through
+            unmodified by `AIManager` alongside `sketch_analysis` so a
+            provider capable of true image-to-image generation has the
+            actual pixels to send. Opaque to `AIManager` itself. `None`
+            if the request has no associated image.
     """
 
     request_id: str
@@ -94,6 +100,7 @@ class AIRequest:
     context: Dict[str, Any] = field(default_factory=dict)
     status: RequestStatus = RequestStatus.PENDING
     created_at: float = field(default_factory=time.time)
+    canvas_image: Optional[Any] = None
 
 
 @dataclass

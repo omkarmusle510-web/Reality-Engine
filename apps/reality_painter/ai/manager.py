@@ -372,6 +372,7 @@ class AIManager:
             prompt=prompt,
             sketch_analysis=sketch_analysis,
             context=request_context,
+            canvas_image=sketch,
         )
 
         cache_key = self._cache_key(capability, prompt, preferred_provider)
