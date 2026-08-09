@@ -2,15 +2,23 @@
 
 Connects the asset metadata layer (`schema.py`/`registry.py`) to public
 GitHub repositories: given a repository, optional path, and optional
-ref, `discover_assets()` walks that repository's contents via the
+ref, `discover_assets()` reads that repository's file tree via the
 public GitHub REST API (no token required) and returns validated
 `Asset` objects for every candidate 3D model file found (`.glb`,
 `.gltf` by default).
 
+Discovery uses GitHub's Git Trees API
+(`GET /repos/{owner}/{repo}/git/trees/{ref}?recursive=1`) - one request
+returns the entire file tree for a ref, which is then filtered locally
+by `path`/`extensions`. This replaces an earlier implementation that
+walked the Contents API directory-by-directory (one request per
+directory), which burned through the unauthenticated 60-requests/hour
+rate limit on large repositories.
+
 This module performs metadata discovery only. It never downloads a
 model's file contents, never loads or renders a model, and never
 executes anything from the target repository - only the repository's
-directory listing and (best-effort) license metadata are read.
+file tree and (best-effort) license metadata are read.
 
 Category/tag extraction is purely deterministic (directory names,
 filename, extension) - no LLM or embedding-based inference happens
@@ -26,6 +34,8 @@ registry entries.
 
 from __future__ import annotations
 
+import os
+import logging
 import re
 from pathlib import PurePosixPath
 from typing import Any, Dict, List, Optional, Sequence, Tuple
@@ -35,10 +45,12 @@ import requests
 from apps.reality_painter.assets.registry import AssetRegistry
 from apps.reality_painter.assets.schema import Asset
 
+logger = logging.getLogger(__name__)
+
 _API_BASE_URL = "https://api.github.com"
 _DEFAULT_EXTENSIONS: Tuple[str, ...] = (".glb", ".gltf")
 _DEFAULT_TIMEOUT_SECONDS = 15.0
-_DEFAULT_MAX_DEPTH = 8
+_DEFAULT_REF_FALLBACK = "HEAD"  # used only if a repo's default_branch is somehow unavailable
 
 # Deterministic category vocabulary - a directory name matching one of
 # these (case-insensitive) becomes the asset's category. Never guessed
@@ -120,10 +132,12 @@ def discover_assets(
     owner, repo = _parse_repository(repository)
     http = session if session is not None else requests
 
-    license_id = _fetch_license(http, owner, repo)
+    repo_info = _fetch_repository_info(http, owner, repo)
+    license_id = _extract_license(repo_info)
+    resolved_ref = ref or repo_info.get("default_branch") or _DEFAULT_REF_FALLBACK
 
-    matched_entries: List[Dict[str, Any]] = []
-    _walk(http, owner, repo, path, ref, extensions, matched_entries)
+    tree_entries = _fetch_tree(http, owner, repo, resolved_ref)
+    matched_entries = _filter_tree_entries(tree_entries, owner, repo, path, extensions)
 
     return [_build_asset(entry, repository, license_id) for entry in matched_entries]
 
@@ -188,26 +202,37 @@ def _parse_repository(repository: str) -> Tuple[str, str]:
 
 
 def _get(http: Any, url: str, params: Optional[Dict[str, str]] = None) -> Any:
-    """Issues one GET request, translating transport failures.
+    """Issue one GET request, translating transport failures.
 
-    Never raises a raw `requests` exception past this function - every
-    network-level failure becomes a `GitHubNetworkError`, so callers
+    Never raises a raw requests' exception past this function; every
+    network-level failure becomes a GitHubNetworkError, so callers
     only ever need to handle this module's own exception hierarchy.
     """
     try:
+        token = os.getenv("GITHUB_TOKEN")
+
+        headers = {
+            "Accept": "application/vnd.github+json",
+        }
+
+        if token:
+            headers["Authorization"] = f"Bearer {token}"
+
         return http.get(
             url,
             params=params,
-            headers={"Accept": "application/vnd.github+json"},
+            headers=headers,
             timeout=_DEFAULT_TIMEOUT_SECONDS,
         )
+
     except requests.exceptions.Timeout as exc:
         raise GitHubNetworkError(f"GitHub request timed out: {url}") from exc
     except requests.exceptions.ConnectionError as exc:
         raise GitHubNetworkError(f"Could not reach GitHub: {url}") from exc
     except requests.exceptions.RequestException as exc:
-        raise GitHubNetworkError(f"GitHub request failed ({type(exc).__name__}): {url}") from exc
-
+        raise GitHubNetworkError(
+            f"GitHub request failed ({type(exc).__name__}): {url}"
+        ) from exc
 
 def _raise_for_rate_limit(response: Any) -> None:
     """Raises `RateLimitError` if `response` indicates GitHub's rate limit was hit."""
@@ -225,19 +250,17 @@ def _parse_json(response: Any, description: str) -> Any:
         raise MalformedResponseError(f"{description} was not valid JSON.") from exc
 
 
-def _fetch_license(http: Any, owner: str, repo: str) -> Optional[str]:
-    """Best-effort fetch of a repository's SPDX license id, or `None`.
+def _fetch_repository_info(http: Any, owner: str, repo: str) -> Dict[str, Any]:
+    """Fetches repository metadata (license, default branch) in one request.
 
     Also serves as the repository-existence check: a 404 here means
-    the repository itself doesn't exist, distinct from a 404 on a
-    contents lookup (which means the *path* doesn't exist within an
-    existing repository).
+    the repository itself doesn't exist, distinct from a 404 on the
+    tree fetch (which means the *ref* doesn't exist within an existing
+    repository).
 
     Returns:
-        The repository's SPDX license id (e.g. `"MIT"`), or `None` if
-        no license is set or it can't be determined. Never invents a
-        value - absence here is what `Asset.license` already treats as
-        "unknown" (see `schema.py`).
+        The parsed repository info payload (a dict). Callers extract
+        `license` via `_extract_license` and `default_branch` directly.
 
     Raises:
         RepositoryNotFoundError: If the repository doesn't exist.
@@ -257,8 +280,19 @@ def _fetch_license(http: Any, owner: str, repo: str) -> Optional[str]:
     payload = _parse_json(response, f"Repository '{owner}/{repo}' info response")
     if not isinstance(payload, dict):
         raise MalformedResponseError(f"Repository '{owner}/{repo}' info response had an unexpected shape.")
+    return payload
 
-    license_info = payload.get("license")
+
+def _extract_license(repo_info: Dict[str, Any]) -> Optional[str]:
+    """Extracts a best-effort SPDX license id from a repository info payload.
+
+    Returns:
+        The repository's SPDX license id (e.g. `"MIT"`), or `None` if
+        no license is set or it can't be determined. Never invents a
+        value - absence here is what `Asset.license` already treats as
+        "unknown" (see `schema.py`).
+    """
+    license_info = repo_info.get("license")
     if isinstance(license_info, dict):
         spdx_id = license_info.get("spdx_id")
         if isinstance(spdx_id, str) and spdx_id and spdx_id != "NOASSERTION":
@@ -266,35 +300,36 @@ def _fetch_license(http: Any, owner: str, repo: str) -> Optional[str]:
     return None
 
 
-def _list_contents(http: Any, owner: str, repo: str, path: str, ref: Optional[str]) -> List[Dict[str, Any]]:
-    """Lists one directory's (or one file's) contents via the GitHub API.
+def _fetch_tree(http: Any, owner: str, repo: str, ref: str) -> List[Dict[str, Any]]:
+    """Fetches the full recursive file tree for `ref` in a single request.
 
-    A single-file `path` returns a JSON object rather than an array;
-    that shape is normalized to a one-element list here so callers
-    never need to branch on it.
+    Uses GitHub's Git Trees API
+    (`GET /repos/{owner}/{repo}/git/trees/{ref}?recursive=1`), which
+    returns every blob/tree entry in the repository at `ref` in one
+    response - the entire reason this module no longer walks the
+    Contents API directory-by-directory.
 
     Raises:
-        PathNotFoundError: If `path` doesn't exist in the repository.
+        PathNotFoundError: If `ref` doesn't resolve to a tree.
         RateLimitError: If GitHub's rate limit is exhausted.
         GitHubNetworkError: On a network-level failure.
         MalformedResponseError: If the response can't be parsed.
     """
-    url = f"{_API_BASE_URL}/repos/{owner}/{repo}/contents/{path}".rstrip("/")
-    params = {"ref": ref} if ref else None
-    response = _get(http, url, params=params)
+    url = f"{_API_BASE_URL}/repos/{owner}/{repo}/git/trees/{ref}"
+    response = _get(http, url, params={"recursive": "1"})
 
     if response.status_code == 404:
-        raise PathNotFoundError(f"Path '{path}' not found in repository '{owner}/{repo}'.")
+        raise PathNotFoundError(f"Ref '{ref}' not found in repository '{owner}/{repo}'.")
     _raise_for_rate_limit(response)
     if response.status_code != 200:
-        raise MalformedResponseError(f"Unexpected response listing '{path}' (HTTP {response.status_code}).")
+        raise MalformedResponseError(f"Unexpected response fetching tree for '{owner}/{repo}' (HTTP {response.status_code}).")
 
-    payload = _parse_json(response, f"Contents listing for '{path}'")
-    if isinstance(payload, dict):
-        payload = [payload]
-    if not isinstance(payload, list) or not all(isinstance(entry, dict) for entry in payload):
-        raise MalformedResponseError(f"Contents listing for '{path}' had an unexpected shape.")
-    return payload
+    payload = _parse_json(response, f"Tree listing for '{owner}/{repo}'")
+    if not isinstance(payload, dict) or not isinstance(payload.get("tree"), list):
+        raise MalformedResponseError(f"Tree listing for '{owner}/{repo}' had an unexpected shape.")
+    if payload.get("truncated"):
+        logger.warning("GitHub tree for '%s/%s' was truncated by the API; some assets may be missed.", owner, repo)
+    return payload["tree"]
 
 
 def _matches_extension(file_path: str, extensions: Sequence[str]) -> bool:
@@ -303,36 +338,58 @@ def _matches_extension(file_path: str, extensions: Sequence[str]) -> bool:
     return any(lower_path.endswith(extension.lower()) for extension in extensions)
 
 
-def _walk(
-    http: Any,
+def _filter_tree_entries(
+    tree_entries: List[Dict[str, Any]],
     owner: str,
     repo: str,
     path: str,
-    ref: Optional[str],
     extensions: Sequence[str],
-    matched_entries: List[Dict[str, Any]],
-    depth: int = 0,
-) -> None:
-    """Recursively lists `path`, collecting entries matching `extensions`.
+) -> List[Dict[str, Any]]:
+    """Filters a full recursive tree down to blob entries matching `path`/`extensions`.
 
-    Directories are descended into regardless of depth up to
-    `_DEFAULT_MAX_DEPTH`, so nested asset folders are discovered the
-    same as top-level ones. Non-matching files are silently skipped -
-    not every file in a repository is a candidate 3D asset.
+    Replaces the directory-by-directory descent `_walk` used to
+    perform: `path` scoping and extension matching now both happen
+    locally against the single tree already fetched by `_fetch_tree`.
+
+    Args:
+        tree_entries: The `"tree"` array from `_fetch_tree`.
+        owner: Repository owner, used only for the not-found error.
+        repo: Repository name, used only for the not-found error.
+        path: Directory (or single file) to scope discovery to. An
+            empty string means the whole repository.
+        extensions: File extensions treated as candidate 3D assets.
+
+    Returns:
+        Matched blob entries (each with at least a `"path"` key, the
+        only field `_build_asset` relies on).
+
+    Raises:
+        PathNotFoundError: If `path` is non-empty and no tree entry
+            falls within it - mirrors the previous Contents-API 404
+            behavior for a nonexistent path.
     """
-    if depth > _DEFAULT_MAX_DEPTH:
-        return
+    normalized_path = path.strip("/")
+    path_exists = not normalized_path
+    matched: List[Dict[str, Any]] = []
 
-    for entry in _list_contents(http, owner, repo, path, ref):
-        entry_type = entry.get("type")
+    for entry in tree_entries:
         entry_path = entry.get("path")
         if not entry_path:
             continue
 
-        if entry_type == "dir":
-            _walk(http, owner, repo, entry_path, ref, extensions, matched_entries, depth + 1)
-        elif entry_type == "file" and _matches_extension(entry_path, extensions):
-            matched_entries.append(entry)
+        if normalized_path:
+            if entry_path == normalized_path or entry_path.startswith(normalized_path + "/"):
+                path_exists = True
+            else:
+                continue
+
+        if entry.get("type") == "blob" and _matches_extension(entry_path, extensions):
+            matched.append(entry)
+
+    if normalized_path and not path_exists:
+        raise PathNotFoundError(f"Path '{path}' not found in repository '{owner}/{repo}'.")
+
+    return matched
 
 
 # --- Asset construction -----------------------------------------------
