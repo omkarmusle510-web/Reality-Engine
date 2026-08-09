@@ -13,6 +13,9 @@ from apps.reality_painter.ai.prompt_builder import PromptBuilder
 from apps.reality_painter.ai.providers.cloudflare import CloudflareProvider
 from apps.reality_painter.ai.providers.gemini import GeminiProvider
 from apps.reality_painter.ai.sketch_analyzer import SketchAnalyzer
+from apps.reality_painter.asset_render import create_asset_render_stage
+from apps.reality_painter.assets.registry import AssetRegistry
+from apps.reality_painter.assets.retriever import AssetRetrievalError, AssetRetriever
 from apps.reality_painter.sketch import Canvas, ToolState, create_painting_stage
 from engine.core.config import config as EngineConfig
 from engine.core.emergency_exit import EmergencyExit, create_emergency_exit_stage
@@ -26,12 +29,43 @@ from engine.interaction.mouse_controller import MouseController, create_mouse_co
 from engine.interaction.mouse_toggle import MouseToggle, create_mouse_toggle_stage
 from engine.rendering.display import DisplayWindow, create_display_stage
 from engine.rendering.overlay import create_overlay_stage
+from engine.rendering.renderer import RenderError, Renderer3D
+from engine.scene.loader import ModelLoadError, load_glb
+from engine.scene.scene import Scene
 from engine.tracking.hand_tracker import HandTracker, create_tracking_stage
 from engine.vision.camera import Camera
 from engine.vision.mirror import create_mirror_stage
 from engine.vision.pipeline import create_vision_stage
 
 logger = get_logger(__name__)
+
+
+def _load_display_asset(scene: Scene) -> None:
+    """Retrieves and loads the first registered asset into `scene`, if any.
+
+    Best-effort: an empty registry, a retrieval failure, or a load
+    failure all leave `scene` empty rather than raising, so a missing
+    or not-yet-retrievable 3D asset never prevents Reality Painter from
+    starting. Retrieval (Phase 12C) and loading (Phase 12D) both
+    happen here, once, at startup - never inside the pipeline stage
+    itself (see `apps.reality_painter.asset_render`).
+    """
+    registry = AssetRegistry.load()
+    available_assets = registry.list_assets()
+    if not available_assets:
+        logger.info("Asset registry is empty - no 3D asset to display.")
+        return
+
+    asset = available_assets[0]
+    try:
+        local_path = AssetRetriever().retrieve(asset)
+        scene_object = load_glb(local_path, name=asset.id)
+    except (AssetRetrievalError, ModelLoadError) as exc:
+        logger.warning("Could not load 3D asset '%s' for display: %s", asset.id, exc)
+        return
+
+    scene.add(scene_object)
+    logger.info("Loaded 3D asset '%s' for display.", asset.id)
 
 
 def run() -> None:
@@ -59,6 +93,16 @@ def run() -> None:
     display = DisplayWindow()
     emergency_exit = EmergencyExit()
 
+    scene = Scene()
+    try:
+        renderer_3d = Renderer3D()
+    except RenderError as exc:
+        renderer_3d = None
+        logger.warning("3D renderer unavailable - 3D asset display disabled: %s", exc)
+
+    if renderer_3d is not None:
+        _load_display_asset(scene)
+
     ai_manager = AIManager(prompt_builder=PromptBuilder(), sketch_analyzer=SketchAnalyzer())
 
     # Registered first so AIManager.select_provider() (called with no
@@ -84,6 +128,8 @@ def run() -> None:
     engine.pipeline.register_stage("emergency_exit", create_emergency_exit_stage(emergency_exit))
     engine.pipeline.register_stage("vision", create_vision_stage(camera))
     engine.pipeline.register_stage("mirror", create_mirror_stage())
+    if renderer_3d is not None:
+        engine.pipeline.register_stage("asset_render", create_asset_render_stage(scene, renderer_3d))
     engine.pipeline.register_stage("fps", create_fps_stage(fps_counter))
     engine.pipeline.register_stage("tracking", create_tracking_stage(tracker))
     engine.pipeline.register_stage("gesture", create_gesture_stage())
@@ -105,6 +151,8 @@ def run() -> None:
         camera.release()
         mouse_controller.release()
         emergency_exit.close()
+        if renderer_3d is not None:
+            renderer_3d.close()
         engine.shutdown()
 
 
