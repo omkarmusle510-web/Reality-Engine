@@ -54,6 +54,28 @@ class AssetRegistry:
             raise AssetValidationError(f"Duplicate asset id: {asset.id!r}.")
         self._assets[asset.id] = asset
 
+    def register(self, asset: Asset) -> bool:
+        """Registers `asset`, skipping it if its id is already present.
+
+        Idempotent ingestion entry point for asset sources (e.g. the
+        GitHub source in `github.py`): unlike `_add`/`from_list`,
+        re-registering an id that's already present is not a
+        validation error - re-running discovery against the same
+        repository is expected to happen and must not raise or
+        overwrite the existing entry.
+
+        Args:
+            asset: An already-validated `Asset`.
+
+        Returns:
+            True if `asset` was newly added, False if an asset with
+            this id was already registered (left unchanged).
+        """
+        if asset.id in self._assets:
+            return False
+        self._assets[asset.id] = asset
+        return True
+
     # --- Construction -----------------------------------------------
 
     @classmethod
