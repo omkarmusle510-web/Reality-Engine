@@ -44,3 +44,4 @@ venv/
  .pytest_cache/
  # Runtime-generated artwork
 saved_canvases/
+assets_cache

@@ -11,8 +11,6 @@ shadow tuning, no scene hierarchy.
 
 from __future__ import annotations
 
-import os
-
 import numpy as np
 
 # `pyrender`'s offscreen backend defaults to a windowed (pyglet) GL
@@ -21,8 +19,7 @@ import numpy as np
 # provides a display-less GL context and is what makes offscreen
 # rendering actually offscreen; this is set before `pyrender` is first
 # imported anywhere in the process, and only if the caller hasn't
-# already chosen a platform (e.g. "osmesa") themselves.
-os.environ.setdefault("PYOPENGL_PLATFORM", "egl")
+# already chosen a platform (e.g. "osmesa") themselves
 
 from engine.core.logger import get_logger
 from engine.scene.scene import Scene
