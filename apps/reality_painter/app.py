@@ -16,6 +16,13 @@ from apps.reality_painter.ai.sketch_analyzer import SketchAnalyzer
 from apps.reality_painter.asset_render import create_asset_render_stage
 from apps.reality_painter.assets.registry import AssetRegistry
 from apps.reality_painter.assets.retriever import AssetRetrievalError, AssetRetriever
+from apps.reality_painter.mode_router import (
+    INSPECTION_MODES,
+    PAINTING_MODES,
+    create_mode_router_stage,
+    gate,
+)
+from apps.reality_painter.runtime_mode import ModeController
 from apps.reality_painter.sketch import Canvas, ToolState, create_painting_stage
 from engine.core.config import config as EngineConfig
 from engine.core.emergency_exit import EmergencyExit, create_emergency_exit_stage
@@ -125,20 +132,42 @@ def run() -> None:
     else:
         logger.warning("GEMINI_API_KEY not set - Gemini fallback provider unavailable.")
 
+    # Runtime-mode router: owns PAINTING/ANALYZING/ASSET_READY/INSPECTING_3D
+    # transitions (N=analyze, I=enter 3D, X=exit 3D). Registered first and
+    # ungated so a mode change always takes effect before any gated stage
+    # below runs in the same cycle. Every stage that belongs to the
+    # painting side or the 3D-inspection side is wrapped with `gate()` so
+    # only one side's stages do real work on any given cycle - see
+    # apps.reality_painter.mode_router for how exclusivity is enforced.
+    mode_controller = ModeController()
+    engine.pipeline.register_stage("mode_router", create_mode_router_stage(mode_controller))
+
     engine.pipeline.register_stage("emergency_exit", create_emergency_exit_stage(emergency_exit))
-    engine.pipeline.register_stage("vision", create_vision_stage(camera))
-    engine.pipeline.register_stage("mirror", create_mirror_stage())
+    engine.pipeline.register_stage("vision", gate(create_vision_stage(camera), mode_controller, PAINTING_MODES))
+    engine.pipeline.register_stage("mirror", gate(create_mirror_stage(), mode_controller, PAINTING_MODES))
     if renderer_3d is not None:
-        engine.pipeline.register_stage("asset_render", create_asset_render_stage(scene, renderer_3d))
+        engine.pipeline.register_stage(
+            "asset_render", gate(create_asset_render_stage(scene, renderer_3d), mode_controller, PAINTING_MODES)
+        )
+        engine.pipeline.register_stage(
+            "inspection_render",
+            gate(create_asset_render_stage(scene, renderer_3d), mode_controller, INSPECTION_MODES),
+        )
     engine.pipeline.register_stage("fps", create_fps_stage(fps_counter))
-    engine.pipeline.register_stage("tracking", create_tracking_stage(tracker))
-    engine.pipeline.register_stage("gesture", create_gesture_stage())
-    engine.pipeline.register_stage("cursor", create_cursor_stage(cursor_smoother))
-    engine.pipeline.register_stage("action", create_action_stage(action_mapper))
-    engine.pipeline.register_stage("mouse_toggle", create_mouse_toggle_stage(mouse_toggle))
-    engine.pipeline.register_stage("mouse_controller", create_mouse_controller_stage(mouse_controller))
-    engine.pipeline.register_stage("painting", create_painting_stage(canvas, tool_state, ai_manager))
-    engine.pipeline.register_stage("overlay", create_overlay_stage())
+    engine.pipeline.register_stage("tracking", gate(create_tracking_stage(tracker), mode_controller, PAINTING_MODES))
+    engine.pipeline.register_stage("gesture", gate(create_gesture_stage(), mode_controller, PAINTING_MODES))
+    engine.pipeline.register_stage("cursor", gate(create_cursor_stage(cursor_smoother), mode_controller, PAINTING_MODES))
+    engine.pipeline.register_stage("action", gate(create_action_stage(action_mapper), mode_controller, PAINTING_MODES))
+    engine.pipeline.register_stage(
+        "mouse_toggle", gate(create_mouse_toggle_stage(mouse_toggle), mode_controller, PAINTING_MODES)
+    )
+    engine.pipeline.register_stage(
+        "mouse_controller", gate(create_mouse_controller_stage(mouse_controller), mode_controller, PAINTING_MODES)
+    )
+    engine.pipeline.register_stage(
+        "painting", gate(create_painting_stage(canvas, tool_state, ai_manager), mode_controller, PAINTING_MODES)
+    )
+    engine.pipeline.register_stage("overlay", gate(create_overlay_stage(), mode_controller, PAINTING_MODES))
     engine.pipeline.register_stage("display", create_display_stage(display))
 
     logger.info("Starting engine.")
