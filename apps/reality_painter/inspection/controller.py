@@ -30,11 +30,13 @@ a clean `ControllerOutcome(success=False, ...)`.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any, Optional, Sequence
 
 from apps.reality_painter.assets.registry import AssetRegistry
 from apps.reality_painter.assets.retriever import AssetRetrievalError, AssetRetriever
 from apps.reality_painter.inspection.asset_resolver import AssetResolutionStatus, resolve_asset
+from apps.reality_painter.optimization.pipeline import PipelineStatus, optimize_asset
 from apps.reality_painter.recognition.models import RecognizedObject, RecognitionResult
 from apps.reality_painter.recognition.provider import RecognitionProvider
 from engine.core.logger import get_logger
@@ -42,6 +44,13 @@ from engine.scene.loader import ModelLoadError, load_glb
 from engine.scene.objects import SceneObject
 
 logger = get_logger(__name__)
+
+#: Where Block 2 candidate files are written when this controller
+#: drives Block 8's optimizer. Distinct from AssetRetriever's own
+#: source cache and from OptimizationCache's persistent store (Block
+#: 5 owns the actual cache directory) - this is only Block 2's
+#: intermediate candidate-generation workspace.
+_OPTIMIZER_CANDIDATE_DIR = Path(__file__).parent / "optimizer_candidates"
 
 
 @dataclass(frozen=True)
@@ -153,7 +162,8 @@ class InspectionController:
 
         try:
             local_path = retriever.retrieve(resolution.asset)
-            scene_object = load_glb(local_path, name=resolution.asset.id)
+            optimized_path = self._optimize(local_path, resolution.asset.id)
+            scene_object = load_glb(optimized_path, name=resolution.asset.id)
         except AssetRetrievalError as exc:
             return self._fail(selected.label, f"Asset retrieval failed: {exc}")
         except ModelLoadError as exc:
@@ -163,6 +173,49 @@ class InspectionController:
             return self._fail(selected.label, f"Unexpected error: {exc}")
 
         return ControllerOutcome(success=True, scene_object=scene_object, selected_label=selected.label, error=None)
+
+    def _optimize(self, local_path: Path, source_identity: str) -> Path:
+        """Runs Block 8's optimizer once for a freshly retrieved asset.
+
+        This is the sole integration point between retrieval and GLB
+        loading - it never runs per frame (see `create_asset_render_stage`,
+        unmodified) and never duplicates Block 1-8's own analysis,
+        candidate generation, benchmarking, or caching logic; it only
+        calls `optimize_asset()` once and interprets its result.
+        `optimize_asset()` already checks its own persistent cache
+        (Block 5) first, so a cache hit here does no redundant
+        generation/benchmarking work.
+
+        Falls back to `local_path` (the original, already-valid
+        retrieved asset) on any non-successful outcome - an
+        unavailable optimizer, a rejected/invalid candidate, or an
+        unexpected exception - so a failure in optimization can never
+        prevent inspection from completing with the original asset.
+
+        Args:
+            local_path: The already-retrieved source GLB/GLTF path.
+            source_identity: Stable identity for the Block 5 cache key
+                (the resolved `Asset.id`).
+
+        Returns:
+            The optimized asset's path on a successful/cached
+            optimization, otherwise `local_path` unchanged.
+        """
+        try:
+            result = optimize_asset(local_path, _OPTIMIZER_CANDIDATE_DIR, source_identity=source_identity)
+        except Exception:
+            logger.exception("Asset optimization raised unexpectedly; using original asset '%s'.", source_identity)
+            return local_path
+
+        if result.status in (PipelineStatus.SUCCESS, PipelineStatus.CACHED) and result.selected_asset_path is not None:
+            return result.selected_asset_path
+
+        logger.info(
+            "Asset optimization for '%s' did not produce a usable candidate (%s); using original asset.",
+            source_identity,
+            result.status.value,
+        )
+        return local_path
 
     def _fail(self, label: Optional[str], error: str) -> ControllerOutcome:
         """Builds a failure `ControllerOutcome`."""
