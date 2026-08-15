@@ -36,6 +36,7 @@ from typing import Any, Optional, Sequence
 from apps.reality_painter.assets.registry import AssetRegistry
 from apps.reality_painter.assets.retriever import AssetRetrievalError, AssetRetriever
 from apps.reality_painter.inspection.asset_resolver import AssetResolutionStatus, resolve_asset
+from apps.reality_painter.inspection.framing import normalize_transform
 from apps.reality_painter.optimization.pipeline import PipelineStatus, optimize_asset
 from apps.reality_painter.recognition.models import RecognizedObject, RecognitionResult
 from apps.reality_painter.recognition.provider import RecognitionProvider
@@ -164,6 +165,7 @@ class InspectionController:
             local_path = retriever.retrieve(resolution.asset)
             optimized_path = self._optimize(local_path, resolution.asset.id)
             scene_object = load_glb(optimized_path, name=resolution.asset.id)
+            scene_object.transform = normalize_transform(scene_object.mesh)
         except AssetRetrievalError as exc:
             return self._fail(selected.label, f"Asset retrieval failed: {exc}")
         except ModelLoadError as exc:

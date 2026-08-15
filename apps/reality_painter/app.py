@@ -17,6 +17,7 @@ from apps.reality_painter.asset_render import create_asset_render_stage
 from apps.reality_painter.assets.registry import AssetRegistry
 from apps.reality_painter.assets.retriever import AssetRetrievalError, AssetRetriever
 from apps.reality_painter.inspection.controller import InspectionController
+from apps.reality_painter.inspection.controls import InspectionViewState, create_inspection_controls_stage
 from apps.reality_painter.mode_router import (
     INSPECTION_MODES,
     PAINTING_MODES,
@@ -26,6 +27,7 @@ from apps.reality_painter.mode_router import (
 from apps.reality_painter.recognition.providers.nvidia import NvidiaRecognitionProvider
 from apps.reality_painter.runtime_mode import ModeController
 from apps.reality_painter.sketch import Canvas, ToolState, create_painting_stage
+from apps.reality_painter.status_overlay import categorize_failure, create_status_overlay_stage
 from engine.core.config import config as EngineConfig
 from engine.core.emergency_exit import EmergencyExit, create_emergency_exit_stage
 from engine.core.engine import Engine
@@ -152,6 +154,15 @@ def run() -> None:
     if recognition_provider is None:
         logger.warning("NVIDIA_API_KEY not set - object recognition ('N' key) unavailable.")
 
+    # Block 10: tracks the currently inspected SceneObject and its
+    # rotate/zoom view state (apps.reality_painter.inspection.controls),
+    # separately from Scene itself, so the inspection-controls stage and
+    # _analyze_fn can share a reference without either owning Scene's
+    # lifecycle. A plain dict (not a bare variable) so the closures below
+    # can rebind its contents without a `nonlocal` declaration.
+    active_object = {"obj": None}
+    inspection_view_state = InspectionViewState()
+
     def _analyze_fn(context: object) -> bool:
         """Runs recognition -> asset resolution -> retrieval -> GLB load for the current canvas.
 
@@ -159,15 +170,23 @@ def run() -> None:
         succeeds; any failure (no provider configured, empty canvas,
         recognition failure, unresolved/unavailable asset, retrieval or
         GLB-load failure) returns False, sending the runtime mode back
-        to PAINTING per the existing mode_router failure policy.
+        to PAINTING per the existing mode_router failure policy. Either
+        way, `context["analysis_error_category"]` is set so
+        `apps.reality_painter.status_overlay` can show the user a clear,
+        plain-language reason - cleared on success, categorized on
+        failure via `status_overlay.categorize_failure`.
         """
+        context["analysis_error_category"] = None
+
         if recognition_provider is None:
             logger.warning("Analyze requested but no recognition provider is configured.")
+            context["analysis_error_category"] = categorize_failure(None)
             return False
 
         snapshot = canvas.export_snapshot()
         if snapshot is None:
             logger.warning("Analyze requested before canvas initialization.")
+            context["analysis_error_category"] = categorize_failure(None)
             return False
 
         outcome = inspection_controller.run(
@@ -178,8 +197,11 @@ def run() -> None:
         )
         if outcome.success and outcome.scene_object is not None:
             scene.add(outcome.scene_object)
+            active_object["obj"] = outcome.scene_object
+            inspection_view_state.set_base(outcome.scene_object.transform)
         else:
             logger.warning("Recognition/asset resolution failed: %s", outcome.error)
+            context["analysis_error_category"] = categorize_failure(outcome.error)
         return outcome.success
 
     # Runtime-mode router: owns PAINTING/ANALYZING/ASSET_READY/INSPECTING_3D
@@ -196,6 +218,17 @@ def run() -> None:
     engine.pipeline.register_stage("vision", gate(create_vision_stage(camera), mode_controller, PAINTING_MODES))
     engine.pipeline.register_stage("mirror", gate(create_mirror_stage(), mode_controller, PAINTING_MODES))
     if renderer_3d is not None:
+        # Registered before the render stages below so a rotate/zoom/reset
+        # key pressed this cycle is reflected in this cycle's render,
+        # rather than lagging an extra frame behind.
+        engine.pipeline.register_stage(
+            "inspection_controls",
+            gate(
+                create_inspection_controls_stage(inspection_view_state, lambda: active_object["obj"]),
+                mode_controller,
+                INSPECTION_MODES,
+            ),
+        )
         engine.pipeline.register_stage(
             "asset_render", gate(create_asset_render_stage(scene, renderer_3d), mode_controller, PAINTING_MODES)
         )
@@ -218,6 +251,7 @@ def run() -> None:
         "painting", gate(create_painting_stage(canvas, tool_state, ai_manager), mode_controller, PAINTING_MODES)
     )
     engine.pipeline.register_stage("overlay", gate(create_overlay_stage(), mode_controller, PAINTING_MODES))
+    engine.pipeline.register_stage("status_overlay", create_status_overlay_stage())
     engine.pipeline.register_stage("display", create_display_stage(display))
 
     logger.info("Starting engine.")
