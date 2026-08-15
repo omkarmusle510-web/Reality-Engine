@@ -109,8 +109,11 @@ def run() -> None:
         renderer_3d = None
         logger.warning("3D renderer unavailable - 3D asset display disabled: %s", exc)
 
-    if renderer_3d is not None:
-        _load_display_asset(scene)
+    # NOTE (Block 9): no startup preload here. The scene starts empty -
+    # a 3D asset only ever enters it via a successful recognition cycle
+    # (see _analyze_fn below), never a demo/first-registry-entry asset
+    # loaded at boot. `_load_display_asset` is kept for now (unused)
+    # since removing it is out of this block's scope.
 
     ai_manager = AIManager(prompt_builder=PromptBuilder(), sketch_analyzer=SketchAnalyzer())
 
@@ -173,7 +176,9 @@ def run() -> None:
             registry=asset_registry,
             retriever=asset_retriever,
         )
-        if not outcome.success:
+        if outcome.success and outcome.scene_object is not None:
+            scene.add(outcome.scene_object)
+        else:
             logger.warning("Recognition/asset resolution failed: %s", outcome.error)
         return outcome.success
 
