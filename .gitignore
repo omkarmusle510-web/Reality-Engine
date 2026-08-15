@@ -45,3 +45,24 @@ venv/
  # Runtime-generated artwork
 saved_canvases/
 assets_cache
+
+# Environment variables
+.env
+*.env
+
+# Python cache
+__pycache__/
+.pytest_cache/
+
+# Generated artwork
+saved_canvases/
+
+# Runtime/generated assets
+apps/reality_painter/assets/cache/
+downloads/
+C:\Reality Engine\
+    .env
+    .gitignore
+    .venv\
+    apps\
+    tests\

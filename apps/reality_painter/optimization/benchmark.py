@@ -70,7 +70,6 @@ everything else under `engine/`) are never modified by this module.
 
 from __future__ import annotations
 
-import os
 import sys
 import time
 from dataclasses import asdict, dataclass
@@ -79,16 +78,24 @@ from typing import Any, Callable, List, Optional, Sequence, Union
 
 import numpy as np
 
-# `Renderer3D` only imports/requires `pyrender` (and, transitively, an
-# EGL-capable OpenGL context) inside its own `__init__` - not at module
-# import time - so this default-platform hint is harmless to set here
-# even when a fake renderer_factory is used and pyrender is never
-# touched. Matches the documented reason this exists in
-# `engine/rendering/renderer.py`: EGL must be selected before pyrender
-# is first imported anywhere in the process. `setdefault` never
-# overrides a platform the caller (or the real renderer module) has
-# already chosen.
-os.environ.setdefault("PYOPENGL_PLATFORM", "egl")
+# NOTE: this module intentionally does NOT set PYOPENGL_PLATFORM at
+# import time. It previously called
+# `os.environ.setdefault("PYOPENGL_PLATFORM", "egl")` here, which
+# mutated the process-wide environment variable the moment this module
+# was imported (e.g. transitively via Block 8's
+# `apps.reality_painter.optimization.pipeline`) - even when no
+# benchmark ever ran and no fake renderer_factory was in play. On a
+# real desktop (e.g. Windows, where pyrender's normal Pyglet-backed
+# desktop OpenGL context is what actually works), this silently forced
+# EGL and broke `Renderer3D` initialization elsewhere in the same
+# process ("Unable to load EGL library"). `Renderer3D`
+# (`engine/rendering/renderer.py`) already selects its own backend
+# implicitly via `pyrender.OffscreenRenderer(...)` and is never
+# modified by this module. A caller that genuinely needs EGL (e.g. a
+# headless CI/server benchmark run) should set `PYOPENGL_PLATFORM`
+# externally, in its own process environment, before importing
+# anything in this package - never as a side effect of importing this
+# module.
 
 from engine.core.logger import get_logger
 from engine.scene.loader import ModelLoadError, load_glb

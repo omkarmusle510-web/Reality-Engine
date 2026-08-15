@@ -16,12 +16,14 @@ from apps.reality_painter.ai.sketch_analyzer import SketchAnalyzer
 from apps.reality_painter.asset_render import create_asset_render_stage
 from apps.reality_painter.assets.registry import AssetRegistry
 from apps.reality_painter.assets.retriever import AssetRetrievalError, AssetRetriever
+from apps.reality_painter.inspection.controller import InspectionController
 from apps.reality_painter.mode_router import (
     INSPECTION_MODES,
     PAINTING_MODES,
     create_mode_router_stage,
     gate,
 )
+from apps.reality_painter.recognition.providers.nvidia import NvidiaRecognitionProvider
 from apps.reality_painter.runtime_mode import ModeController
 from apps.reality_painter.sketch import Canvas, ToolState, create_painting_stage
 from engine.core.config import config as EngineConfig
@@ -132,6 +134,49 @@ def run() -> None:
     else:
         logger.warning("GEMINI_API_KEY not set - Gemini fallback provider unavailable.")
 
+    # Object recognition ('N' key -> ANALYZING): NVIDIA NIM recognition
+    # provider, wired into the existing, unmodified InspectionController
+    # via dependency injection. asset_registry/asset_retriever are
+    # dedicated to the recognition flow (distinct from the startup-only
+    # 3D display asset loaded above) so a resolved/retrieved recognition
+    # asset never depends on whether renderer_3d is available.
+    inspection_controller = InspectionController()
+    asset_registry = AssetRegistry.load()
+    asset_retriever = AssetRetriever()
+
+    nvidia_api_key = os.environ.get("NVIDIA_API_KEY")
+    recognition_provider = NvidiaRecognitionProvider(api_key=nvidia_api_key) if nvidia_api_key else None
+    if recognition_provider is None:
+        logger.warning("NVIDIA_API_KEY not set - object recognition ('N' key) unavailable.")
+
+    def _analyze_fn(context: object) -> bool:
+        """Runs recognition -> asset resolution -> retrieval -> GLB load for the current canvas.
+
+        Returns True (ASSET_READY) only if `InspectionController.run()`
+        succeeds; any failure (no provider configured, empty canvas,
+        recognition failure, unresolved/unavailable asset, retrieval or
+        GLB-load failure) returns False, sending the runtime mode back
+        to PAINTING per the existing mode_router failure policy.
+        """
+        if recognition_provider is None:
+            logger.warning("Analyze requested but no recognition provider is configured.")
+            return False
+
+        snapshot = canvas.export_snapshot()
+        if snapshot is None:
+            logger.warning("Analyze requested before canvas initialization.")
+            return False
+
+        outcome = inspection_controller.run(
+            image=snapshot,
+            provider=recognition_provider,
+            registry=asset_registry,
+            retriever=asset_retriever,
+        )
+        if not outcome.success:
+            logger.warning("Recognition/asset resolution failed: %s", outcome.error)
+        return outcome.success
+
     # Runtime-mode router: owns PAINTING/ANALYZING/ASSET_READY/INSPECTING_3D
     # transitions (N=analyze, I=enter 3D, X=exit 3D). Registered first and
     # ungated so a mode change always takes effect before any gated stage
@@ -140,7 +185,7 @@ def run() -> None:
     # only one side's stages do real work on any given cycle - see
     # apps.reality_painter.mode_router for how exclusivity is enforced.
     mode_controller = ModeController()
-    engine.pipeline.register_stage("mode_router", create_mode_router_stage(mode_controller))
+    engine.pipeline.register_stage("mode_router", create_mode_router_stage(mode_controller, analyze_fn=_analyze_fn))
 
     engine.pipeline.register_stage("emergency_exit", create_emergency_exit_stage(emergency_exit))
     engine.pipeline.register_stage("vision", gate(create_vision_stage(camera), mode_controller, PAINTING_MODES))

@@ -1,3 +1,20 @@
 {
-  "assets": []
+  "assets": [
+    {
+      "id": "flower",
+      "name": "Flower",
+      "category": "nature",
+      "format": "glb",
+      "tags": [
+        "flower",
+        "plant",
+        "nature"
+      ],
+      "source": {
+        "type": "github",
+        "repository": "omkarmusle510-web/reality-engine-assets",
+        "path": "nature/flower.glb"
+      }
+    }
+  ]
 }
