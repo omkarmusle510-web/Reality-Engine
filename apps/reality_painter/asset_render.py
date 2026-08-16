@@ -27,13 +27,22 @@ def create_asset_render_stage(scene: Scene, renderer: Renderer3D) -> StageFunc:
     """Builds a pipeline stage that renders `scene` and composites it onto the frame.
 
     Reads `context["frame"]`. If a frame is present and `scene`
-    currently holds at least one object, renders `scene` via the
-    existing `Renderer3D.render()` and alpha-composites the result onto
-    `frame.image` in place via the existing `composite_rgba_onto()` -
-    no new rendering or blending logic is introduced here. A no-op if
-    no frame is present yet, or if `scene` is empty (e.g. no asset was
-    successfully loaded at startup), so this stage never forces a
-    render call when there is nothing to show.
+    currently holds at least one object, composites the scene's
+    rendered RGBA image onto `frame.image` in place via the existing
+    `composite_rgba_onto()` - no new blending logic is introduced here.
+    A no-op if no frame is present yet, or if `scene` is empty (e.g. no
+    asset was successfully loaded at startup), so this stage never
+    forces a render call when there is nothing to show.
+
+    The render itself is cached: `Renderer3D.render()` is only called
+    again when a scene object's `(name, transform)` has actually
+    changed since the last call (e.g. the 3D inspection controls in
+    `apps.reality_painter.inspection.controls` rotated/zoomed/reset
+    the active object) - the camera frame keeps updating every cycle
+    regardless, but the comparatively expensive 3D render is reused
+    from cache whenever nothing about the scene has moved. This is
+    what keeps INSPECTING_3D responsive on low-end hardware without
+    changing what is ever displayed.
 
     Args:
         scene: The `Scene` holding whichever `SceneObject`(s) should be
@@ -46,12 +55,19 @@ def create_asset_render_stage(scene: Scene, renderer: Renderer3D) -> StageFunc:
     Returns:
         A stage function suitable for `engine.pipeline.register_stage`.
     """
+    cached_render_key = None
+    cached_render = None
 
     def _asset_render_stage(context: PipelineContext) -> PipelineContext:
+        nonlocal cached_render_key, cached_render
+
         frame = context.get("frame")
         if isinstance(frame, Frame) and len(scene) > 0:
-            rendered = renderer.render(scene)
-            composite_rgba_onto(frame.image, rendered)
+            render_key = tuple((obj.name, obj.transform) for obj in scene.objects())
+            if cached_render is None or render_key != cached_render_key:
+                cached_render = renderer.render(scene)
+                cached_render_key = render_key
+            composite_rgba_onto(frame.image, cached_render)
         return context
 
     return _asset_render_stage

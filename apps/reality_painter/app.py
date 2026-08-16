@@ -215,8 +215,13 @@ def run() -> None:
     engine.pipeline.register_stage("mode_router", create_mode_router_stage(mode_controller, analyze_fn=_analyze_fn))
 
     engine.pipeline.register_stage("emergency_exit", create_emergency_exit_stage(emergency_exit))
-    engine.pipeline.register_stage("vision", gate(create_vision_stage(camera), mode_controller, PAINTING_MODES))
-    engine.pipeline.register_stage("mirror", gate(create_mirror_stage(), mode_controller, PAINTING_MODES))
+    # Camera acquisition and mirroring are deliberately ungated: the
+    # webcam must stay live in every RuntimeMode (see Block 11A), not
+    # just while painting. Only the interaction/painting pipeline below
+    # (tracking, gesture, cursor, action, mouse control, painting,
+    # overlay) is disabled during INSPECTING_3D.
+    engine.pipeline.register_stage("vision", create_vision_stage(camera))
+    engine.pipeline.register_stage("mirror", create_mirror_stage())
     if renderer_3d is not None:
         # Registered before the render stages below so a rotate/zoom/reset
         # key pressed this cycle is reflected in this cycle's render,

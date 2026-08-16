@@ -9,7 +9,10 @@ Covers ONLY:
     6. explicit exit key -> PAINTING
     7. PAINTING executes the painting pipeline, not the inspection pipeline
     8. INSPECTING_3D executes the inspection pipeline, not the painting pipeline
-    9. entering 3D freezes/copies the current frame
+    9. entering 3D no longer freezes/replaces the frame (Block 11A -
+       the camera stays live in every mode; see
+       tests/test_block11a_inspection_perf.py for the render-cache
+       contract that replaces per-cycle re-rendering instead)
     10. inspection mode performs no continuous camera reads
 
 No network access, no camera, no MediaPipe, no pyrender - stages are
@@ -159,12 +162,12 @@ check("INSPECTING_3D executes the inspection pipeline", calls["inspection_stage"
 check("INSPECTING_3D does not execute the painting pipeline", calls["painting_stage"] == 1)  # unchanged from before
 
 # ===========================================================================
-# 9. Entering 3D freezes/copies the current frame.
+# 9. Entering 3D no longer freezes/replaces the frame (Block 11A: the
+#    camera stays live in every mode - mode_router only flips the mode).
 # ===========================================================================
-check("frame object was replaced (not mutated in place) on entering 3D", enter_context["frame"] is not frame_before)
-check("frozen frame pixels match the source frame at freeze time", np.array_equal(enter_context["frame"].image, frame_before.image))
+check("entering INSPECTING_3D does not replace context['frame']", enter_context["frame"] is frame_before)
 frame_before.image[:] = 255
-check("mutating the original frame after freeze does not affect the frozen copy", not np.array_equal(enter_context["frame"].image, frame_before.image))
+check("context['frame'] reflects further mutation of the same object (no copy was ever made)", np.array_equal(enter_context["frame"].image, frame_before.image))
 
 # ===========================================================================
 # 10. Inspection mode performs no continuous camera reads.

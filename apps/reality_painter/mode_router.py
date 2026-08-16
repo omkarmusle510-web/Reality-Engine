@@ -26,7 +26,6 @@ from typing import Callable, FrozenSet, Optional
 from apps.reality_painter.runtime_mode import ModeController, RuntimeMode
 from engine.core.logger import get_logger
 from engine.core.pipeline import PipelineContext, StageFunc
-from engine.vision.frame import Frame
 
 logger = get_logger(__name__)
 
@@ -80,25 +79,6 @@ def gate(stage: StageFunc, mode_controller: ModeController, allowed_modes: Froze
     return _gated_stage
 
 
-def _freeze_frame(context: PipelineContext) -> None:
-    """Replaces `context["frame"]` with a standalone copy of itself.
-
-    This is the entire "freeze" mechanism: it does not introduce a
-    second, separate frozen-frame key. Because the vision stage that
-    would normally overwrite `context["frame"]` every cycle is gated to
-    `PAINTING_MODES` (see `PAINTING_MODES`) and therefore never runs
-    while `INSPECTING_3D`, replacing `context["frame"].image` with a
-    private `.copy()` at the moment of entering 3D guarantees no
-    downstream stage - including a stage that mutates `frame.image` in
-    place - can ever affect the live camera frame or vice versa, and
-    the same frozen pixels are seen on every subsequent cycle without
-    any further camera reads.
-    """
-    frame = context.get("frame")
-    if isinstance(frame, Frame):
-        context["frame"] = Frame(image=frame.image.copy(), timestamp=frame.timestamp)
-
-
 def create_mode_router_stage(mode_controller: ModeController, analyze_fn: Optional[AnalyzeFn] = None) -> StageFunc:
     """Builds the ungated stage that drives explicit runtime-mode transitions.
 
@@ -116,10 +96,12 @@ def create_mode_router_stage(mode_controller: ModeController, analyze_fn: Option
           stays ANALYZING until something else (e.g. a future
           asynchronous caller) calls `analysis_succeeded()` /
           `analysis_failed()`.
-        - 'I' while ASSET_READY: freezes the current frame (see
-          `_freeze_frame`) and enters INSPECTING_3D. This is the only
-          place a 3D entry happens - recognition succeeding never
-          triggers it on its own.
+        - 'I' while ASSET_READY: enters INSPECTING_3D. This is the
+          only place a 3D entry happens - recognition succeeding never
+          triggers it on its own. The camera keeps producing fresh
+          frames in every mode (see `apps.reality_painter.app`, Block
+          11A) - entering 3D no longer freezes `context["frame"]`; it
+          only stops the painting/gesture/AI stages via `gate()`.
         - 'X' while INSPECTING_3D: returns to PAINTING. This is the
           only exit path; it is driven purely by a keyboard key, never
           by any hand-tracking/gesture signal (tracking is gated off
@@ -157,7 +139,6 @@ def create_mode_router_stage(mode_controller: ModeController, analyze_fn: Option
                     mode_controller.analysis_failed()
 
         elif mode == RuntimeMode.ASSET_READY and key_pressed in _ENTER_3D_KEYS:
-            _freeze_frame(context)
             mode_controller.enter_inspection()
 
         elif mode == RuntimeMode.INSPECTING_3D and key_pressed in _EXIT_3D_KEYS:
