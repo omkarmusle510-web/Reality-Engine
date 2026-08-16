@@ -146,6 +146,119 @@ _MENU_ITEMS: List[MenuItem] = [
     MenuItem("clear", "Clear"),
 ]
 
+# --- Compact color palette (Block 11B) --------------------------------------
+# A second-level picker shown after selecting "Color" from the existing
+# radial menu, instead of the old cycle-only behavior. The radial menu
+# itself is completely untouched - this only extends what selecting its
+# existing "color" item does. Selection still writes into the same
+# `ToolState` color state used everywhere else (see
+# `ToolState.select_color`); no second color manager is introduced.
+_COMPACT_PALETTE: List[Tuple[str, Tuple[int, int, int]]] = [
+    ("Red", (50, 50, 220)),
+    ("Orange", (60, 180, 255)),
+    ("Yellow", (60, 230, 255)),
+    ("Green", (80, 200, 80)),
+    ("Blue", (220, 140, 60)),
+    ("Black", (20, 20, 20)),
+    ("Pink", (180, 105, 255)),
+    ("White", (255, 255, 255)),
+]
+_PALETTE_SWATCH_RADIUS_PX = 24
+_PALETTE_SWATCH_SPACING_PX = 60
+_PALETTE_LABEL_COLOR = (255, 255, 255)
+_PALETTE_BORDER_COLOR = (230, 230, 230)
+_PALETTE_HOVER_BORDER_COLOR = (60, 150, 255)
+_PALETTE_PANEL_COLOR = (0, 0, 0)
+_PALETTE_PANEL_ALPHA = 0.55
+
+
+class _ColorPalette:
+    """A compact, linear swatch picker for the 8 colors above.
+
+    Deliberately not the radial `Menu` (a different, "compact visual
+    palette" per the Block 11B spec) but follows the same minimal
+    open/update/confirm/consume_selection shape `Menu` already
+    establishes, so it plugs into the painting stage the same way.
+    Owns no reference to `Canvas`/`ToolState` itself - it only ever
+    reports a selected color name, same separation of concerns as
+    `Menu` + `_apply_menu_selection`.
+    """
+
+    def __init__(self) -> None:
+        self._visible = False
+        self._center: Tuple[int, int] = (0, 0)
+        self._hovered_index: Optional[int] = None
+        self._pending_selection: Optional[int] = None
+
+    @property
+    def is_visible(self) -> bool:
+        return self._visible
+
+    def open(self, center: Tuple[int, int]) -> None:
+        self._visible = True
+        self._center = center
+        self._hovered_index = None
+        self._pending_selection = None
+
+    def close(self) -> None:
+        self._visible = False
+        self._hovered_index = None
+
+    def _swatch_positions(self) -> List[Tuple[int, int]]:
+        count = len(_COMPACT_PALETTE)
+        total_width = (count - 1) * _PALETTE_SWATCH_SPACING_PX
+        start_x = self._center[0] - total_width // 2
+        y = self._center[1]
+        return [(start_x + i * _PALETTE_SWATCH_SPACING_PX, y) for i in range(count)]
+
+    def update(self, cursor_point: Tuple[int, int]) -> None:
+        if not self._visible:
+            return
+        self._hovered_index = None
+        for index, position in enumerate(self._swatch_positions()):
+            distance = ((cursor_point[0] - position[0]) ** 2 + (cursor_point[1] - position[1]) ** 2) ** 0.5
+            if distance <= _PALETTE_SWATCH_RADIUS_PX:
+                self._hovered_index = index
+                break
+
+    def confirm(self) -> None:
+        if self._visible and self._hovered_index is not None:
+            self._pending_selection = self._hovered_index
+            self.close()
+
+    def consume_selection(self) -> Optional[Tuple[str, Tuple[int, int, int]]]:
+        if self._pending_selection is None:
+            return None
+        index = self._pending_selection
+        self._pending_selection = None
+        return _COMPACT_PALETTE[index]
+
+
+def render_color_palette(image: np.ndarray, palette: "_ColorPalette") -> None:
+    """Draws the compact color palette. Pure rendering, mirrors `render_menu`."""
+    if not palette.is_visible:
+        return
+
+    positions = palette._swatch_positions()  # noqa: SLF001 - same-module helper
+    panel_left = positions[0][0] - _PALETTE_SWATCH_RADIUS_PX - 10
+    panel_right = positions[-1][0] + _PALETTE_SWATCH_RADIUS_PX + 10
+    panel_top = positions[0][1] - _PALETTE_SWATCH_RADIUS_PX - 10
+    panel_bottom = positions[0][1] + _PALETTE_SWATCH_RADIUS_PX + 10
+    height, width = image.shape[:2]
+    panel_left, panel_right = max(0, panel_left), min(width, panel_right)
+    panel_top, panel_bottom = max(0, panel_top), min(height, panel_bottom)
+    if panel_right > panel_left and panel_bottom > panel_top:
+        roi = image[panel_top:panel_bottom, panel_left:panel_right]
+        overlay = roi.copy()
+        cv2.rectangle(overlay, (0, 0), (overlay.shape[1], overlay.shape[0]), _PALETTE_PANEL_COLOR, -1)
+        cv2.addWeighted(overlay, _PALETTE_PANEL_ALPHA, roi, 1 - _PALETTE_PANEL_ALPHA, 0, dst=roi)
+
+    for index, (name, color) in enumerate(_COMPACT_PALETTE):
+        position = positions[index]
+        cv2.circle(image, position, _PALETTE_SWATCH_RADIUS_PX, color, -1, cv2.LINE_AA)
+        border_color = _PALETTE_HOVER_BORDER_COLOR if index == palette._hovered_index else _PALETTE_BORDER_COLOR  # noqa: SLF001
+        cv2.circle(image, position, _PALETTE_SWATCH_RADIUS_PX, border_color, 2, cv2.LINE_AA)
+
 
 class ToolState:
     """Tracks the currently active painting tool settings.
@@ -165,6 +278,11 @@ class ToolState:
         self._current_size = float(_BRUSH_DEFAULT_SIZE_PX)
         self._color_index = 0
         self._eraser_active = False
+        # An explicit color chosen from the compact palette (Block 11B),
+        # overriding `_color_index` when set. The existing numeric-key
+        # shortcuts and `cycle_color()` both clear it, so they continue
+        # to behave exactly as before once used.
+        self._custom_color: Optional[Tuple[str, Tuple[int, int, int]]] = None
 
         # Brush instances are stateless renderers (see brushes.py), so
         # one of each is created once and reused for the tool state's
@@ -196,6 +314,7 @@ class ToolState:
             logger.debug("Brush size target decreased to %.0f.", self._target_size)
         elif key_pressed in _COLOR_SELECT_KEYS:
             self._color_index = _COLOR_SELECT_KEYS[key_pressed]
+            self._custom_color = None
             logger.info("Color selected: %s.", self.color_name)
         elif key_pressed in _ERASER_TOGGLE_KEYS:
             self.toggle_eraser()
@@ -214,7 +333,19 @@ class ToolState:
         change color without knowing the palette's key bindings.
         """
         self._color_index = (self._color_index + 1) % len(_PALETTE)
+        self._custom_color = None
         logger.info("Color selected: %s.", self.color_name)
+
+    def select_color(self, name: str, color: Tuple[int, int, int]) -> None:
+        """Sets an explicit color (e.g. from the compact palette), overriding the index-based palette.
+
+        The existing numeric-key shortcuts and `cycle_color()` both
+        clear this override, so pressing them afterward still behaves
+        exactly as before - this is purely an additional way to set
+        the same underlying color state, not a second color system.
+        """
+        self._custom_color = (name, color)
+        logger.info("Color selected: %s.", name)
 
     def toggle_eraser(self) -> None:
         """Toggles the eraser tool on/off."""
@@ -242,12 +373,20 @@ class ToolState:
 
     @property
     def color(self) -> Tuple[int, int, int]:
-        """Currently selected palette color, as a BGR tuple."""
+        """Currently selected color, as a BGR tuple.
+
+        Returns the compact-palette override (see `select_color`) if
+        one is set, otherwise the index-based palette color.
+        """
+        if self._custom_color is not None:
+            return self._custom_color[1]
         return _PALETTE[self._color_index][1]
 
     @property
     def color_name(self) -> str:
-        """Currently selected palette color's display name."""
+        """Currently selected color's display name."""
+        if self._custom_color is not None:
+            return self._custom_color[0]
         return _PALETTE[self._color_index][0]
 
     @property
@@ -808,8 +947,6 @@ def _apply_menu_selection(selection: str, canvas: Canvas, tool_state: ToolState)
         canvas.clear()
     elif selection == "eraser":
         tool_state.toggle_eraser()
-    elif selection == "color":
-        tool_state.cycle_color()
     elif selection == "brush":
         tool_state.cycle_brush()
     elif selection == "save":
@@ -896,6 +1033,7 @@ def create_painting_stage(
         A stage function suitable for `engine.pipeline.register_stage`.
     """
     menu = Menu(_MENU_ITEMS)
+    color_palette = _ColorPalette()
 
     def _painting_stage(context: PipelineContext) -> PipelineContext:
         frame = context.get("frame")
@@ -935,11 +1073,28 @@ def create_painting_stage(
                 menu.confirm()
 
         selection = menu.consume_selection()
-        if selection is not None:
+        if selection == "color":
+            # Extends the existing "Color" menu item: instead of
+            # cycling, it now opens the compact 8-swatch palette. The
+            # radial menu itself (geometry, other items, hover/confirm
+            # behavior) is unchanged.
+            if cursor_point is not None:
+                color_palette.open(cursor_point)
+        elif selection is not None:
             save_requested = _apply_menu_selection(selection, canvas, tool_state) or save_requested
 
-        # --- Drawing (suspended entirely while the menu is open) --------
-        if not menu.is_visible:
+        if color_palette.is_visible:
+            if cursor_point is not None:
+                color_palette.update(cursor_point)
+            if action == Action.LEFT_CLICK:
+                color_palette.confirm()
+
+        picked_color = color_palette.consume_selection()
+        if picked_color is not None:
+            tool_state.select_color(*picked_color)
+
+        # --- Drawing (suspended while the menu or color palette is open) ---
+        if not menu.is_visible and not color_palette.is_visible:
             shape = tool_state.shape
             if shape is not None:
                 if cursor_point is not None and action in _DRAWING_ACTIONS:
@@ -959,10 +1114,20 @@ def create_painting_stage(
             else:
                 canvas.end_stroke()
 
+        # Captured before compositing the drawing on top, so entering
+        # 3D inspection (see apps.reality_painter.mode_router._freeze_frame)
+        # can freeze the live camera view without the painted layer
+        # baked in. Purely additional context state - frame.image itself
+        # is composited exactly as before for the painting display.
+        context["clean_camera_frame"] = frame.image.copy()
+
         canvas.composite_onto(frame.image)
 
         if menu.is_visible:
             render_menu(frame.image, menu)
+
+        if color_palette.is_visible:
+            render_color_palette(frame.image, color_palette)
 
         if save_requested:
             saved_path = save_canvas_image(frame.image)

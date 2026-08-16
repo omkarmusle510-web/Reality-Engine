@@ -25,7 +25,7 @@ logger = get_logger(__name__)
 #: Target size, in world units, for a normalized asset's longest
 #: bounding-box dimension. Not tuned for any specific asset - the same
 #: constant applies to every loaded model.
-_TARGET_DISPLAY_SIZE = 2.0
+_TARGET_DISPLAY_SIZE = 1.8
 
 
 def normalize_transform(mesh: Any, target_size: float = _TARGET_DISPLAY_SIZE) -> Transform:
