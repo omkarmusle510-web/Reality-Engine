@@ -250,9 +250,6 @@ def run() -> None:
             ),
         )
         engine.pipeline.register_stage(
-            "asset_render", gate(create_asset_render_stage(scene, renderer_3d), mode_controller, PAINTING_MODES)
-        )
-        engine.pipeline.register_stage(
             "inspection_render",
             gate(create_asset_render_stage(scene, renderer_3d), mode_controller, INSPECTION_MODES),
         )

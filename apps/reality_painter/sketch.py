@@ -166,8 +166,8 @@ _COMPACT_PALETTE: List[Tuple[str, Tuple[int, int, int]]] = [
     ("Pink", (180, 105, 255)),
     ("White", (255, 255, 255)),
 ]
-_PALETTE_INNER_RADIUS_PX = 34.0
-_PALETTE_OUTER_RADIUS_PX = 115.0
+_PALETTE_INNER_RADIUS_PX = 40.0
+_PALETTE_OUTER_RADIUS_PX = 140.0
 _PALETTE_BORDER_COLOR = (230, 230, 230)
 _PALETTE_HOVER_BORDER_COLOR = (60, 150, 255)
 _PALETTE_CENTER_COLOR = (40, 40, 40)
@@ -1096,6 +1096,7 @@ def create_painting_stage(
                 menu.confirm()
 
         selection = menu.consume_selection()
+        palette_just_opened = False
         if selection == "color":
             # Extends the existing "Color" menu item: instead of
             # cycling, it now opens the compact 8-swatch palette. The
@@ -1103,13 +1104,19 @@ def create_painting_stage(
             # behavior) is unchanged.
             if cursor_point is not None:
                 color_palette.open(cursor_point)
+                palette_just_opened = True
         elif selection is not None:
             save_requested = _apply_menu_selection(selection, canvas, tool_state) or save_requested
 
         if color_palette.is_visible:
             if cursor_point is not None:
                 color_palette.update(cursor_point)
-            if action == Action.LEFT_CLICK:
+            # The same LEFT_CLICK that just confirmed "Color" on the
+            # outer Menu must not also be consumed here on the cycle
+            # the palette opens - otherwise it immediately confirms
+            # whatever the (stale) cursor position hovers, closing the
+            # palette in the same frame it appeared.
+            if action == Action.LEFT_CLICK and not palette_just_opened:
                 color_palette.confirm()
 
         picked_color = color_palette.consume_selection()
