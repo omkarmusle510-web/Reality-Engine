@@ -25,6 +25,8 @@ from dataclasses import replace
 from typing import Callable, Optional
 
 from engine.core.pipeline import PipelineContext, StageFunc
+from engine.interaction.cursor import Cursor
+from engine.interaction.Gesture import Gesture
 from engine.scene.objects import SceneObject, Transform
 
 _ROTATE_LEFT_KEYS = (ord("a"), ord("A"))
@@ -40,6 +42,17 @@ _PITCH_STEP_RADIANS = 0.1
 _ZOOM_STEP_FACTOR = 1.1
 _MIN_ZOOM_FACTOR = 0.1
 _MAX_ZOOM_FACTOR = 10.0
+
+# --- Lightweight hand interaction (rotate/tilt via movement, zoom via pinch) ---
+# Deliberately simple: reuses whatever normalized cursor/gesture the
+# existing tracking/gesture/cursor stages already compute (see
+# apps/reality_painter/app.py's INSPECTION_MODES-gated stages) - no new
+# gesture framework, no extra tracking pass, no heavy dependency. A
+# tracked hand's frame-to-frame movement drives yaw/pitch continuously
+# (like a natural "grab and turn" feel); a PINCH gesture zooms in while
+# held. Small multipliers keep this responsive without large jumps.
+_HAND_ROTATE_SENSITIVITY = 4.0
+_HAND_PINCH_ZOOM_STEP = 1.01
 
 
 class InspectionViewState:
@@ -57,6 +70,7 @@ class InspectionViewState:
         self._yaw = 0.0
         self._pitch = 0.0
         self._zoom = 1.0
+        self._last_hand_cursor: Optional[Cursor] = None
 
     def set_base(self, transform: Transform) -> None:
         """Sets the base (normalized) transform for a newly inspected object.
@@ -91,6 +105,36 @@ class InspectionViewState:
             self._zoom = max(_MIN_ZOOM_FACTOR, self._zoom / _ZOOM_STEP_FACTOR)
         elif key_pressed in _RESET_KEYS:
             self.reset()
+
+    def apply_hand_tracking(self, cursor: Optional[Cursor], gesture: Optional[Gesture]) -> None:
+        """Applies lightweight hand-driven rotation/zoom for this cycle.
+
+        Natural hand movement (frame-to-frame delta of the normalized
+        index-fingertip cursor, the same value the painting pipeline
+        already computes) drives yaw/pitch continuously while a hand is
+        tracked. A `Gesture.PINCH` drives a simple continuous zoom-in
+        while held - deliberately not a full pinch-distance gesture
+        framework, just reusing the gesture the engine already
+        recognizes. A no-op whenever no hand is currently tracked
+        (`cursor` is `None`), and the movement baseline resets so the
+        hand reappearing doesn't jump the model from a stale delta.
+
+        Args:
+            cursor: This cycle's normalized cursor position (index
+                fingertip), or `None` if no hand is tracked.
+            gesture: This cycle's primary-hand gesture, or `None`.
+        """
+        if cursor is None:
+            self._last_hand_cursor = None
+            return
+
+        if self._last_hand_cursor is not None:
+            self._yaw += (cursor.x - self._last_hand_cursor.x) * _HAND_ROTATE_SENSITIVITY
+            self._pitch += (cursor.y - self._last_hand_cursor.y) * _HAND_ROTATE_SENSITIVITY
+        self._last_hand_cursor = cursor
+
+        if gesture == Gesture.PINCH:
+            self._zoom = min(_MAX_ZOOM_FACTOR, self._zoom * _HAND_PINCH_ZOOM_STEP)
 
     def resolve_transform(self) -> Optional[Transform]:
         """Computes the current transform (base transform + rotation/zoom offsets).
@@ -139,6 +183,11 @@ def create_inspection_controls_stage(
         key_pressed = context.get("key_pressed")
         if key_pressed is not None:
             view_state.apply_key(key_pressed)
+
+        cursor = context.get("cursor")
+        gestures = context.get("gestures")
+        primary_gesture = gestures[0] if gestures else None
+        view_state.apply_hand_tracking(cursor if isinstance(cursor, Cursor) else None, primary_gesture)
 
         transform = view_state.resolve_transform()
         if transform is not None:

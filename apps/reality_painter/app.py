@@ -18,7 +18,6 @@ from apps.reality_painter.assets.registry import AssetRegistry
 from apps.reality_painter.assets.retriever import AssetRetrievalError, AssetRetriever
 from apps.reality_painter.inspection.controller import InspectionController
 from apps.reality_painter.inspection.controls import InspectionViewState, create_inspection_controls_stage
-from apps.reality_painter.inspection.dev_overlay import DevHudToggle, create_inspection_dev_overlay_stage
 from apps.reality_painter.mode_router import (
     INSPECTION_MODES,
     PAINTING_MODES,
@@ -163,7 +162,6 @@ def run() -> None:
     # can rebind its contents without a `nonlocal` declaration.
     active_object = {"obj": None}
     inspection_view_state = InspectionViewState()
-    inspection_dev_hud_toggle = DevHudToggle()
 
     def _analyze_fn(context: object) -> bool:
         """Runs recognition -> asset resolution -> retrieval -> GLB load for the current canvas.
@@ -225,6 +223,21 @@ def run() -> None:
     engine.pipeline.register_stage("vision", create_vision_stage(camera))
     engine.pipeline.register_stage("mirror", create_mirror_stage())
     if renderer_3d is not None:
+        # Lightweight hand tracking for 3D interaction only: reuses the
+        # same HandTracker/CursorSmoother instances the painting side
+        # already owns (no new dependency, no second tracking stack).
+        # Registered before inspection_controls so this cycle's hand
+        # data is available to it immediately, not a frame late.
+        engine.pipeline.register_stage(
+            "inspection_tracking", gate(create_tracking_stage(tracker), mode_controller, INSPECTION_MODES)
+        )
+        engine.pipeline.register_stage(
+            "inspection_gesture", gate(create_gesture_stage(), mode_controller, INSPECTION_MODES)
+        )
+        engine.pipeline.register_stage(
+            "inspection_cursor",
+            gate(create_cursor_stage(cursor_smoother), mode_controller, INSPECTION_MODES),
+        )
         # Registered before the render stages below so a rotate/zoom/reset
         # key pressed this cycle is reflected in this cycle's render,
         # rather than lagging an extra frame behind.
@@ -244,18 +257,6 @@ def run() -> None:
             gate(create_asset_render_stage(scene, renderer_3d), mode_controller, INSPECTION_MODES),
         )
     engine.pipeline.register_stage("fps", create_fps_stage(fps_counter))
-    if renderer_3d is not None:
-        # Clean by default (see apps.reality_painter.inspection.dev_overlay) -
-        # gated to INSPECTION_MODES only, so it never affects painting's
-        # existing developer HUD ("overlay" stage below).
-        engine.pipeline.register_stage(
-            "inspection_dev_overlay",
-            gate(
-                create_inspection_dev_overlay_stage(inspection_dev_hud_toggle),
-                mode_controller,
-                INSPECTION_MODES,
-            ),
-        )
     engine.pipeline.register_stage("tracking", gate(create_tracking_stage(tracker), mode_controller, PAINTING_MODES))
     engine.pipeline.register_stage("gesture", gate(create_gesture_stage(), mode_controller, PAINTING_MODES))
     engine.pipeline.register_stage("cursor", gate(create_cursor_stage(cursor_smoother), mode_controller, PAINTING_MODES))

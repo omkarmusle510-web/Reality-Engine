@@ -30,6 +30,7 @@ without duplicating their logic:
 
 from __future__ import annotations
 
+import math
 import os
 from collections import deque
 from datetime import datetime
@@ -146,48 +147,55 @@ _MENU_ITEMS: List[MenuItem] = [
     MenuItem("clear", "Clear"),
 ]
 
-# --- Compact color palette (Block 11B) --------------------------------------
+# --- Radial color palette -----------------------------------------------
 # A second-level picker shown after selecting "Color" from the existing
-# radial menu, instead of the old cycle-only behavior. The radial menu
-# itself is completely untouched - this only extends what selecting its
-# existing "color" item does. Selection still writes into the same
-# `ToolState` color state used everywhere else (see
-# `ToolState.select_color`); no second color manager is introduced.
+# radial menu. The radial menu itself (`apps.reality_painter.menu.Menu`)
+# is completely untouched - this only extends what selecting its
+# existing "color" item does, and follows the same radial interaction
+# language (a center point, wedges distributed evenly around it,
+# hover/confirm) rather than a linear row of swatches. Selection still
+# writes into the same `ToolState` color state used everywhere else
+# (see `ToolState.select_color`); no second color manager is introduced.
 _COMPACT_PALETTE: List[Tuple[str, Tuple[int, int, int]]] = [
     ("Red", (50, 50, 220)),
     ("Orange", (60, 180, 255)),
     ("Yellow", (60, 230, 255)),
     ("Green", (80, 200, 80)),
     ("Blue", (220, 140, 60)),
-    ("Black", (20, 20, 20)),
+    ("Purple", (204, 50, 153)),
     ("Pink", (180, 105, 255)),
     ("White", (255, 255, 255)),
 ]
-_PALETTE_SWATCH_RADIUS_PX = 24
-_PALETTE_SWATCH_SPACING_PX = 60
-_PALETTE_LABEL_COLOR = (255, 255, 255)
+_PALETTE_INNER_RADIUS_PX = 34.0
+_PALETTE_OUTER_RADIUS_PX = 115.0
 _PALETTE_BORDER_COLOR = (230, 230, 230)
 _PALETTE_HOVER_BORDER_COLOR = (60, 150, 255)
-_PALETTE_PANEL_COLOR = (0, 0, 0)
-_PALETTE_PANEL_ALPHA = 0.55
+_PALETTE_CENTER_COLOR = (40, 40, 40)
+_PALETTE_CENTER_HOVER_COLOR = (90, 90, 90)
 
 
 class _ColorPalette:
-    """A compact, linear swatch picker for the 8 colors above.
+    """A compact radial wedge picker for the 8 colors above.
 
-    Deliberately not the radial `Menu` (a different, "compact visual
-    palette" per the Block 11B spec) but follows the same minimal
-    open/update/confirm/consume_selection shape `Menu` already
-    establishes, so it plugs into the painting stage the same way.
-    Owns no reference to `Canvas`/`ToolState` itself - it only ever
-    reports a selected color name, same separation of concerns as
-    `Menu` + `_apply_menu_selection`.
+    Visually and interactionally matches `apps.reality_painter.menu.Menu`
+    (a center point with items distributed evenly around it, hover
+    tracked by cursor position, confirm on click) without touching that
+    class's geometry/animation/layout at all - this is a standalone,
+    minimal helper using the same open/update/confirm/consume_selection
+    shape `Menu` already establishes, so it plugs into the painting
+    stage the same way. Owns no reference to `Canvas`/`ToolState`
+    itself - it only ever reports a selected color name, same
+    separation of concerns as `Menu` + `_apply_menu_selection`.
+
+    Hovering the small center circle and confirming acts as cancel/back
+    - the palette closes with nothing selected, mirroring how the
+    outer radial `Menu` is dismissed by closing without a confirm.
     """
 
     def __init__(self) -> None:
         self._visible = False
         self._center: Tuple[int, int] = (0, 0)
-        self._hovered_index: Optional[int] = None
+        self._hovered_index: Optional[int] = None  # -1 means "center/cancel"
         self._pending_selection: Optional[int] = None
 
     @property
@@ -204,27 +212,46 @@ class _ColorPalette:
         self._visible = False
         self._hovered_index = None
 
-    def _swatch_positions(self) -> List[Tuple[int, int]]:
+    def _wedge_angle_range(self, index: int) -> Tuple[float, float]:
+        """Returns the (start, end) angle in degrees for wedge `index`.
+
+        Wedges are spaced evenly starting at the top, proceeding
+        clockwise - the same layout convention `Menu._precompute_geometry`
+        already uses for its own items.
+        """
         count = len(_COMPACT_PALETTE)
-        total_width = (count - 1) * _PALETTE_SWATCH_SPACING_PX
-        start_x = self._center[0] - total_width // 2
-        y = self._center[1]
-        return [(start_x + i * _PALETTE_SWATCH_SPACING_PX, y) for i in range(count)]
+        wedge_width = 360.0 / count
+        start = -90.0 - wedge_width / 2.0 + index * wedge_width
+        return start, start + wedge_width
 
     def update(self, cursor_point: Tuple[int, int]) -> None:
         if not self._visible:
             return
-        self._hovered_index = None
-        for index, position in enumerate(self._swatch_positions()):
-            distance = ((cursor_point[0] - position[0]) ** 2 + (cursor_point[1] - position[1]) ** 2) ** 0.5
-            if distance <= _PALETTE_SWATCH_RADIUS_PX:
-                self._hovered_index = index
-                break
+
+        dx = cursor_point[0] - self._center[0]
+        dy = cursor_point[1] - self._center[1]
+        distance = (dx * dx + dy * dy) ** 0.5
+
+        if distance > _PALETTE_OUTER_RADIUS_PX:
+            self._hovered_index = None
+            return
+        if distance <= _PALETTE_INNER_RADIUS_PX:
+            self._hovered_index = -1
+            return
+
+        angle = math.degrees(math.atan2(dy, dx))
+        count = len(_COMPACT_PALETTE)
+        wedge_width = 360.0 / count
+        # Shift so wedge 0 (centered at -90) starts at angle 0 for indexing.
+        shifted = (angle + 90.0 + wedge_width / 2.0) % 360.0
+        self._hovered_index = int(shifted // wedge_width) % count
 
     def confirm(self) -> None:
-        if self._visible and self._hovered_index is not None:
+        if not self._visible or self._hovered_index is None:
+            return
+        if self._hovered_index >= 0:
             self._pending_selection = self._hovered_index
-            self.close()
+        self.close()
 
     def consume_selection(self) -> Optional[Tuple[str, Tuple[int, int, int]]]:
         if self._pending_selection is None:
@@ -235,29 +262,25 @@ class _ColorPalette:
 
 
 def render_color_palette(image: np.ndarray, palette: "_ColorPalette") -> None:
-    """Draws the compact color palette. Pure rendering, mirrors `render_menu`."""
+    """Draws the radial color palette. Pure rendering, mirrors `render_menu`."""
     if not palette.is_visible:
         return
 
-    positions = palette._swatch_positions()  # noqa: SLF001 - same-module helper
-    panel_left = positions[0][0] - _PALETTE_SWATCH_RADIUS_PX - 10
-    panel_right = positions[-1][0] + _PALETTE_SWATCH_RADIUS_PX + 10
-    panel_top = positions[0][1] - _PALETTE_SWATCH_RADIUS_PX - 10
-    panel_bottom = positions[0][1] + _PALETTE_SWATCH_RADIUS_PX + 10
-    height, width = image.shape[:2]
-    panel_left, panel_right = max(0, panel_left), min(width, panel_right)
-    panel_top, panel_bottom = max(0, panel_top), min(height, panel_bottom)
-    if panel_right > panel_left and panel_bottom > panel_top:
-        roi = image[panel_top:panel_bottom, panel_left:panel_right]
-        overlay = roi.copy()
-        cv2.rectangle(overlay, (0, 0), (overlay.shape[1], overlay.shape[0]), _PALETTE_PANEL_COLOR, -1)
-        cv2.addWeighted(overlay, _PALETTE_PANEL_ALPHA, roi, 1 - _PALETTE_PANEL_ALPHA, 0, dst=roi)
+    center = palette._center  # noqa: SLF001 - same-module helper
+    hovered = palette._hovered_index  # noqa: SLF001 - same-module helper
+    outer = int(_PALETTE_OUTER_RADIUS_PX)
+    inner = int(_PALETTE_INNER_RADIUS_PX)
+    axes = (outer, outer)
 
-    for index, (name, color) in enumerate(_COMPACT_PALETTE):
-        position = positions[index]
-        cv2.circle(image, position, _PALETTE_SWATCH_RADIUS_PX, color, -1, cv2.LINE_AA)
-        border_color = _PALETTE_HOVER_BORDER_COLOR if index == palette._hovered_index else _PALETTE_BORDER_COLOR  # noqa: SLF001
-        cv2.circle(image, position, _PALETTE_SWATCH_RADIUS_PX, border_color, 2, cv2.LINE_AA)
+    for index, (_name, color) in enumerate(_COMPACT_PALETTE):
+        start_angle, end_angle = palette._wedge_angle_range(index)  # noqa: SLF001
+        cv2.ellipse(image, center, axes, 0, start_angle, end_angle, color, -1, cv2.LINE_AA)
+        border_color = _PALETTE_HOVER_BORDER_COLOR if index == hovered else _PALETTE_BORDER_COLOR
+        cv2.ellipse(image, center, axes, 0, start_angle, end_angle, border_color, 2, cv2.LINE_AA)
+
+    center_color = _PALETTE_CENTER_HOVER_COLOR if hovered == -1 else _PALETTE_CENTER_COLOR
+    cv2.circle(image, center, inner, center_color, -1, cv2.LINE_AA)
+    cv2.circle(image, center, inner, _PALETTE_BORDER_COLOR, 2, cv2.LINE_AA)
 
 
 class ToolState:

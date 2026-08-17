@@ -411,12 +411,13 @@ class _HUDVisibilityToggle:
     independently of this flag and are unaffected by it.
     """
 
-    def __init__(self, visible: bool = True) -> None:
+    def __init__(self, visible: bool = False) -> None:
         """Creates a HUD visibility toggle.
 
         Args:
-            visible: Initial state. The developer HUD is visible by
-                default.
+            visible: Initial state. The developer HUD is hidden by
+                default so normal painting stays a clean view; press
+                the toggle key to show it during development.
         """
         self._visible = visible
 
