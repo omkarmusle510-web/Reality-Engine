@@ -14,6 +14,7 @@ from apps.reality_painter.ai.providers.cloudflare import CloudflareProvider
 from apps.reality_painter.ai.providers.gemini import GeminiProvider
 from apps.reality_painter.ai.sketch_analyzer import SketchAnalyzer
 from apps.reality_painter.asset_render import create_asset_render_stage
+from apps.reality_painter.assets.auto_discovery import ensure_discovered
 from apps.reality_painter.assets.registry import AssetRegistry
 from apps.reality_painter.assets.retriever import AssetRetrievalError, AssetRetriever
 from apps.reality_painter.inspection.controller import InspectionController
@@ -147,6 +148,12 @@ def run() -> None:
     # asset never depends on whether renderer_3d is available.
     inspection_controller = InspectionController()
     asset_registry = AssetRegistry.load()
+    try:
+        newly_discovered = ensure_discovered(asset_registry)
+        if newly_discovered:
+            logger.info("Automatic asset discovery added %d new asset(s) to the registry.", newly_discovered)
+    except Exception:
+        logger.warning("Automatic asset discovery failed; continuing with the existing registry.", exc_info=True)
     asset_retriever = AssetRetriever()
 
     nvidia_api_key = os.environ.get("NVIDIA_API_KEY")

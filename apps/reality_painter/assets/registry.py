@@ -121,6 +121,26 @@ class AssetRegistry:
 
         return cls.from_list(payload["assets"])
 
+    def save(self, path: Union[str, Path, None] = None) -> None:
+        """Serializes this registry back to a JSON file, in `id` order.
+
+        Mirrors `load()`'s default path, so a registry loaded from the
+        bundled `registry.json` (the common case) can be saved back to
+        the same file without the caller needing to know its location.
+        Writes the same flat `Asset.to_dict()` shape `load()` already
+        accepts - never a second, divergent JSON schema.
+
+        Args:
+            path: Where to write. Defaults to the bundled
+                `registry.json` next to this module if omitted.
+        """
+        registry_path = Path(path) if path is not None else _DEFAULT_REGISTRY_PATH
+        payload = {"assets": [asset.to_dict() for asset in self]}
+        registry_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(registry_path, "w", encoding="utf-8") as file:
+            json.dump(payload, file, indent=2)
+            file.write("\n")
+
     # --- Lookup -----------------------------------------------------
 
     def get_asset(self, asset_id: str) -> Optional[Asset]:

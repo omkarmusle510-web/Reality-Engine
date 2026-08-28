@@ -1,0 +1,530 @@
+diff --git a/apps/reality_painter/app.py b/apps/reality_painter/app.py
+index 132bd8e..2105831 100644
+--- a/apps/reality_painter/app.py
++++ b/apps/reality_painter/app.py
+@@ -14,6 +14,7 @@ from apps.reality_painter.ai.providers.cloudflare import CloudflareProvider
+ from apps.reality_painter.ai.providers.gemini import GeminiProvider
+ from apps.reality_painter.ai.sketch_analyzer import SketchAnalyzer
+ from apps.reality_painter.asset_render import create_asset_render_stage
++from apps.reality_painter.assets.auto_discovery import ensure_discovered
+ from apps.reality_painter.assets.registry import AssetRegistry
+ from apps.reality_painter.assets.retriever import AssetRetrievalError, AssetRetriever
+ from apps.reality_painter.inspection.controller import InspectionController
+@@ -147,6 +148,12 @@ def run() -> None:
+     # asset never depends on whether renderer_3d is available.
+     inspection_controller = InspectionController()
+     asset_registry = AssetRegistry.load()
++    try:
++        newly_discovered = ensure_discovered(asset_registry)
++        if newly_discovered:
++            logger.info("Automatic asset discovery added %d new asset(s) to the registry.", newly_discovered)
++    except Exception:
++        logger.warning("Automatic asset discovery failed; continuing with the existing registry.", exc_info=True)
+     asset_retriever = AssetRetriever()
+ 
+     nvidia_api_key = os.environ.get("NVIDIA_API_KEY")
+diff --git a/apps/reality_painter/assets/auto_discovery.py b/apps/reality_painter/assets/auto_discovery.py
+new file mode 100644
+index 0000000..d4301d4
+--- /dev/null
++++ b/apps/reality_painter/assets/auto_discovery.py
+@@ -0,0 +1,158 @@
++"""Automatic multi-repository asset discovery for Reality Painter (Block 11C, Phase 1).
++
++Connects the existing GitHub discovery module
++(`apps.reality_painter.assets.github`, Phase 12B) to a configurable
++list of asset repositories, so `registry.json` no longer needs every
++object entered by hand. This module introduces no second discovery
++implementation, no second registry, and no second retrieval path - it
++only orchestrates `github.ingest_repository()` and
++`AssetRegistry`/`AssetRegistry.save()`, both unmodified in behavior,
++across a list of configured repositories.
++
++FLOW: configured_repositories() -> github.ingest_repository() (per
++repository, skipped if already represented in the registry) ->
++AssetRegistry.save() (only if something new was actually discovered).
++
++Repeated calls are cheap: a repository already represented in the
++registry is never re-scanned (no GitHub API call at all), and
++`AssetRegistry.save()` is only invoked when at least one asset was
++newly added - so a steady-state call across an already-fully-scanned
++repository list touches neither the network nor disk.
++"""
++
++from __future__ import annotations
++
++import json
++import logging
++import os
++from pathlib import Path
++from typing import Any, Dict, List, Optional
++
++from apps.reality_painter.assets import github
++from apps.reality_painter.assets.registry import AssetRegistry
++
++logger = logging.getLogger(__name__)
++
++_REPOSITORIES_ENV_VAR = "REALITY_PAINTER_ASSET_REPOSITORIES"
++
++# Used only when REALITY_PAINTER_ASSET_REPOSITORIES is unset/empty/
++# malformed - a default, not a hard-coded assumption baked into the
++# discovery logic itself (see configured_repositories()). This is the
++# same repository registry.json's existing hand-entered "flower" asset
++# already points at, so automatic discovery is a strict superset of
++# today's registry contents, never a behavior change for it.
++_DEFAULT_REPOSITORIES: List[Dict[str, str]] = [
++    {"repository": "omkarmusle510-web/reality-engine-assets", "path": ""},
++]
++
++
++def configured_repositories() -> List[Dict[str, str]]:
++    """Returns the configured list of asset repositories to auto-discover.
++
++    Reads a JSON array from the `REALITY_PAINTER_ASSET_REPOSITORIES`
++    environment variable, e.g.:
++
++        [{"repository": "owner/name", "path": "models"}, ...]
++
++    so repository sources are configurable without editing code or
++    hard-coding a single repository anywhere in the discovery path.
++    Falls back to `_DEFAULT_REPOSITORIES` if the variable is unset,
++    not valid JSON, not a list, or contains no usable entries; never
++    raises.
++
++    Returns:
++        A list of `{"repository": ..., "path": ...}` mappings. `path`
++        defaults to `""` (the whole repository) per entry if omitted.
++    """
++    raw = os.environ.get(_REPOSITORIES_ENV_VAR)
++    if not raw:
++        return list(_DEFAULT_REPOSITORIES)
++
++    try:
++        parsed = json.loads(raw)
++    except ValueError:
++        logger.warning("%s is not valid JSON; using default asset repositories.", _REPOSITORIES_ENV_VAR)
++        return list(_DEFAULT_REPOSITORIES)
++
++    if not isinstance(parsed, list):
++        logger.warning("%s must be a JSON array; using default asset repositories.", _REPOSITORIES_ENV_VAR)
++        return list(_DEFAULT_REPOSITORIES)
++
++    repositories: List[Dict[str, str]] = []
++    for entry in parsed:
++        if isinstance(entry, dict) and isinstance(entry.get("repository"), str) and entry["repository"].strip():
++            repositories.append({"repository": entry["repository"], "path": entry.get("path", "")})
++
++    return repositories or list(_DEFAULT_REPOSITORIES)
++
++
++def _already_scanned(registry: AssetRegistry, repository: str) -> bool:
++    """True if `registry` already holds at least one asset sourced from `repository`.
++
++    A deterministic, registry-only check - no separate "already
++    scanned" state file is introduced. A repository whose prior scan
++    matched zero files is rescanned on the next call; that is an
++    inexpensive, acceptable edge case rather than added bookkeeping.
++    """
++    return any(
++        asset.source.type == "github" and asset.source.details.get("repository") == repository
++        for asset in registry
++    )
++
++
++def ensure_discovered(
++    registry: AssetRegistry,
++    repositories: Optional[List[Dict[str, str]]] = None,
++    session: Optional[Any] = None,
++    registry_path: Optional[Path] = None,
++) -> int:
++    """Scans every not-yet-scanned configured repository into `registry`.
++
++    Thin orchestration over the existing `github.ingest_repository()`
++    and `AssetRegistry.save()` - no discovery, retrieval, or registry
++    logic is duplicated here. A repository already represented in
++    `registry` (see `_already_scanned`) is skipped without any network
++    call. A repository whose scan fails for any reason
++    `github.GitHubSourceError` covers (not found, rate limited,
++    network failure, malformed response, ...) is logged and skipped
++    rather than raised, so one bad repository can never prevent the
++    others - or the caller - from proceeding.
++
++    Args:
++        registry: The `AssetRegistry` to discover into and persist.
++        repositories: Repositories to scan. Defaults to
++            `configured_repositories()`.
++        session: Forwarded to `github.ingest_repository` as its
++            `session` - a `requests`-compatible object. Tests inject a
++            fake session so no real HTTP call is ever made.
++        registry_path: Where to persist newly discovered assets (see
++            `AssetRegistry.save`). Defaults to the bundled
++            `registry.json` next to `registry.py` if omitted.
++
++    Returns:
++        The number of newly added assets across every scanned
++        repository (`0` if every repository was already scanned, or
++        every scan attempted failed).
++    """
++    active_repositories = repositories if repositories is not None else configured_repositories()
++
++    total_added = 0
++    for entry in active_repositories:
++        repository = entry["repository"]
++        if _already_scanned(registry, repository):
++            continue
++
++        try:
++            added, _skipped = github.ingest_repository(
++                registry, repository=repository, path=entry.get("path", ""), session=session
++            )
++        except github.GitHubSourceError as exc:
++            logger.warning("Auto-discovery skipped repository '%s': %s", repository, exc)
++            continue
++
++        total_added += added
++
++    if total_added > 0:
++        registry.save(registry_path)
++
++    return total_added
+diff --git a/apps/reality_painter/assets/registry.py b/apps/reality_painter/assets/registry.py
+index a188a0b..19e6347 100644
+--- a/apps/reality_painter/assets/registry.py
++++ b/apps/reality_painter/assets/registry.py
+@@ -121,6 +121,26 @@ class AssetRegistry:
+ 
+         return cls.from_list(payload["assets"])
+ 
++    def save(self, path: Union[str, Path, None] = None) -> None:
++        """Serializes this registry back to a JSON file, in `id` order.
++
++        Mirrors `load()`'s default path, so a registry loaded from the
++        bundled `registry.json` (the common case) can be saved back to
++        the same file without the caller needing to know its location.
++        Writes the same flat `Asset.to_dict()` shape `load()` already
++        accepts - never a second, divergent JSON schema.
++
++        Args:
++            path: Where to write. Defaults to the bundled
++                `registry.json` next to this module if omitted.
++        """
++        registry_path = Path(path) if path is not None else _DEFAULT_REGISTRY_PATH
++        payload = {"assets": [asset.to_dict() for asset in self]}
++        registry_path.parent.mkdir(parents=True, exist_ok=True)
++        with open(registry_path, "w", encoding="utf-8") as file:
++            json.dump(payload, file, indent=2)
++            file.write("\n")
++
+     # --- Lookup -----------------------------------------------------
+ 
+     def get_asset(self, asset_id: str) -> Optional[Asset]:
+diff --git a/apps/reality_painter/inspection/asset_resolver.py b/apps/reality_painter/inspection/asset_resolver.py
+index 9b1e2ee..f4ff9a6 100644
+--- a/apps/reality_painter/inspection/asset_resolver.py
++++ b/apps/reality_painter/inspection/asset_resolver.py
+@@ -14,7 +14,7 @@ from __future__ import annotations
+ 
+ from dataclasses import dataclass
+ from enum import Enum
+-from typing import Optional
++from typing import List, Optional
+ 
+ from apps.reality_painter.assets.registry import AssetRegistry
+ from apps.reality_painter.assets.schema import Asset
+@@ -44,27 +44,61 @@ class AssetResolution:
+     label: str
+ 
+ 
++def _normalized_label_candidates(label: str) -> List[str]:
++    """Generates deterministic label variants to try against the registry.
++
++    Broadest-first: the raw (lowercased, stripped) label, then
++    progressively shorter word-suffixes of it - e.g. "red flower" ->
++    ["red flower", "flower"] - so a descriptive recognition label
++    still resolves against a registry entry named/tagged with just its
++    final noun. Purely string manipulation: no NLP model, no stemming,
++    no embeddings. A single-word label (e.g. "car") yields exactly one
++    candidate, identical to the label itself - existing single-word
++    resolution behavior is unchanged.
++
++    Args:
++        label: The raw recognized label.
++
++    Returns:
++        Ordered, deduplicated candidate strings to try, most specific
++        first. Empty if `label` is empty/whitespace-only.
++    """
++    normalized = label.strip().lower()
++    words = normalized.split()
++    candidates = [normalized] if normalized else []
++    for start in range(1, len(words)):
++        candidate = " ".join(words[start:])
++        if candidate and candidate not in candidates:
++            candidates.append(candidate)
++    return candidates
++
++
+ def resolve_asset(label: str, registry: AssetRegistry) -> AssetResolution:
+     """Resolves a recognized label to a registered asset, if one exists.
+ 
+-    Deterministic: delegates entirely to the registry's own
++    Deterministic: tries each of `_normalized_label_candidates(label)`,
++    most specific first, against the registry's own existing
+     `search_assets` (case-insensitive substring match against
+-    name/tags) - no new or fuzzier matching logic is introduced here.
+-    The first match, in the registry's own `id`-sorted order, is used,
+-    so a repeated call with the same label and registry state always
+-    resolves to the same asset.
++    name/tags) - no AI/embedding-based or fuzzy matching is introduced
++    here. The first candidate that yields any match wins, and its
++    first match (in the registry's own `id`-sorted order) is used, so
++    a repeated call with the same label and registry state always
++    resolves to the same asset. A single-word label behaves exactly as
++    before, since it produces exactly one candidate.
+ 
+     Args:
+-        label: A recognized object label (e.g. "flower").
++        label: A recognized object label (e.g. "flower", or a more
++            descriptive "red flower").
+         registry: The `AssetRegistry` to search.
+ 
+     Returns:
+-        `AssetResolution(status=RESOLVED, asset=...)` if a match was
+-        found, or `AssetResolution(status=UNAVAILABLE, asset=None)`
++        `AssetResolution(status=RESOLVED, asset=...)` if any candidate
++        matched, or `AssetResolution(status=UNAVAILABLE, asset=None)`
+         otherwise. Never raises for "no match" - that is an expected,
+         non-exceptional outcome.
+     """
+-    matches = registry.search_assets(label)
+-    if not matches:
+-        return AssetResolution(status=AssetResolutionStatus.UNAVAILABLE, asset=None, label=label)
+-    return AssetResolution(status=AssetResolutionStatus.RESOLVED, asset=matches[0], label=label)
++    for candidate in _normalized_label_candidates(label):
++        matches = registry.search_assets(candidate)
++        if matches:
++            return AssetResolution(status=AssetResolutionStatus.RESOLVED, asset=matches[0], label=label)
++    return AssetResolution(status=AssetResolutionStatus.UNAVAILABLE, asset=None, label=label)
+diff --git a/tests/test_asset_auto_discovery.py b/tests/test_asset_auto_discovery.py
+new file mode 100644
+index 0000000..f7ebf88
+--- /dev/null
++++ b/tests/test_asset_auto_discovery.py
+@@ -0,0 +1,217 @@
++"""Offline, deterministic tests for Block 11C Phase 1 (automatic asset discovery).
++
++No real network access - every GitHub HTTP response is mocked via a
++fake session object, exactly like `tests/test_github_asset_source.py`
++already does for `apps.reality_painter.assets.github`.
++"""
++import json
++import sys
++import tempfile
++from pathlib import Path
++
++from apps.reality_painter.assets.auto_discovery import (
++    _already_scanned,
++    configured_repositories,
++    ensure_discovered,
++)
++from apps.reality_painter.assets.registry import AssetRegistry
++from apps.reality_painter.assets.schema import Asset, AssetSource
++from apps.reality_painter.inspection.asset_resolver import (
++    AssetResolutionStatus,
++    resolve_asset,
++)
++
++passed = 0
++failed = 0
++
++
++def check(name, condition):
++    global passed, failed
++    if condition:
++        passed += 1
++        print(f"PASS: {name}")
++    else:
++        failed += 1
++        print(f"FAIL: {name}")
++
++
++class FakeResponse:
++    def __init__(self, status_code, json_data=None, headers=None):
++        self.status_code = status_code
++        self._json_data = json_data
++        self.headers = headers or {}
++
++    def json(self):
++        return self._json_data
++
++
++class FakeSession:
++    """Maps exact URLs to canned `FakeResponse`s; records every call made."""
++
++    def __init__(self, routes):
++        self._routes = routes
++        self.requested_urls = []
++
++    def get(self, url, params=None, headers=None, timeout=None):
++        self.requested_urls.append(url)
++        route = self._routes.get(url)
++        if route is None:
++            raise AssertionError(f"Unexpected URL requested in test: {url}")
++        return route
++
++
++_REPO = "owner/assets-repo"
++_REPO_URL = f"https://api.github.com/repos/{_REPO}"
++_TREE_URL = f"https://api.github.com/repos/{_REPO}/git/trees/main"
++
++_REPO_INFO = FakeResponse(200, json_data={"license": None, "default_branch": "main"})
++_TREE = FakeResponse(
++    200,
++    json_data={
++        "tree": [
++            {"path": "nature/flower.glb", "type": "blob"},
++            {"path": "vehicles/car.glb", "type": "blob"},
++            {"path": "README.md", "type": "blob"},
++        ]
++    },
++)
++
++
++def _make_session():
++    return FakeSession({_REPO_URL: _REPO_INFO, _TREE_URL: _TREE})
++
++
++# Every ensure_discovered() call below must pass an explicit
++# registry_path so this test never writes to the real, bundled
++# apps/reality_painter/assets/registry.json - a fresh, per-test-run
++# temp path is used throughout, mirroring how AssetRegistry.load()'s
++# own tests never touch the bundled file either.
++_scratch_dir = tempfile.TemporaryDirectory()
++_scratch_registry_path = Path(_scratch_dir.name) / "registry.json"
++
++# --- 1. repository scan discovers supported assets; deterministic IDs -----
++
++registry = AssetRegistry()
++added = ensure_discovered(
++    registry,
++    repositories=[{"repository": _REPO, "path": ""}],
++    session=_make_session(),
++    registry_path=_scratch_registry_path,
++)
++check("scan discovers both .glb assets", added == 2)
++check("scan skips non-3D files (README.md)", len(registry) == 2)
++
++registry_again = AssetRegistry()
++added_again = ensure_discovered(
++    registry_again,
++    repositories=[{"repository": _REPO, "path": ""}],
++    session=_make_session(),
++    registry_path=_scratch_registry_path,
++)
++check(
++    "same repository scan twice produces identical (deterministic) asset ids",
++    sorted(a.id for a in registry) == sorted(a.id for a in registry_again),
++)
++
++# --- 2. registry already representing a repository skips re-scanning ------
++
++skip_session = FakeSession({})  # any .get() call raises AssertionError
++added_second_call = ensure_discovered(
++    registry,
++    repositories=[{"repository": _REPO, "path": ""}],
++    session=skip_session,
++    registry_path=_scratch_registry_path,
++)
++check("already-scanned repository is not re-scanned (no network call)", added_second_call == 0)
++check("_already_scanned reports True for a scanned repository", _already_scanned(registry, _REPO))
++check("_already_scanned reports False for an unrelated repository", not _already_scanned(registry, "owner/other"))
++
++# --- 3. registry persistence (save/load round-trip) ------------------------
++
++with tempfile.TemporaryDirectory() as tmp_dir:
++    registry_path = Path(tmp_dir) / "registry.json"
++    fresh_registry = AssetRegistry()
++    ensure_discovered(
++        fresh_registry,
++        repositories=[{"repository": _REPO, "path": ""}],
++        session=_make_session(),
++        registry_path=registry_path,
++    )
++    check("registry is persisted to disk after new assets are discovered", registry_path.is_file())
++
++    reloaded = AssetRegistry.load(registry_path)
++    check("persisted registry reloads with the same asset count", len(reloaded) == len(fresh_registry))
++
++    payload = json.loads(registry_path.read_text(encoding="utf-8"))
++    check("persisted file uses the existing flat registry.json schema", "assets" in payload)
++
++# --- 4. a repository that fails never crashes discovery of the others -----
++
++failing_session = FakeSession({_REPO_URL: FakeResponse(404, json_data={})})
++mixed_registry = AssetRegistry()
++mixed_added = ensure_discovered(
++    mixed_registry,
++    repositories=[{"repository": "owner/missing-repo", "path": ""}, {"repository": _REPO, "path": ""}],
++    session=FakeSession(
++        {
++            f"https://api.github.com/repos/owner/missing-repo": FakeResponse(404, json_data={}),
++            _REPO_URL: _REPO_INFO,
++            _TREE_URL: _TREE,
++        }
++    ),
++    registry_path=_scratch_registry_path,
++)
++check("a failing repository is skipped, not raised", mixed_added == 2)
++check("a later, working repository still gets scanned", len(mixed_registry) == 2)
++
++_scratch_dir.cleanup()
++
++# --- 5. configuration is not a single hard-coded repository ----------------
++
++import os
++
++os.environ["REALITY_PAINTER_ASSET_REPOSITORIES"] = json.dumps([{"repository": "a/b", "path": "models"}])
++try:
++    configured = configured_repositories()
++    check("configured_repositories() reads the env var override", configured == [{"repository": "a/b", "path": "models"}])
++finally:
++    del os.environ["REALITY_PAINTER_ASSET_REPOSITORIES"]
++
++check("configured_repositories() falls back to a default when unset", len(configured_repositories()) >= 1)
++
++os.environ["REALITY_PAINTER_ASSET_REPOSITORIES"] = "not json"
++try:
++    check("malformed env var falls back to default instead of raising", len(configured_repositories()) >= 1)
++finally:
++    del os.environ["REALITY_PAINTER_ASSET_REPOSITORIES"]
++
++# --- 6. normalized label lookup --------------------------------------------
++
++flower_asset = Asset.from_dict(
++    {
++        "id": "flower_001",
++        "name": "Flower",
++        "category": "nature",
++        "format": "glb",
++        "tags": ["flower", "plant"],
++        "source": {"type": "github", "repository": _REPO, "path": "nature/flower.glb"},
++    }
++)
++label_registry = AssetRegistry([flower_asset])
++
++exact = resolve_asset("flower", label_registry)
++check("exact single-word label still resolves (unchanged behavior)", exact.status == AssetResolutionStatus.RESOLVED)
++
++descriptive = resolve_asset("red flower", label_registry)
++check(
++    "descriptive label normalizes to its final word and resolves ('red flower' -> 'flower')",
++    descriptive.status == AssetResolutionStatus.RESOLVED and descriptive.asset.id == "flower_001",
++)
++check("resolution carries the original, un-normalized label through", descriptive.label == "red flower")
++
++unmatched = resolve_asset("a red flying dinosaur", label_registry)
++check("a label with no matching normalized candidate resolves UNAVAILABLE", unmatched.status == AssetResolutionStatus.UNAVAILABLE)
++
++
++print(f"\n{passed} passed, {failed} failed")
++sys.exit(1 if failed else 0)
