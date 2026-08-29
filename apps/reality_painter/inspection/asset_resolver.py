@@ -147,10 +147,35 @@ def resolve_asset(
         non-exceptional outcome.
     """
     match = _search_candidates(label, registry)
-    if match is None:
-        auto_discovery.ensure_discovered(registry, session=session, registry_path=registry_path)
-        match = _search_candidates(label, registry)
+    if match is not None:
+        return AssetResolution(status=AssetResolutionStatus.RESOLVED, asset=match, label=label)
 
-    if match is None:
-        return AssetResolution(status=AssetResolutionStatus.UNAVAILABLE, asset=None, label=label)
-    return AssetResolution(status=AssetResolutionStatus.RESOLVED, asset=match, label=label)
+    # Fallback 1: Primary repository discovery
+    primary = auto_discovery.primary_repository()
+    auto_discovery.ensure_discovered(
+        registry,
+        repositories=[primary],
+        session=session,
+        registry_path=registry_path,
+    )
+    match = _search_candidates(label, registry)
+    if match is not None:
+        return AssetResolution(status=AssetResolutionStatus.RESOLVED, asset=match, label=label)
+
+    # Fallback 2: Configured external repositories discovery (in order)
+    external_repos = auto_discovery.external_repositories()
+    for repo in external_repos:
+        if repo.get("repository") == primary.get("repository"):
+            continue
+        auto_discovery.ensure_discovered(
+            registry,
+            repositories=[repo],
+            session=session,
+            registry_path=registry_path,
+        )
+        match = _search_candidates(label, registry)
+        if match is not None:
+            return AssetResolution(status=AssetResolutionStatus.RESOLVED, asset=match, label=label)
+
+    return AssetResolution(status=AssetResolutionStatus.UNAVAILABLE, asset=None, label=label)
+

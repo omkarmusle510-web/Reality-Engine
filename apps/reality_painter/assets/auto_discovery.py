@@ -33,71 +33,113 @@ from apps.reality_painter.assets.registry import AssetRegistry
 
 logger = logging.getLogger(__name__)
 
+_PRIMARY_ENV_VAR = "REALITY_PAINTER_PRIMARY_REPOSITORY"
+_EXTERNAL_ENV_VAR = "REALITY_PAINTER_EXTERNAL_REPOSITORIES"
 _REPOSITORIES_ENV_VAR = "REALITY_PAINTER_ASSET_REPOSITORIES"
 
-# Used only when REALITY_PAINTER_ASSET_REPOSITORIES is unset/empty/
-# malformed - a default, not a hard-coded assumption baked into the
-# discovery logic itself (see configured_repositories()). This is the
-# same repository registry.json's existing hand-entered "flower" asset
-# already points at, so automatic discovery is a strict superset of
-# today's registry contents, never a behavior change for it.
-_DEFAULT_REPOSITORIES: List[Dict[str, str]] = [
-    {"repository": "omkarmusle510-web/reality-engine-assets", "path": ""},
+_DEFAULT_PRIMARY_REPOSITORY: Dict[str, str] = {
+    "repository": "omkarmusle510-web/reality-engine-assets",
+    "path": "",
+}
+
+_DEFAULT_EXTERNAL_REPOSITORIES: List[Dict[str, str]] = [
+    {"repository": "KhronosGroup/glTF-Sample-Assets", "path": ""},
 ]
+
+_DEFAULT_REPOSITORIES: List[Dict[str, str]] = [
+    _DEFAULT_PRIMARY_REPOSITORY,
+    *_DEFAULT_EXTERNAL_REPOSITORIES,
+]
+
+_SCANNED_REPOSITORIES: set[str] = set()
+
+
+def reset_discovery_state() -> None:
+    """Resets in-memory scanned repository tracking (for test isolation)."""
+    _SCANNED_REPOSITORIES.clear()
+
+
+def primary_repository() -> Dict[str, str]:
+    """Returns the configured primary asset repository (always first in discovery)."""
+    raw = os.environ.get(_PRIMARY_ENV_VAR)
+    if raw:
+        try:
+            parsed = json.loads(raw)
+            if isinstance(parsed, dict) and isinstance(parsed.get("repository"), str) and parsed["repository"].strip():
+                return {"repository": parsed["repository"].strip(), "path": parsed.get("path", "")}
+            if isinstance(parsed, str) and parsed.strip():
+                return {"repository": parsed.strip(), "path": ""}
+        except ValueError:
+            if raw.strip():
+                return {"repository": raw.strip(), "path": ""}
+    return dict(_DEFAULT_PRIMARY_REPOSITORY)
+
+
+def external_repositories() -> List[Dict[str, str]]:
+    """Returns the configured external fallback asset repositories."""
+    raw = os.environ.get(_EXTERNAL_ENV_VAR)
+    if raw:
+        try:
+            parsed = json.loads(raw)
+            if isinstance(parsed, list):
+                repos: List[Dict[str, str]] = []
+                for entry in parsed:
+                    if isinstance(entry, dict) and isinstance(entry.get("repository"), str) and entry["repository"].strip():
+                        repos.append({"repository": entry["repository"].strip(), "path": entry.get("path", "")})
+                    elif isinstance(entry, str) and entry.strip():
+                        repos.append({"repository": entry.strip(), "path": ""})
+                if repos:
+                    return repos
+        except ValueError:
+            logger.warning("%s is not valid JSON; using default external repositories.", _EXTERNAL_ENV_VAR)
+
+    return [dict(repo) for repo in _DEFAULT_EXTERNAL_REPOSITORIES]
 
 
 def configured_repositories() -> List[Dict[str, str]]:
-    """Returns the configured list of asset repositories to auto-discover.
+    """Returns the ordered list of asset repositories to auto-discover.
 
-    Reads a JSON array from the `REALITY_PAINTER_ASSET_REPOSITORIES`
-    environment variable, e.g.:
-
-        [{"repository": "owner/name", "path": "models"}, ...]
-
-    so repository sources are configurable without editing code or
-    hard-coding a single repository anywhere in the discovery path.
-    Falls back to `_DEFAULT_REPOSITORIES` if the variable is unset,
-    not valid JSON, not a list, or contains no usable entries; never
-    raises.
-
-    Returns:
-        A list of `{"repository": ..., "path": ...}` mappings. `path`
-        defaults to `""` (the whole repository) per entry if omitted.
+    Primary repository is always first, followed by trusted external
+    fallback repositories. Reads from environment variables if set,
+    falling back to defaults.
     """
     raw = os.environ.get(_REPOSITORIES_ENV_VAR)
-    if not raw:
-        return list(_DEFAULT_REPOSITORIES)
+    if raw:
+        try:
+            parsed = json.loads(raw)
+            if isinstance(parsed, list):
+                repositories: List[Dict[str, str]] = []
+                for entry in parsed:
+                    if isinstance(entry, dict) and isinstance(entry.get("repository"), str) and entry["repository"].strip():
+                        repositories.append({"repository": entry["repository"].strip(), "path": entry.get("path", "")})
+                    elif isinstance(entry, str) and entry.strip():
+                        repositories.append({"repository": entry.strip(), "path": ""})
+                if repositories:
+                    return repositories
+        except ValueError:
+            logger.warning("%s is not valid JSON; using default asset repositories.", _REPOSITORIES_ENV_VAR)
 
-    try:
-        parsed = json.loads(raw)
-    except ValueError:
-        logger.warning("%s is not valid JSON; using default asset repositories.", _REPOSITORIES_ENV_VAR)
-        return list(_DEFAULT_REPOSITORIES)
+    primary = primary_repository()
+    external = external_repositories()
+    
+    # Ensure primary is first and deduplicated
+    combined = [primary]
+    for ext in external:
+        if ext["repository"] != primary["repository"]:
+            combined.append(ext)
 
-    if not isinstance(parsed, list):
-        logger.warning("%s must be a JSON array; using default asset repositories.", _REPOSITORIES_ENV_VAR)
-        return list(_DEFAULT_REPOSITORIES)
-
-    repositories: List[Dict[str, str]] = []
-    for entry in parsed:
-        if isinstance(entry, dict) and isinstance(entry.get("repository"), str) and entry["repository"].strip():
-            repositories.append({"repository": entry["repository"], "path": entry.get("path", "")})
-
-    return repositories or list(_DEFAULT_REPOSITORIES)
+    return combined
 
 
-def _already_scanned(registry: AssetRegistry, repository: str) -> bool:
-    """True if `registry` already holds at least one asset sourced from `repository`.
-
-    A deterministic, registry-only check - no separate "already
-    scanned" state file is introduced. A repository whose prior scan
-    matched zero files is rescanned on the next call; that is an
-    inexpensive, acceptable edge case rather than added bookkeeping.
-    """
-    return any(
-        asset.source.type == "github" and asset.source.details.get("repository") == repository
-        for asset in registry
-    )
+def _already_scanned(registry: Optional[AssetRegistry], repository: str) -> bool:
+    """True if `repository` has already been scanned into `registry`."""
+    if registry is None:
+        return repository in _SCANNED_REPOSITORIES
+    scanned = getattr(registry, "_scanned_repositories", None)
+    if scanned is None:
+        registry._scanned_repositories = set()
+        return False
+    return repository in scanned
 
 
 def ensure_discovered(
@@ -106,35 +148,31 @@ def ensure_discovered(
     session: Optional[Any] = None,
     registry_path: Optional[Path] = None,
 ) -> int:
-    """Scans every not-yet-scanned configured repository into `registry`.
+    """Scans every not-yet-scanned repository in `repositories` into `registry`.
 
-    Thin orchestration over the existing `github.ingest_repository()`
-    and `AssetRegistry.save()` - no discovery, retrieval, or registry
-    logic is duplicated here. A repository already represented in
-    `registry` (see `_already_scanned`) is skipped without any network
-    call. A repository whose scan fails for any reason
-    `github.GitHubSourceError` covers (not found, rate limited,
-    network failure, malformed response, ...) is logged and skipped
-    rather than raised, so one bad repository can never prevent the
-    others - or the caller - from proceeding.
+    Thin orchestration over `github.ingest_repository()` and
+    `AssetRegistry.save()` - no discovery or retrieval logic is
+    duplicated. A repository already scanned in the active session
+    is skipped without any network call. Failing repositories are
+    isolated and logged rather than raised.
 
     Args:
         registry: The `AssetRegistry` to discover into and persist.
         repositories: Repositories to scan. Defaults to
             `configured_repositories()`.
         session: Forwarded to `github.ingest_repository` as its
-            `session` - a `requests`-compatible object. Tests inject a
-            fake session so no real HTTP call is ever made.
-        registry_path: Where to persist newly discovered assets (see
-            `AssetRegistry.save`). Defaults to the bundled
-            `registry.json` next to `registry.py` if omitted.
+            `session` (a `requests`-compatible object).
+        registry_path: Where to persist newly discovered assets.
+            Defaults to the bundled `registry.json` if omitted.
 
     Returns:
         The number of newly added assets across every scanned
-        repository (`0` if every repository was already scanned, or
-        every scan attempted failed).
+        repository.
     """
     active_repositories = repositories if repositories is not None else configured_repositories()
+
+    if not hasattr(registry, "_scanned_repositories"):
+        registry._scanned_repositories = set()
 
     total_added = 0
     for entry in active_repositories:
@@ -149,10 +187,16 @@ def ensure_discovered(
         except github.GitHubSourceError as exc:
             logger.warning("Auto-discovery skipped repository '%s': %s", repository, exc)
             continue
+        except Exception as exc:
+            logger.warning("Auto-discovery encountered unexpected error for '%s': %s", repository, exc)
+            continue
 
+        _SCANNED_REPOSITORIES.add(repository)
+        registry._scanned_repositories.add(repository)
         total_added += added
 
     if total_added > 0:
         registry.save(registry_path)
 
     return total_added
+

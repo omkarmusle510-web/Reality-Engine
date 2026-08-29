@@ -45,6 +45,7 @@ class AssetRegistry:
                 the same `id`.
         """
         self._assets: Dict[str, Asset] = {}
+        self._scanned_repositories: set[str] = set()
         for asset in assets or []:
             self._add(asset)
 

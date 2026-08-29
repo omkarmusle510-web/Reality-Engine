@@ -5,16 +5,5600 @@
       "name": "Flower",
       "category": "nature",
       "format": "glb",
-      "tags": [
-        "flower",
-        "plant",
-        "nature"
-      ],
       "source": {
         "type": "github",
         "repository": "omkarmusle510-web/reality-engine-assets",
         "path": "nature/flower.glb"
-      }
+      },
+      "tags": [
+        "flower",
+        "plant",
+        "nature"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_abeautifulgame_gltf_abeautifulgame_gltf",
+      "name": "Abeautifulgame",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/ABeautifulGame/glTF/ABeautifulGame.gltf"
+      },
+      "tags": [
+        "abeautifulgame",
+        "gltf",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_abeautifulgame_gltf_binary_abeautifulgame_glb",
+      "name": "Abeautifulgame",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/ABeautifulGame/glTF-Binary/ABeautifulGame.glb"
+      },
+      "tags": [
+        "abeautifulgame",
+        "gltf-binary",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_abeautifulgame_gltf_binary_ktx_etc1s_draco_abeautifulgame_glb",
+      "name": "Abeautifulgame",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/ABeautifulGame/glTF-Binary-KTX-ETC1S-Draco/ABeautifulGame.glb"
+      },
+      "tags": [
+        "abeautifulgame",
+        "gltf-binary-ktx-etc1s-draco",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_alphablendmodetest_gltf_alphablendmodetest_gltf",
+      "name": "Alphablendmodetest",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/AlphaBlendModeTest/glTF/AlphaBlendModeTest.gltf"
+      },
+      "tags": [
+        "alphablendmodetest",
+        "gltf",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_alphablendmodetest_gltf_binary_alphablendmodetest_glb",
+      "name": "Alphablendmodetest",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/AlphaBlendModeTest/glTF-Binary/AlphaBlendModeTest.glb"
+      },
+      "tags": [
+        "alphablendmodetest",
+        "gltf-binary",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_animatedcolorscube_gltf_animatedcolorscube_gltf",
+      "name": "Animatedcolorscube",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/AnimatedColorsCube/glTF/AnimatedColorsCube.gltf"
+      },
+      "tags": [
+        "animatedcolorscube",
+        "gltf",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_animatedcolorscube_gltf_binary_animatedcolorscube_glb",
+      "name": "Animatedcolorscube",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/AnimatedColorsCube/glTF-Binary/AnimatedColorsCube.glb"
+      },
+      "tags": [
+        "animatedcolorscube",
+        "gltf-binary",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_animatedcube_gltf_animatedcube_gltf",
+      "name": "Animatedcube",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/AnimatedCube/glTF/AnimatedCube.gltf"
+      },
+      "tags": [
+        "animatedcube",
+        "gltf",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_animatedmorphcube_gltf_animatedmorphcube_gltf",
+      "name": "Animatedmorphcube",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/AnimatedMorphCube/glTF/AnimatedMorphCube.gltf"
+      },
+      "tags": [
+        "animatedmorphcube",
+        "gltf",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_animatedmorphcube_gltf_binary_animatedmorphcube_glb",
+      "name": "Animatedmorphcube",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/AnimatedMorphCube/glTF-Binary/AnimatedMorphCube.glb"
+      },
+      "tags": [
+        "animatedmorphcube",
+        "gltf-binary",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_animatedmorphcube_gltf_quantized_animatedmorphcube_gltf",
+      "name": "Animatedmorphcube",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/AnimatedMorphCube/glTF-Quantized/AnimatedMorphCube.gltf"
+      },
+      "tags": [
+        "animatedmorphcube",
+        "gltf-quantized",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_animatedtriangle_gltf_animatedtriangle_gltf",
+      "name": "Animatedtriangle",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/AnimatedTriangle/glTF/AnimatedTriangle.gltf"
+      },
+      "tags": [
+        "animatedtriangle",
+        "gltf",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_animatedtriangle_gltf_embedded_animatedtriangle_gltf",
+      "name": "Animatedtriangle",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/AnimatedTriangle/glTF-Embedded/AnimatedTriangle.gltf"
+      },
+      "tags": [
+        "animatedtriangle",
+        "gltf-embedded",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_animationpointeruvs_gltf_animationpointeruvs_gltf",
+      "name": "Animationpointeruvs",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/AnimationPointerUVs/glTF/AnimationPointerUVs.gltf"
+      },
+      "tags": [
+        "animationpointeruvs",
+        "gltf",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_animationpointeruvs_gltf_binary_animationpointeruvs_glb",
+      "name": "Animationpointeruvs",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/AnimationPointerUVs/glTF-Binary/AnimationPointerUVs.glb"
+      },
+      "tags": [
+        "animationpointeruvs",
+        "gltf-binary",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_anisotropybarnlamp_gltf_anisotropybarnlamp_gltf",
+      "name": "Anisotropybarnlamp",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/AnisotropyBarnLamp/glTF/AnisotropyBarnLamp.gltf"
+      },
+      "tags": [
+        "anisotropybarnlamp",
+        "gltf",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_anisotropybarnlamp_gltf_binary_anisotropybarnlamp_glb",
+      "name": "Anisotropybarnlamp",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/AnisotropyBarnLamp/glTF-Binary/AnisotropyBarnLamp.glb"
+      },
+      "tags": [
+        "anisotropybarnlamp",
+        "gltf-binary",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_anisotropybarnlamp_gltf_ktx_basisu_anisotropybarnlamp_gltf",
+      "name": "Anisotropybarnlamp",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/AnisotropyBarnLamp/glTF-KTX-BasisU/AnisotropyBarnLamp.gltf"
+      },
+      "tags": [
+        "anisotropybarnlamp",
+        "gltf-ktx-basisu",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_anisotropydisctest_gltf_anisotropydisctest_gltf",
+      "name": "Anisotropydisctest",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/AnisotropyDiscTest/glTF/AnisotropyDiscTest.gltf"
+      },
+      "tags": [
+        "anisotropydisctest",
+        "gltf",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_anisotropydisctest_gltf_binary_anisotropydisctest_glb",
+      "name": "Anisotropydisctest",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/AnisotropyDiscTest/glTF-Binary/AnisotropyDiscTest.glb"
+      },
+      "tags": [
+        "anisotropydisctest",
+        "gltf-binary",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_anisotropyrotationtest_gltf_anisotropyrotationtest_gltf",
+      "name": "Anisotropyrotationtest",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/AnisotropyRotationTest/glTF/AnisotropyRotationTest.gltf"
+      },
+      "tags": [
+        "anisotropyrotationtest",
+        "gltf",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_anisotropyrotationtest_gltf_binary_anisotropyrotationtest_glb",
+      "name": "Anisotropyrotationtest",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/AnisotropyRotationTest/glTF-Binary/AnisotropyRotationTest.glb"
+      },
+      "tags": [
+        "anisotropyrotationtest",
+        "gltf-binary",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_anisotropystrengthtest_gltf_anisotropystrengthtest_gltf",
+      "name": "Anisotropystrengthtest",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/AnisotropyStrengthTest/glTF/AnisotropyStrengthTest.gltf"
+      },
+      "tags": [
+        "anisotropystrengthtest",
+        "gltf",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_anisotropystrengthtest_gltf_binary_anisotropystrengthtest_glb",
+      "name": "Anisotropystrengthtest",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/AnisotropyStrengthTest/glTF-Binary/AnisotropyStrengthTest.glb"
+      },
+      "tags": [
+        "anisotropystrengthtest",
+        "gltf-binary",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_antiquecamera_gltf_antiquecamera_gltf",
+      "name": "Antiquecamera",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/AntiqueCamera/glTF/AntiqueCamera.gltf"
+      },
+      "tags": [
+        "antiquecamera",
+        "gltf",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_antiquecamera_gltf_binary_antiquecamera_glb",
+      "name": "Antiquecamera",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/AntiqueCamera/glTF-Binary/AntiqueCamera.glb"
+      },
+      "tags": [
+        "antiquecamera",
+        "gltf-binary",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_attenuationtest_gltf_attenuationtest_gltf",
+      "name": "Attenuationtest",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/AttenuationTest/glTF/AttenuationTest.gltf"
+      },
+      "tags": [
+        "attenuationtest",
+        "gltf",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_attenuationtest_gltf_binary_attenuationtest_glb",
+      "name": "Attenuationtest",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/AttenuationTest/glTF-Binary/AttenuationTest.glb"
+      },
+      "tags": [
+        "attenuationtest",
+        "gltf-binary",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_avocado_gltf_avocado_gltf",
+      "name": "Avocado",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/Avocado/glTF/Avocado.gltf"
+      },
+      "tags": [
+        "avocado",
+        "gltf",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_avocado_gltf_binary_avocado_glb",
+      "name": "Avocado",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/Avocado/glTF-Binary/Avocado.glb"
+      },
+      "tags": [
+        "avocado",
+        "gltf-binary",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_avocado_gltf_draco_avocado_gltf",
+      "name": "Avocado",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/Avocado/glTF-Draco/Avocado.gltf"
+      },
+      "tags": [
+        "avocado",
+        "gltf-draco",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_avocado_gltf_quantized_avocado_gltf",
+      "name": "Avocado",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/Avocado/glTF-Quantized/Avocado.gltf"
+      },
+      "tags": [
+        "avocado",
+        "gltf-quantized",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_barramundifish_gltf_barramundifish_gltf",
+      "name": "Barramundifish",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/BarramundiFish/glTF/BarramundiFish.gltf"
+      },
+      "tags": [
+        "barramundifish",
+        "gltf",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_barramundifish_gltf_binary_barramundifish_glb",
+      "name": "Barramundifish",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/BarramundiFish/glTF-Binary/BarramundiFish.glb"
+      },
+      "tags": [
+        "barramundifish",
+        "gltf-binary",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_barramundifish_gltf_draco_barramundifish_gltf",
+      "name": "Barramundifish",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/BarramundiFish/glTF-Draco/BarramundiFish.gltf"
+      },
+      "tags": [
+        "barramundifish",
+        "gltf-draco",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_boombox_gltf_binary_boombox_glb",
+      "name": "Boombox",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/BoomBox/glTF-Binary/BoomBox.glb"
+      },
+      "tags": [
+        "boombox",
+        "gltf-binary",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_boombox_gltf_boombox_gltf",
+      "name": "Boombox",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/BoomBox/glTF/BoomBox.gltf"
+      },
+      "tags": [
+        "boombox",
+        "gltf",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_boombox_gltf_draco_boombox_gltf",
+      "name": "Boombox",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/BoomBox/glTF-Draco/BoomBox.gltf"
+      },
+      "tags": [
+        "boombox",
+        "gltf-draco",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_boomboxwithaxes_gltf_boomboxwithaxes_gltf",
+      "name": "Boomboxwithaxes",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/BoomBoxWithAxes/glTF/BoomBoxWithAxes.gltf"
+      },
+      "tags": [
+        "boomboxwithaxes",
+        "gltf",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_box_gltf_binary_box_glb",
+      "name": "Box",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/Box/glTF-Binary/Box.glb"
+      },
+      "tags": [
+        "box",
+        "gltf-binary",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_box_gltf_box_gltf",
+      "name": "Box",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/Box/glTF/Box.gltf"
+      },
+      "tags": [
+        "box",
+        "gltf",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_box_gltf_draco_box_gltf",
+      "name": "Box",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/Box/glTF-Draco/Box.gltf"
+      },
+      "tags": [
+        "box",
+        "gltf-draco",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_box_gltf_embedded_box_gltf",
+      "name": "Box",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/Box/glTF-Embedded/Box.gltf"
+      },
+      "tags": [
+        "box",
+        "gltf-embedded",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_box_with_spaces_gltf_box_with_spaces_gltf",
+      "name": "Box With Spaces",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/Box With Spaces/glTF/Box With Spaces.gltf"
+      },
+      "tags": [
+        "box",
+        "box with spaces",
+        "gltf",
+        "models",
+        "spaces",
+        "with"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_boxanimated_gltf_binary_boxanimated_glb",
+      "name": "Boxanimated",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/BoxAnimated/glTF-Binary/BoxAnimated.glb"
+      },
+      "tags": [
+        "boxanimated",
+        "gltf-binary",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_boxanimated_gltf_boxanimated_gltf",
+      "name": "Boxanimated",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/BoxAnimated/glTF/BoxAnimated.gltf"
+      },
+      "tags": [
+        "boxanimated",
+        "gltf",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_boxanimated_gltf_embedded_boxanimated_gltf",
+      "name": "Boxanimated",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/BoxAnimated/glTF-Embedded/BoxAnimated.gltf"
+      },
+      "tags": [
+        "boxanimated",
+        "gltf-embedded",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_boxinterleaved_gltf_binary_boxinterleaved_glb",
+      "name": "Boxinterleaved",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/BoxInterleaved/glTF-Binary/BoxInterleaved.glb"
+      },
+      "tags": [
+        "boxinterleaved",
+        "gltf-binary",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_boxinterleaved_gltf_boxinterleaved_gltf",
+      "name": "Boxinterleaved",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/BoxInterleaved/glTF/BoxInterleaved.gltf"
+      },
+      "tags": [
+        "boxinterleaved",
+        "gltf",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_boxinterleaved_gltf_embedded_boxinterleaved_gltf",
+      "name": "Boxinterleaved",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/BoxInterleaved/glTF-Embedded/BoxInterleaved.gltf"
+      },
+      "tags": [
+        "boxinterleaved",
+        "gltf-embedded",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_boxtextured_gltf_binary_boxtextured_glb",
+      "name": "Boxtextured",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/BoxTextured/glTF-Binary/BoxTextured.glb"
+      },
+      "tags": [
+        "boxtextured",
+        "gltf-binary",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_boxtextured_gltf_boxtextured_gltf",
+      "name": "Boxtextured",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/BoxTextured/glTF/BoxTextured.gltf"
+      },
+      "tags": [
+        "boxtextured",
+        "gltf",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_boxtextured_gltf_embedded_boxtextured_gltf",
+      "name": "Boxtextured",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/BoxTextured/glTF-Embedded/BoxTextured.gltf"
+      },
+      "tags": [
+        "boxtextured",
+        "gltf-embedded",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_boxtexturednonpoweroftwo_gltf_binary_boxtexturednonpoweroftwo_glb",
+      "name": "Boxtexturednonpoweroftwo",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/BoxTexturedNonPowerOfTwo/glTF-Binary/BoxTexturedNonPowerOfTwo.glb"
+      },
+      "tags": [
+        "boxtexturednonpoweroftwo",
+        "gltf-binary",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_boxtexturednonpoweroftwo_gltf_boxtexturednonpoweroftwo_gltf",
+      "name": "Boxtexturednonpoweroftwo",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/BoxTexturedNonPowerOfTwo/glTF/BoxTexturedNonPowerOfTwo.gltf"
+      },
+      "tags": [
+        "boxtexturednonpoweroftwo",
+        "gltf",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_boxtexturednonpoweroftwo_gltf_embedded_boxtexturednonpoweroftwo_gltf",
+      "name": "Boxtexturednonpoweroftwo",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/BoxTexturedNonPowerOfTwo/glTF-Embedded/BoxTexturedNonPowerOfTwo.gltf"
+      },
+      "tags": [
+        "boxtexturednonpoweroftwo",
+        "gltf-embedded",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_boxvertexcolors_gltf_binary_boxvertexcolors_glb",
+      "name": "Boxvertexcolors",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/BoxVertexColors/glTF-Binary/BoxVertexColors.glb"
+      },
+      "tags": [
+        "boxvertexcolors",
+        "gltf-binary",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_boxvertexcolors_gltf_boxvertexcolors_gltf",
+      "name": "Boxvertexcolors",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/BoxVertexColors/glTF/BoxVertexColors.gltf"
+      },
+      "tags": [
+        "boxvertexcolors",
+        "gltf",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_boxvertexcolors_gltf_embedded_boxvertexcolors_gltf",
+      "name": "Boxvertexcolors",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/BoxVertexColors/glTF-Embedded/BoxVertexColors.gltf"
+      },
+      "tags": [
+        "boxvertexcolors",
+        "gltf-embedded",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_brainstem_gltf_binary_brainstem_glb",
+      "name": "Brainstem",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/BrainStem/glTF-Binary/BrainStem.glb"
+      },
+      "tags": [
+        "brainstem",
+        "gltf-binary",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_brainstem_gltf_brainstem_gltf",
+      "name": "Brainstem",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/BrainStem/glTF/BrainStem.gltf"
+      },
+      "tags": [
+        "brainstem",
+        "gltf",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_brainstem_gltf_draco_brainstem_gltf",
+      "name": "Brainstem",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/BrainStem/glTF-Draco/BrainStem.gltf"
+      },
+      "tags": [
+        "brainstem",
+        "gltf-draco",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_brainstem_gltf_embedded_brainstem_gltf",
+      "name": "Brainstem",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/BrainStem/glTF-Embedded/BrainStem.gltf"
+      },
+      "tags": [
+        "brainstem",
+        "gltf-embedded",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_brainstem_gltf_meshopt_brainstem_gltf",
+      "name": "Brainstem",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/BrainStem/glTF-Meshopt/BrainStem.gltf"
+      },
+      "tags": [
+        "brainstem",
+        "gltf-meshopt",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_brainstem_gltf_meshopt_ext_brainstem_gltf",
+      "name": "Brainstem",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/BrainStem/glTF-Meshopt-EXT/BrainStem.gltf"
+      },
+      "tags": [
+        "brainstem",
+        "gltf-meshopt-ext",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_cameras_gltf_cameras_gltf",
+      "name": "Cameras",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/Cameras/glTF/Cameras.gltf"
+      },
+      "tags": [
+        "cameras",
+        "gltf",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_cameras_gltf_embedded_cameras_gltf",
+      "name": "Cameras",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/Cameras/glTF-Embedded/Cameras.gltf"
+      },
+      "tags": [
+        "cameras",
+        "gltf-embedded",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_carbonfibre_gltf_binary_carbonfibre_glb",
+      "name": "Carbonfibre",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/CarbonFibre/glTF-Binary/CarbonFibre.glb"
+      },
+      "tags": [
+        "carbonfibre",
+        "gltf-binary",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_carbonfibre_gltf_carbonfibre_gltf",
+      "name": "Carbonfibre",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/CarbonFibre/glTF/CarbonFibre.gltf"
+      },
+      "tags": [
+        "carbonfibre",
+        "gltf",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_carconcept_glb_carconcept_glb",
+      "name": "Carconcept",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/CarConcept/GLB/CarConcept.glb"
+      },
+      "tags": [
+        "carconcept",
+        "glb",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_carconcept_gltf_binary_carconcept_glb",
+      "name": "Carconcept",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/CarConcept/glTF-Binary/CarConcept.glb"
+      },
+      "tags": [
+        "carconcept",
+        "gltf-binary",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_carconcept_gltf_carconcept_gltf",
+      "name": "Carconcept",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/CarConcept/glTF/CarConcept.gltf"
+      },
+      "tags": [
+        "carconcept",
+        "gltf",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_carconcept_gltf_jpg_carconcept_gltf",
+      "name": "Carconcept",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/CarConcept/glTF-JPG/CarConcept.gltf"
+      },
+      "tags": [
+        "carconcept",
+        "gltf-jpg",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_carconcept_gltf_ktx_basisu_draco_carconcept_gltf",
+      "name": "Carconcept",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/CarConcept/glTF-KTX-BasisU-Draco/CarConcept.gltf"
+      },
+      "tags": [
+        "carconcept",
+        "gltf-ktx-basisu-draco",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_carconcept_gltf_webp_carconcept_gltf",
+      "name": "Carconcept",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/CarConcept/glTF-WEBP/CarConcept.gltf"
+      },
+      "tags": [
+        "carconcept",
+        "gltf-webp",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_cesiumman_gltf_binary_cesiumman_glb",
+      "name": "Cesiumman",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/CesiumMan/glTF-Binary/CesiumMan.glb"
+      },
+      "tags": [
+        "cesiumman",
+        "gltf-binary",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_cesiumman_gltf_cesiumman_gltf",
+      "name": "Cesiumman",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/CesiumMan/glTF/CesiumMan.gltf"
+      },
+      "tags": [
+        "cesiumman",
+        "gltf",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_cesiumman_gltf_draco_cesiumman_gltf",
+      "name": "Cesiumman",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/CesiumMan/glTF-Draco/CesiumMan.gltf"
+      },
+      "tags": [
+        "cesiumman",
+        "gltf-draco",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_cesiumman_gltf_embedded_cesiumman_gltf",
+      "name": "Cesiumman",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/CesiumMan/glTF-Embedded/CesiumMan.gltf"
+      },
+      "tags": [
+        "cesiumman",
+        "gltf-embedded",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_cesiummilktruck_gltf_binary_cesiummilktruck_glb",
+      "name": "Cesiummilktruck",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/CesiumMilkTruck/glTF-Binary/CesiumMilkTruck.glb"
+      },
+      "tags": [
+        "cesiummilktruck",
+        "gltf-binary",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_cesiummilktruck_gltf_cesiummilktruck_gltf",
+      "name": "Cesiummilktruck",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/CesiumMilkTruck/glTF/CesiumMilkTruck.gltf"
+      },
+      "tags": [
+        "cesiummilktruck",
+        "gltf",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_cesiummilktruck_gltf_draco_cesiummilktruck_gltf",
+      "name": "Cesiummilktruck",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/CesiumMilkTruck/glTF-Draco/CesiumMilkTruck.gltf"
+      },
+      "tags": [
+        "cesiummilktruck",
+        "gltf-draco",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_cesiummilktruck_gltf_embedded_cesiummilktruck_gltf",
+      "name": "Cesiummilktruck",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/CesiumMilkTruck/glTF-Embedded/CesiumMilkTruck.gltf"
+      },
+      "tags": [
+        "cesiummilktruck",
+        "gltf-embedded",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_chairdamaskpurplegold_gltf_binary_chairdamaskpurplegold_glb",
+      "name": "Chairdamaskpurplegold",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/ChairDamaskPurplegold/glTF-Binary/ChairDamaskPurplegold.glb"
+      },
+      "tags": [
+        "chairdamaskpurplegold",
+        "gltf-binary",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_chairdamaskpurplegold_gltf_chairdamaskpurplegold_gltf",
+      "name": "Chairdamaskpurplegold",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/ChairDamaskPurplegold/glTF/ChairDamaskPurplegold.gltf"
+      },
+      "tags": [
+        "chairdamaskpurplegold",
+        "gltf",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_chronographwatch_gltf_binary_chronographwatch_glb",
+      "name": "Chronographwatch",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/ChronographWatch/glTF-Binary/ChronographWatch.glb"
+      },
+      "tags": [
+        "chronographwatch",
+        "gltf-binary",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_chronographwatch_gltf_chronographwatch_gltf",
+      "name": "Chronographwatch",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/ChronographWatch/glTF/ChronographWatch.gltf"
+      },
+      "tags": [
+        "chronographwatch",
+        "gltf",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_chronographwatch_gltf_ktx_basisu_chronographwatch_gltf",
+      "name": "Chronographwatch",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/ChronographWatch/glTF-KTX-BasisU/ChronographWatch.gltf"
+      },
+      "tags": [
+        "chronographwatch",
+        "gltf-ktx-basisu",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_chronographwatch_gltf_webp_chronographwatch_gltf",
+      "name": "Chronographwatch",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/ChronographWatch/glTF-WEBP/ChronographWatch.gltf"
+      },
+      "tags": [
+        "chronographwatch",
+        "gltf-webp",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_clearcoatcarpaint_gltf_binary_clearcoatcarpaint_glb",
+      "name": "Clearcoatcarpaint",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/ClearCoatCarPaint/glTF-Binary/ClearCoatCarPaint.glb"
+      },
+      "tags": [
+        "clearcoatcarpaint",
+        "gltf-binary",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_clearcoatcarpaint_gltf_clearcoatcarpaint_gltf",
+      "name": "Clearcoatcarpaint",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/ClearCoatCarPaint/glTF/ClearCoatCarPaint.gltf"
+      },
+      "tags": [
+        "clearcoatcarpaint",
+        "gltf",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_clearcoattest_gltf_binary_clearcoattest_glb",
+      "name": "Clearcoattest",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/ClearCoatTest/glTF-Binary/ClearCoatTest.glb"
+      },
+      "tags": [
+        "clearcoattest",
+        "gltf-binary",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_clearcoattest_gltf_clearcoattest_gltf",
+      "name": "Clearcoattest",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/ClearCoatTest/glTF/ClearCoatTest.gltf"
+      },
+      "tags": [
+        "clearcoattest",
+        "gltf",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_clearcoatwicker_gltf_binary_clearcoatwicker_glb",
+      "name": "Clearcoatwicker",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/ClearcoatWicker/glTF-Binary/ClearcoatWicker.glb"
+      },
+      "tags": [
+        "clearcoatwicker",
+        "gltf-binary",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_clearcoatwicker_gltf_clearcoatwicker_gltf",
+      "name": "Clearcoatwicker",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/ClearcoatWicker/glTF/ClearcoatWicker.gltf"
+      },
+      "tags": [
+        "clearcoatwicker",
+        "gltf",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_commercialrefrigerator_gltf_binary_commercialrefrigerator_glb",
+      "name": "Commercialrefrigerator",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/CommercialRefrigerator/glTF-Binary/CommercialRefrigerator.glb"
+      },
+      "tags": [
+        "commercialrefrigerator",
+        "gltf-binary",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_commercialrefrigerator_gltf_commercialrefrigerator_gltf",
+      "name": "Commercialrefrigerator",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/CommercialRefrigerator/glTF/CommercialRefrigerator.gltf"
+      },
+      "tags": [
+        "commercialrefrigerator",
+        "gltf",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_comparealphacoverage_gltf_binary_comparealphacoverage_glb",
+      "name": "Comparealphacoverage",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/CompareAlphaCoverage/glTF-Binary/CompareAlphaCoverage.glb"
+      },
+      "tags": [
+        "comparealphacoverage",
+        "gltf-binary",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_comparealphacoverage_gltf_comparealphacoverage_gltf",
+      "name": "Comparealphacoverage",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/CompareAlphaCoverage/glTF/CompareAlphaCoverage.gltf"
+      },
+      "tags": [
+        "comparealphacoverage",
+        "gltf",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_compareambientocclusion_gltf_binary_compareambientocclusion_glb",
+      "name": "Compareambientocclusion",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/CompareAmbientOcclusion/glTF-Binary/CompareAmbientOcclusion.glb"
+      },
+      "tags": [
+        "compareambientocclusion",
+        "gltf-binary",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_compareambientocclusion_gltf_compareambientocclusion_gltf",
+      "name": "Compareambientocclusion",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/CompareAmbientOcclusion/glTF/CompareAmbientOcclusion.gltf"
+      },
+      "tags": [
+        "compareambientocclusion",
+        "gltf",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_compareanisotropy_gltf_binary_compareanisotropy_glb",
+      "name": "Compareanisotropy",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/CompareAnisotropy/glTF-Binary/CompareAnisotropy.glb"
+      },
+      "tags": [
+        "compareanisotropy",
+        "gltf-binary",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_compareanisotropy_gltf_compareanisotropy_gltf",
+      "name": "Compareanisotropy",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/CompareAnisotropy/glTF/CompareAnisotropy.gltf"
+      },
+      "tags": [
+        "compareanisotropy",
+        "gltf",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_comparebasecolor_gltf_binary_comparebasecolor_glb",
+      "name": "Comparebasecolor",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/CompareBaseColor/glTF-Binary/CompareBaseColor.glb"
+      },
+      "tags": [
+        "comparebasecolor",
+        "gltf-binary",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_comparebasecolor_gltf_comparebasecolor_gltf",
+      "name": "Comparebasecolor",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/CompareBaseColor/glTF/CompareBaseColor.gltf"
+      },
+      "tags": [
+        "comparebasecolor",
+        "gltf",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_compareclearcoat_gltf_binary_compareclearcoat_glb",
+      "name": "Compareclearcoat",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/CompareClearcoat/glTF-Binary/CompareClearcoat.glb"
+      },
+      "tags": [
+        "compareclearcoat",
+        "gltf-binary",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_compareclearcoat_gltf_compareclearcoat_gltf",
+      "name": "Compareclearcoat",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/CompareClearcoat/glTF/CompareClearcoat.gltf"
+      },
+      "tags": [
+        "compareclearcoat",
+        "gltf",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_comparedispersion_gltf_binary_comparedispersion_glb",
+      "name": "Comparedispersion",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/CompareDispersion/glTF-Binary/CompareDispersion.glb"
+      },
+      "tags": [
+        "comparedispersion",
+        "gltf-binary",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_comparedispersion_gltf_comparedispersion_gltf",
+      "name": "Comparedispersion",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/CompareDispersion/glTF/CompareDispersion.gltf"
+      },
+      "tags": [
+        "comparedispersion",
+        "gltf",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_compareemissivestrength_gltf_binary_compareemissivestrength_glb",
+      "name": "Compareemissivestrength",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/CompareEmissiveStrength/glTF-Binary/CompareEmissiveStrength.glb"
+      },
+      "tags": [
+        "compareemissivestrength",
+        "gltf-binary",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_compareemissivestrength_gltf_compareemissivestrength_gltf",
+      "name": "Compareemissivestrength",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/CompareEmissiveStrength/glTF/CompareEmissiveStrength.gltf"
+      },
+      "tags": [
+        "compareemissivestrength",
+        "gltf",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_compareior_gltf_binary_compareior_glb",
+      "name": "Compareior",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/CompareIor/glTF-Binary/CompareIor.glb"
+      },
+      "tags": [
+        "compareior",
+        "gltf-binary",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_compareior_gltf_compareior_gltf",
+      "name": "Compareior",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/CompareIor/glTF/CompareIor.gltf"
+      },
+      "tags": [
+        "compareior",
+        "gltf",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_compareiridescence_gltf_binary_compareiridescence_glb",
+      "name": "Compareiridescence",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/CompareIridescence/glTF-Binary/CompareIridescence.glb"
+      },
+      "tags": [
+        "compareiridescence",
+        "gltf-binary",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_compareiridescence_gltf_compareiridescence_gltf",
+      "name": "Compareiridescence",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/CompareIridescence/glTF/CompareIridescence.gltf"
+      },
+      "tags": [
+        "compareiridescence",
+        "gltf",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_comparemetallic_gltf_binary_comparemetallic_glb",
+      "name": "Comparemetallic",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/CompareMetallic/glTF-Binary/CompareMetallic.glb"
+      },
+      "tags": [
+        "comparemetallic",
+        "gltf-binary",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_comparemetallic_gltf_comparemetallic_gltf",
+      "name": "Comparemetallic",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/CompareMetallic/glTF/CompareMetallic.gltf"
+      },
+      "tags": [
+        "comparemetallic",
+        "gltf",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_comparenormal_gltf_binary_comparenormal_glb",
+      "name": "Comparenormal",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/CompareNormal/glTF-Binary/CompareNormal.glb"
+      },
+      "tags": [
+        "comparenormal",
+        "gltf-binary",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_comparenormal_gltf_comparenormal_gltf",
+      "name": "Comparenormal",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/CompareNormal/glTF/CompareNormal.gltf"
+      },
+      "tags": [
+        "comparenormal",
+        "gltf",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_compareroughness_gltf_binary_compareroughness_glb",
+      "name": "Compareroughness",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/CompareRoughness/glTF-Binary/CompareRoughness.glb"
+      },
+      "tags": [
+        "compareroughness",
+        "gltf-binary",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_compareroughness_gltf_compareroughness_gltf",
+      "name": "Compareroughness",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/CompareRoughness/glTF/CompareRoughness.gltf"
+      },
+      "tags": [
+        "compareroughness",
+        "gltf",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_comparesheen_gltf_binary_comparesheen_glb",
+      "name": "Comparesheen",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/CompareSheen/glTF-Binary/CompareSheen.glb"
+      },
+      "tags": [
+        "comparesheen",
+        "gltf-binary",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_comparesheen_gltf_comparesheen_gltf",
+      "name": "Comparesheen",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/CompareSheen/glTF/CompareSheen.gltf"
+      },
+      "tags": [
+        "comparesheen",
+        "gltf",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_comparespecular_gltf_binary_comparespecular_glb",
+      "name": "Comparespecular",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/CompareSpecular/glTF-Binary/CompareSpecular.glb"
+      },
+      "tags": [
+        "comparespecular",
+        "gltf-binary",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_comparespecular_gltf_comparespecular_gltf",
+      "name": "Comparespecular",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/CompareSpecular/glTF/CompareSpecular.gltf"
+      },
+      "tags": [
+        "comparespecular",
+        "gltf",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_comparetransmission_gltf_binary_comparetransmission_glb",
+      "name": "Comparetransmission",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/CompareTransmission/glTF-Binary/CompareTransmission.glb"
+      },
+      "tags": [
+        "comparetransmission",
+        "gltf-binary",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_comparetransmission_gltf_comparetransmission_gltf",
+      "name": "Comparetransmission",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/CompareTransmission/glTF/CompareTransmission.gltf"
+      },
+      "tags": [
+        "comparetransmission",
+        "gltf",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_comparevolume_gltf_binary_comparevolume_glb",
+      "name": "Comparevolume",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/CompareVolume/glTF-Binary/CompareVolume.glb"
+      },
+      "tags": [
+        "comparevolume",
+        "gltf-binary",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_comparevolume_gltf_comparevolume_gltf",
+      "name": "Comparevolume",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/CompareVolume/glTF/CompareVolume.gltf"
+      },
+      "tags": [
+        "comparevolume",
+        "gltf",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_corset_gltf_binary_corset_glb",
+      "name": "Corset",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/Corset/glTF-Binary/Corset.glb"
+      },
+      "tags": [
+        "corset",
+        "gltf-binary",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_corset_gltf_corset_gltf",
+      "name": "Corset",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/Corset/glTF/Corset.gltf"
+      },
+      "tags": [
+        "corset",
+        "gltf",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_corset_gltf_draco_corset_gltf",
+      "name": "Corset",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/Corset/glTF-Draco/Corset.gltf"
+      },
+      "tags": [
+        "corset",
+        "gltf-draco",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_cube_gltf_cube_gltf",
+      "name": "Cube",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/Cube/glTF/Cube.gltf"
+      },
+      "tags": [
+        "cube",
+        "gltf",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_cubevisibility_gltf_binary_cubevisibility_glb",
+      "name": "Cubevisibility",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/CubeVisibility/glTF-Binary/CubeVisibility.glb"
+      },
+      "tags": [
+        "cubevisibility",
+        "gltf-binary",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_cubevisibility_gltf_cubevisibility_gltf",
+      "name": "Cubevisibility",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/CubeVisibility/glTF/CubeVisibility.gltf"
+      },
+      "tags": [
+        "cubevisibility",
+        "gltf",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_damagedhelmet_gltf_binary_damagedhelmet_glb",
+      "name": "Damagedhelmet",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/DamagedHelmet/glTF-Binary/DamagedHelmet.glb"
+      },
+      "tags": [
+        "damagedhelmet",
+        "gltf-binary",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_damagedhelmet_gltf_damagedhelmet_gltf",
+      "name": "Damagedhelmet",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/DamagedHelmet/glTF/DamagedHelmet.gltf"
+      },
+      "tags": [
+        "damagedhelmet",
+        "gltf",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_damagedhelmet_gltf_embedded_damagedhelmet_gltf",
+      "name": "Damagedhelmet",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/DamagedHelmet/glTF-Embedded/DamagedHelmet.gltf"
+      },
+      "tags": [
+        "damagedhelmet",
+        "gltf-embedded",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_diffusetransmissionplant_gltf_binary_diffusetransmissionplant_glb",
+      "name": "Diffusetransmissionplant",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/DiffuseTransmissionPlant/glTF-Binary/DiffuseTransmissionPlant.glb"
+      },
+      "tags": [
+        "diffusetransmissionplant",
+        "gltf-binary",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_diffusetransmissionplant_gltf_diffusetransmissionplant_gltf",
+      "name": "Diffusetransmissionplant",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/DiffuseTransmissionPlant/glTF/DiffuseTransmissionPlant.gltf"
+      },
+      "tags": [
+        "diffusetransmissionplant",
+        "gltf",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_diffusetransmissionteacup_gltf_binary_diffusetransmissionteacup_glb",
+      "name": "Diffusetransmissionteacup",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/DiffuseTransmissionTeacup/glTF-Binary/DiffuseTransmissionTeacup.glb"
+      },
+      "tags": [
+        "diffusetransmissionteacup",
+        "gltf-binary",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_diffusetransmissionteacup_gltf_diffusetransmissionteacup_gltf",
+      "name": "Diffusetransmissionteacup",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/DiffuseTransmissionTeacup/glTF/DiffuseTransmissionTeacup.gltf"
+      },
+      "tags": [
+        "diffusetransmissionteacup",
+        "gltf",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_diffusetransmissiontest_gltf_binary_diffusetransmissiontest_glb",
+      "name": "Diffusetransmissiontest",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/DiffuseTransmissionTest/glTF-Binary/DiffuseTransmissionTest.glb"
+      },
+      "tags": [
+        "diffusetransmissiontest",
+        "gltf-binary",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_diffusetransmissiontest_gltf_diffusetransmissiontest_gltf",
+      "name": "Diffusetransmissiontest",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/DiffuseTransmissionTest/glTF/DiffuseTransmissionTest.gltf"
+      },
+      "tags": [
+        "diffusetransmissiontest",
+        "gltf",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_directionallight_gltf_binary_directionallight_glb",
+      "name": "Directionallight",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/DirectionalLight/glTF-Binary/DirectionalLight.glb"
+      },
+      "tags": [
+        "directionallight",
+        "gltf-binary",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_directionallight_gltf_directionallight_gltf",
+      "name": "Directionallight",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/DirectionalLight/glTF/DirectionalLight.gltf"
+      },
+      "tags": [
+        "directionallight",
+        "gltf",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_dispersiontest_gltf_binary_dispersiontest_glb",
+      "name": "Dispersiontest",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/DispersionTest/glTF-Binary/DispersionTest.glb"
+      },
+      "tags": [
+        "dispersiontest",
+        "gltf-binary",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_dispersiontest_gltf_dispersiontest_gltf",
+      "name": "Dispersiontest",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/DispersionTest/glTF/DispersionTest.gltf"
+      },
+      "tags": [
+        "dispersiontest",
+        "gltf",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_dragonattenuation_gltf_binary_dragonattenuation_glb",
+      "name": "Dragonattenuation",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/DragonAttenuation/glTF-Binary/DragonAttenuation.glb"
+      },
+      "tags": [
+        "dragonattenuation",
+        "gltf-binary",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_dragonattenuation_gltf_dragonattenuation_gltf",
+      "name": "Dragonattenuation",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/DragonAttenuation/glTF/DragonAttenuation.gltf"
+      },
+      "tags": [
+        "dragonattenuation",
+        "gltf",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_dragonattenuation_gltf_meshopt_dragonattenuation_gltf",
+      "name": "Dragonattenuation",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/DragonAttenuation/glTF-Meshopt/DragonAttenuation.gltf"
+      },
+      "tags": [
+        "dragonattenuation",
+        "gltf-meshopt",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_dragonattenuation_gltf_meshopt_ext_dragonattenuation_gltf",
+      "name": "Dragonattenuation",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/DragonAttenuation/glTF-Meshopt-EXT/DragonAttenuation.gltf"
+      },
+      "tags": [
+        "dragonattenuation",
+        "gltf-meshopt-ext",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_dragondispersion_gltf_binary_dragondispersion_glb",
+      "name": "Dragondispersion",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/DragonDispersion/glTF-Binary/DragonDispersion.glb"
+      },
+      "tags": [
+        "dragondispersion",
+        "gltf-binary",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_dragondispersion_gltf_dragondispersion_gltf",
+      "name": "Dragondispersion",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/DragonDispersion/glTF/DragonDispersion.gltf"
+      },
+      "tags": [
+        "dragondispersion",
+        "gltf",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_duck_gltf_binary_duck_glb",
+      "name": "Duck",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/Duck/glTF-Binary/Duck.glb"
+      },
+      "tags": [
+        "duck",
+        "gltf-binary",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_duck_gltf_draco_duck_gltf",
+      "name": "Duck",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/Duck/glTF-Draco/Duck.gltf"
+      },
+      "tags": [
+        "duck",
+        "gltf-draco",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_duck_gltf_duck_gltf",
+      "name": "Duck",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/Duck/glTF/Duck.gltf"
+      },
+      "tags": [
+        "duck",
+        "gltf",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_duck_gltf_embedded_duck_gltf",
+      "name": "Duck",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/Duck/glTF-Embedded/Duck.gltf"
+      },
+      "tags": [
+        "duck",
+        "gltf-embedded",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_duck_gltf_quantized_duck_gltf",
+      "name": "Duck",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/Duck/glTF-Quantized/Duck.gltf"
+      },
+      "tags": [
+        "duck",
+        "gltf-quantized",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_emissivestrengthtest_gltf_binary_emissivestrengthtest_glb",
+      "name": "Emissivestrengthtest",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/EmissiveStrengthTest/glTF-Binary/EmissiveStrengthTest.glb"
+      },
+      "tags": [
+        "emissivestrengthtest",
+        "gltf-binary",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_emissivestrengthtest_gltf_emissivestrengthtest_gltf",
+      "name": "Emissivestrengthtest",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/EmissiveStrengthTest/glTF/EmissiveStrengthTest.gltf"
+      },
+      "tags": [
+        "emissivestrengthtest",
+        "gltf",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_environmenttest_gltf_environmenttest_gltf",
+      "name": "Environmenttest",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/EnvironmentTest/glTF/EnvironmentTest.gltf"
+      },
+      "tags": [
+        "environmenttest",
+        "gltf",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_environmenttest_gltf_ibl_environmenttest_gltf",
+      "name": "Environmenttest",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/EnvironmentTest/glTF-IBL/EnvironmentTest.gltf"
+      },
+      "tags": [
+        "environmenttest",
+        "gltf-ibl",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_flighthelmet_gltf_flighthelmet_gltf",
+      "name": "Flighthelmet",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/FlightHelmet/glTF/FlightHelmet.gltf"
+      },
+      "tags": [
+        "flighthelmet",
+        "gltf",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_fox_gltf_binary_fox_glb",
+      "name": "Fox",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/Fox/glTF-Binary/Fox.glb"
+      },
+      "tags": [
+        "fox",
+        "gltf-binary",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_fox_gltf_fox_gltf",
+      "name": "Fox",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/Fox/glTF/Fox.gltf"
+      },
+      "tags": [
+        "fox",
+        "gltf",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_glamvelvetsofa_gltf_binary_glamvelvetsofa_glb",
+      "name": "Glamvelvetsofa",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/GlamVelvetSofa/glTF-Binary/GlamVelvetSofa.glb"
+      },
+      "tags": [
+        "glamvelvetsofa",
+        "gltf-binary",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_glamvelvetsofa_gltf_glamvelvetsofa_gltf",
+      "name": "Glamvelvetsofa",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/GlamVelvetSofa/glTF/GlamVelvetSofa.gltf"
+      },
+      "tags": [
+        "glamvelvetsofa",
+        "gltf",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_glassbrokenwindow_gltf_binary_glassbrokenwindow_glb",
+      "name": "Glassbrokenwindow",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/GlassBrokenWindow/glTF-Binary/GlassBrokenWindow.glb"
+      },
+      "tags": [
+        "glassbrokenwindow",
+        "gltf-binary",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_glassbrokenwindow_gltf_glassbrokenwindow_gltf",
+      "name": "Glassbrokenwindow",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/GlassBrokenWindow/glTF/GlassBrokenWindow.gltf"
+      },
+      "tags": [
+        "glassbrokenwindow",
+        "gltf",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_glasshurricanecandleholder_gltf_binary_glasshurricanecandleholder_glb",
+      "name": "Glasshurricanecandleholder",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/GlassHurricaneCandleHolder/glTF-Binary/GlassHurricaneCandleHolder.glb"
+      },
+      "tags": [
+        "glasshurricanecandleholder",
+        "gltf-binary",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_glasshurricanecandleholder_gltf_glasshurricanecandleholder_gltf",
+      "name": "Glasshurricanecandleholder",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/GlassHurricaneCandleHolder/glTF/GlassHurricaneCandleHolder.gltf"
+      },
+      "tags": [
+        "glasshurricanecandleholder",
+        "gltf",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_glassvaseflowers_gltf_binary_glassvaseflowers_glb",
+      "name": "Glassvaseflowers",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/GlassVaseFlowers/glTF-Binary/GlassVaseFlowers.glb"
+      },
+      "tags": [
+        "glassvaseflowers",
+        "gltf-binary",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_glassvaseflowers_gltf_glassvaseflowers_gltf",
+      "name": "Glassvaseflowers",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/GlassVaseFlowers/glTF/GlassVaseFlowers.gltf"
+      },
+      "tags": [
+        "glassvaseflowers",
+        "gltf",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_interpolationtest_gltf_binary_interpolationtest_glb",
+      "name": "Interpolationtest",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/InterpolationTest/glTF-Binary/InterpolationTest.glb"
+      },
+      "tags": [
+        "gltf-binary",
+        "interpolationtest",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_interpolationtest_gltf_interpolationtest_gltf",
+      "name": "Interpolationtest",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/InterpolationTest/glTF/InterpolationTest.gltf"
+      },
+      "tags": [
+        "gltf",
+        "interpolationtest",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_iortestgrid_gltf_binary_iortestgrid_glb",
+      "name": "Iortestgrid",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/IORTestGrid/glTF-Binary/IORTestGrid.glb"
+      },
+      "tags": [
+        "gltf-binary",
+        "iortestgrid",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_iortestgrid_gltf_iortestgrid_gltf",
+      "name": "Iortestgrid",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/IORTestGrid/glTF/IORTestGrid.gltf"
+      },
+      "tags": [
+        "gltf",
+        "iortestgrid",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_iridescenceabalone_gltf_binary_iridescenceabalone_glb",
+      "name": "Iridescenceabalone",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/IridescenceAbalone/glTF-Binary/IridescenceAbalone.glb"
+      },
+      "tags": [
+        "gltf-binary",
+        "iridescenceabalone",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_iridescenceabalone_gltf_iridescenceabalone_gltf",
+      "name": "Iridescenceabalone",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/IridescenceAbalone/glTF/IridescenceAbalone.gltf"
+      },
+      "tags": [
+        "gltf",
+        "iridescenceabalone",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_iridescencedielectricspheres_gltf_iridescencedielectricspheres_gltf",
+      "name": "Iridescencedielectricspheres",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/IridescenceDielectricSpheres/glTF/IridescenceDielectricSpheres.gltf"
+      },
+      "tags": [
+        "gltf",
+        "iridescencedielectricspheres",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_iridescencelamp_gltf_binary_iridescencelamp_glb",
+      "name": "Iridescencelamp",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/IridescenceLamp/glTF-Binary/IridescenceLamp.glb"
+      },
+      "tags": [
+        "gltf-binary",
+        "iridescencelamp",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_iridescencelamp_gltf_iridescencelamp_gltf",
+      "name": "Iridescencelamp",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/IridescenceLamp/glTF/IridescenceLamp.gltf"
+      },
+      "tags": [
+        "gltf",
+        "iridescencelamp",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_iridescencemetallicspheres_gltf_iridescencemetallicspheres_gltf",
+      "name": "Iridescencemetallicspheres",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/IridescenceMetallicSpheres/glTF/IridescenceMetallicSpheres.gltf"
+      },
+      "tags": [
+        "gltf",
+        "iridescencemetallicspheres",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_iridescencesuzanne_gltf_binary_iridescencesuzanne_glb",
+      "name": "Iridescencesuzanne",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/IridescenceSuzanne/glTF-Binary/IridescenceSuzanne.glb"
+      },
+      "tags": [
+        "gltf-binary",
+        "iridescencesuzanne",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_iridescencesuzanne_gltf_iridescencesuzanne_gltf",
+      "name": "Iridescencesuzanne",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/IridescenceSuzanne/glTF/IridescenceSuzanne.gltf"
+      },
+      "tags": [
+        "gltf",
+        "iridescencesuzanne",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_iridescentdishwitholives_gltf_binary_iridescentdishwitholives_glb",
+      "name": "Iridescentdishwitholives",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/IridescentDishWithOlives/glTF-Binary/IridescentDishWithOlives.glb"
+      },
+      "tags": [
+        "gltf-binary",
+        "iridescentdishwitholives",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_iridescentdishwitholives_gltf_iridescentdishwitholives_gltf",
+      "name": "Iridescentdishwitholives",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/IridescentDishWithOlives/glTF/IridescentDishWithOlives.gltf"
+      },
+      "tags": [
+        "gltf",
+        "iridescentdishwitholives",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_lantern_gltf_binary_lantern_glb",
+      "name": "Lantern",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/Lantern/glTF-Binary/Lantern.glb"
+      },
+      "tags": [
+        "gltf-binary",
+        "lantern",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_lantern_gltf_draco_lantern_gltf",
+      "name": "Lantern",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/Lantern/glTF-Draco/Lantern.gltf"
+      },
+      "tags": [
+        "gltf-draco",
+        "lantern",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_lantern_gltf_lantern_gltf",
+      "name": "Lantern",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/Lantern/glTF/Lantern.gltf"
+      },
+      "tags": [
+        "gltf",
+        "lantern",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_lantern_gltf_quantized_lantern_gltf",
+      "name": "Lantern",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/Lantern/glTF-Quantized/Lantern.gltf"
+      },
+      "tags": [
+        "gltf-quantized",
+        "lantern",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_lightspunctuallamp_gltf_binary_lightspunctuallamp_glb",
+      "name": "Lightspunctuallamp",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/LightsPunctualLamp/glTF-Binary/LightsPunctualLamp.glb"
+      },
+      "tags": [
+        "gltf-binary",
+        "lightspunctuallamp",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_lightspunctuallamp_gltf_lightspunctuallamp_gltf",
+      "name": "Lightspunctuallamp",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/LightsPunctualLamp/glTF/LightsPunctualLamp.gltf"
+      },
+      "tags": [
+        "gltf",
+        "lightspunctuallamp",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_lightvisibility_gltf_binary_lightvisibility_glb",
+      "name": "Lightvisibility",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/LightVisibility/glTF-Binary/LightVisibility.glb"
+      },
+      "tags": [
+        "gltf-binary",
+        "lightvisibility",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_lightvisibility_gltf_lightvisibility_gltf",
+      "name": "Lightvisibility",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/LightVisibility/glTF/LightVisibility.gltf"
+      },
+      "tags": [
+        "gltf",
+        "lightvisibility",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_mandarinorange_gltf_mandarinorange_gltf",
+      "name": "Mandarinorange",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/MandarinOrange/glTF/MandarinOrange.gltf"
+      },
+      "tags": [
+        "gltf",
+        "mandarinorange",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_materialsvariantsshoe_gltf_binary_materialsvariantsshoe_glb",
+      "name": "Materialsvariantsshoe",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/MaterialsVariantsShoe/glTF-Binary/MaterialsVariantsShoe.glb"
+      },
+      "tags": [
+        "gltf-binary",
+        "materialsvariantsshoe",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_materialsvariantsshoe_gltf_materialsvariantsshoe_gltf",
+      "name": "Materialsvariantsshoe",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/MaterialsVariantsShoe/glTF/MaterialsVariantsShoe.gltf"
+      },
+      "tags": [
+        "gltf",
+        "materialsvariantsshoe",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_meshoptcubetest_gltf_meshopt_meshoptcubetest_gltf",
+      "name": "Meshoptcubetest",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/MeshoptCubeTest/glTF-Meshopt/MeshoptCubeTest.gltf"
+      },
+      "tags": [
+        "gltf-meshopt",
+        "meshoptcubetest",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_meshoptcubetest_gltf_meshoptcubetest_gltf",
+      "name": "Meshoptcubetest",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/MeshoptCubeTest/glTF/MeshoptCubeTest.gltf"
+      },
+      "tags": [
+        "gltf",
+        "meshoptcubetest",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_meshprimitivemodes_gltf_embedded_meshprimitivemodes_gltf",
+      "name": "Meshprimitivemodes",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/MeshPrimitiveModes/glTF-Embedded/MeshPrimitiveModes.gltf"
+      },
+      "tags": [
+        "gltf-embedded",
+        "meshprimitivemodes",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_meshprimitivemodes_gltf_meshprimitivemodes_gltf",
+      "name": "Meshprimitivemodes",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/MeshPrimitiveModes/glTF/MeshPrimitiveModes.gltf"
+      },
+      "tags": [
+        "gltf",
+        "meshprimitivemodes",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_metalroughspheres_gltf_binary_metalroughspheres_glb",
+      "name": "Metalroughspheres",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/MetalRoughSpheres/glTF-Binary/MetalRoughSpheres.glb"
+      },
+      "tags": [
+        "gltf-binary",
+        "metalroughspheres",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_metalroughspheres_gltf_embedded_metalroughspheres_gltf",
+      "name": "Metalroughspheres",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/MetalRoughSpheres/glTF-Embedded/MetalRoughSpheres.gltf"
+      },
+      "tags": [
+        "gltf-embedded",
+        "metalroughspheres",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_metalroughspheres_gltf_metalroughspheres_gltf",
+      "name": "Metalroughspheres",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/MetalRoughSpheres/glTF/MetalRoughSpheres.gltf"
+      },
+      "tags": [
+        "gltf",
+        "metalroughspheres",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_metalroughspheresnotextures_gltf_binary_metalroughspheresnotextures_glb",
+      "name": "Metalroughspheresnotextures",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/MetalRoughSpheresNoTextures/glTF-Binary/MetalRoughSpheresNoTextures.glb"
+      },
+      "tags": [
+        "gltf-binary",
+        "metalroughspheresnotextures",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_metalroughspheresnotextures_gltf_metalroughspheresnotextures_gltf",
+      "name": "Metalroughspheresnotextures",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/MetalRoughSpheresNoTextures/glTF/MetalRoughSpheresNoTextures.gltf"
+      },
+      "tags": [
+        "gltf",
+        "metalroughspheresnotextures",
+        "models"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_morphprimitivestest_gltf_binary_morphprimitivestest_glb",
+      "name": "Morphprimitivestest",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/MorphPrimitivesTest/glTF-Binary/MorphPrimitivesTest.glb"
+      },
+      "tags": [
+        "gltf-binary",
+        "models",
+        "morphprimitivestest"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_morphprimitivestest_gltf_draco_morphprimitivestest_gltf",
+      "name": "Morphprimitivestest",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/MorphPrimitivesTest/glTF-Draco/MorphPrimitivesTest.gltf"
+      },
+      "tags": [
+        "gltf-draco",
+        "models",
+        "morphprimitivestest"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_morphprimitivestest_gltf_morphprimitivestest_gltf",
+      "name": "Morphprimitivestest",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/MorphPrimitivesTest/glTF/MorphPrimitivesTest.gltf"
+      },
+      "tags": [
+        "gltf",
+        "models",
+        "morphprimitivestest"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_morphstresstest_gltf_binary_morphstresstest_glb",
+      "name": "Morphstresstest",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/MorphStressTest/glTF-Binary/MorphStressTest.glb"
+      },
+      "tags": [
+        "gltf-binary",
+        "models",
+        "morphstresstest"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_morphstresstest_gltf_morphstresstest_gltf",
+      "name": "Morphstresstest",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/MorphStressTest/glTF/MorphStressTest.gltf"
+      },
+      "tags": [
+        "gltf",
+        "models",
+        "morphstresstest"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_mosquitoinamber_gltf_binary_mosquitoinamber_glb",
+      "name": "Mosquitoinamber",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/MosquitoInAmber/glTF-Binary/MosquitoInAmber.glb"
+      },
+      "tags": [
+        "gltf-binary",
+        "models",
+        "mosquitoinamber"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_mosquitoinamber_gltf_mosquitoinamber_gltf",
+      "name": "Mosquitoinamber",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/MosquitoInAmber/glTF/MosquitoInAmber.gltf"
+      },
+      "tags": [
+        "gltf",
+        "models",
+        "mosquitoinamber"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_multiplescenes_gltf_embedded_multiplescenes_gltf",
+      "name": "Multiplescenes",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/MultipleScenes/glTF-Embedded/MultipleScenes.gltf"
+      },
+      "tags": [
+        "gltf-embedded",
+        "models",
+        "multiplescenes"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_multiplescenes_gltf_multiplescenes_gltf",
+      "name": "Multiplescenes",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/MultipleScenes/glTF/MultipleScenes.gltf"
+      },
+      "tags": [
+        "gltf",
+        "models",
+        "multiplescenes"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_multiuvtest_gltf_binary_multiuvtest_glb",
+      "name": "Multiuvtest",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/MultiUVTest/glTF-Binary/MultiUVTest.glb"
+      },
+      "tags": [
+        "gltf-binary",
+        "models",
+        "multiuvtest"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_multiuvtest_gltf_embedded_multiuvtest_gltf",
+      "name": "Multiuvtest",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/MultiUVTest/glTF-Embedded/MultiUVTest.gltf"
+      },
+      "tags": [
+        "gltf-embedded",
+        "models",
+        "multiuvtest"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_multiuvtest_gltf_multiuvtest_gltf",
+      "name": "Multiuvtest",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/MultiUVTest/glTF/MultiUVTest.gltf"
+      },
+      "tags": [
+        "gltf",
+        "models",
+        "multiuvtest"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_negativescaletest_gltf_binary_negativescaletest_glb",
+      "name": "Negativescaletest",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/NegativeScaleTest/glTF-Binary/NegativeScaleTest.glb"
+      },
+      "tags": [
+        "gltf-binary",
+        "models",
+        "negativescaletest"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_negativescaletest_gltf_negativescaletest_gltf",
+      "name": "Negativescaletest",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/NegativeScaleTest/glTF/NegativeScaleTest.gltf"
+      },
+      "tags": [
+        "gltf",
+        "models",
+        "negativescaletest"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_nodeperformancetest_gltf_binary_nodeperformancetest_glb",
+      "name": "Nodeperformancetest",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/NodePerformanceTest/glTF-Binary/NodePerformanceTest.glb"
+      },
+      "tags": [
+        "gltf-binary",
+        "models",
+        "nodeperformancetest"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_nodeperformancetest_gltf_nodeperformancetest_gltf",
+      "name": "Nodeperformancetest",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/NodePerformanceTest/glTF/NodePerformanceTest.gltf"
+      },
+      "tags": [
+        "gltf",
+        "models",
+        "nodeperformancetest"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_nodevisibilitytest_gltf_binary_nodevisibilitytest_glb",
+      "name": "Nodevisibilitytest",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/NodeVisibilityTest/glTF-Binary/NodeVisibilityTest.glb"
+      },
+      "tags": [
+        "gltf-binary",
+        "models",
+        "nodevisibilitytest"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_nodevisibilitytest_gltf_nodevisibilitytest_gltf",
+      "name": "Nodevisibilitytest",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/NodeVisibilityTest/glTF/NodeVisibilityTest.gltf"
+      },
+      "tags": [
+        "gltf",
+        "models",
+        "nodevisibilitytest"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_normaltangentmirrortest_gltf_binary_normaltangentmirrortest_glb",
+      "name": "Normaltangentmirrortest",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/NormalTangentMirrorTest/glTF-Binary/NormalTangentMirrorTest.glb"
+      },
+      "tags": [
+        "gltf-binary",
+        "models",
+        "normaltangentmirrortest"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_normaltangentmirrortest_gltf_normaltangentmirrortest_gltf",
+      "name": "Normaltangentmirrortest",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/NormalTangentMirrorTest/glTF/NormalTangentMirrorTest.gltf"
+      },
+      "tags": [
+        "gltf",
+        "models",
+        "normaltangentmirrortest"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_normaltangenttest_gltf_binary_normaltangenttest_glb",
+      "name": "Normaltangenttest",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/NormalTangentTest/glTF-Binary/NormalTangentTest.glb"
+      },
+      "tags": [
+        "gltf-binary",
+        "models",
+        "normaltangenttest"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_normaltangenttest_gltf_normaltangenttest_gltf",
+      "name": "Normaltangenttest",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/NormalTangentTest/glTF/NormalTangentTest.gltf"
+      },
+      "tags": [
+        "gltf",
+        "models",
+        "normaltangenttest"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_orientationtest_gltf_binary_orientationtest_glb",
+      "name": "Orientationtest",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/OrientationTest/glTF-Binary/OrientationTest.glb"
+      },
+      "tags": [
+        "gltf-binary",
+        "models",
+        "orientationtest"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_orientationtest_gltf_embedded_orientationtest_gltf",
+      "name": "Orientationtest",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/OrientationTest/glTF-Embedded/OrientationTest.gltf"
+      },
+      "tags": [
+        "gltf-embedded",
+        "models",
+        "orientationtest"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_orientationtest_gltf_orientationtest_gltf",
+      "name": "Orientationtest",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/OrientationTest/glTF/OrientationTest.gltf"
+      },
+      "tags": [
+        "gltf",
+        "models",
+        "orientationtest"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_playsetlighttest_gltf_binary_playsetlighttest_glb",
+      "name": "Playsetlighttest",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/PlaysetLightTest/glTF-Binary/PlaysetLightTest.glb"
+      },
+      "tags": [
+        "gltf-binary",
+        "models",
+        "playsetlighttest"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_playsetlighttest_gltf_playsetlighttest_gltf",
+      "name": "Playsetlighttest",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/PlaysetLightTest/glTF/PlaysetLightTest.gltf"
+      },
+      "tags": [
+        "gltf",
+        "models",
+        "playsetlighttest"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_pointlightintensitytest_gltf_binary_pointlightintensitytest_glb",
+      "name": "Pointlightintensitytest",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/PointLightIntensityTest/glTF-Binary/PointLightIntensityTest.glb"
+      },
+      "tags": [
+        "gltf-binary",
+        "models",
+        "pointlightintensitytest"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_pointlightintensitytest_gltf_pointlightintensitytest_gltf",
+      "name": "Pointlightintensitytest",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/PointLightIntensityTest/glTF/PointLightIntensityTest.gltf"
+      },
+      "tags": [
+        "gltf",
+        "models",
+        "pointlightintensitytest"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_potofcoals_gltf_binary_potofcoals_glb",
+      "name": "Potofcoals",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/PotOfCoals/glTF-Binary/PotOfCoals.glb"
+      },
+      "tags": [
+        "gltf-binary",
+        "models",
+        "potofcoals"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_potofcoals_gltf_potofcoals_gltf",
+      "name": "Potofcoals",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/PotOfCoals/glTF/PotOfCoals.gltf"
+      },
+      "tags": [
+        "gltf",
+        "models",
+        "potofcoals"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_potofcoalsanimationpointer_gltf_binary_potofcoalsanimationpointer_glb",
+      "name": "Potofcoalsanimationpointer",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/PotOfCoalsAnimationPointer/glTF-Binary/PotOfCoalsAnimationPointer.glb"
+      },
+      "tags": [
+        "gltf-binary",
+        "models",
+        "potofcoalsanimationpointer"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_potofcoalsanimationpointer_gltf_potofcoalsanimationpointer_gltf",
+      "name": "Potofcoalsanimationpointer",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/PotOfCoalsAnimationPointer/glTF/PotOfCoalsAnimationPointer.gltf"
+      },
+      "tags": [
+        "gltf",
+        "models",
+        "potofcoalsanimationpointer"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_primitivemodenormalstest_gltf_primitivemodenormalstest_gltf",
+      "name": "Primitivemodenormalstest",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/PrimitiveModeNormalsTest/glTF/PrimitiveModeNormalsTest.gltf"
+      },
+      "tags": [
+        "gltf",
+        "models",
+        "primitivemodenormalstest"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_recursiveskeletons_gltf_binary_recursiveskeletons_glb",
+      "name": "Recursiveskeletons",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/RecursiveSkeletons/glTF-Binary/RecursiveSkeletons.glb"
+      },
+      "tags": [
+        "gltf-binary",
+        "models",
+        "recursiveskeletons"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_recursiveskeletons_gltf_recursiveskeletons_gltf",
+      "name": "Recursiveskeletons",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/RecursiveSkeletons/glTF/RecursiveSkeletons.gltf"
+      },
+      "tags": [
+        "gltf",
+        "models",
+        "recursiveskeletons"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_riggedfigure_gltf_binary_riggedfigure_glb",
+      "name": "Riggedfigure",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/RiggedFigure/glTF-Binary/RiggedFigure.glb"
+      },
+      "tags": [
+        "gltf-binary",
+        "models",
+        "riggedfigure"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_riggedfigure_gltf_draco_riggedfigure_gltf",
+      "name": "Riggedfigure",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/RiggedFigure/glTF-Draco/RiggedFigure.gltf"
+      },
+      "tags": [
+        "gltf-draco",
+        "models",
+        "riggedfigure"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_riggedfigure_gltf_embedded_riggedfigure_gltf",
+      "name": "Riggedfigure",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/RiggedFigure/glTF-Embedded/RiggedFigure.gltf"
+      },
+      "tags": [
+        "gltf-embedded",
+        "models",
+        "riggedfigure"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_riggedfigure_gltf_riggedfigure_gltf",
+      "name": "Riggedfigure",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/RiggedFigure/glTF/RiggedFigure.gltf"
+      },
+      "tags": [
+        "gltf",
+        "models",
+        "riggedfigure"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_riggedsimple_gltf_binary_riggedsimple_glb",
+      "name": "Riggedsimple",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/RiggedSimple/glTF-Binary/RiggedSimple.glb"
+      },
+      "tags": [
+        "gltf-binary",
+        "models",
+        "riggedsimple"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_riggedsimple_gltf_draco_riggedsimple_gltf",
+      "name": "Riggedsimple",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/RiggedSimple/glTF-Draco/RiggedSimple.gltf"
+      },
+      "tags": [
+        "gltf-draco",
+        "models",
+        "riggedsimple"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_riggedsimple_gltf_embedded_riggedsimple_gltf",
+      "name": "Riggedsimple",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/RiggedSimple/glTF-Embedded/RiggedSimple.gltf"
+      },
+      "tags": [
+        "gltf-embedded",
+        "models",
+        "riggedsimple"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_riggedsimple_gltf_riggedsimple_gltf",
+      "name": "Riggedsimple",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/RiggedSimple/glTF/RiggedSimple.gltf"
+      },
+      "tags": [
+        "gltf",
+        "models",
+        "riggedsimple"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_scatteringskull_gltf_binary_scatteringskull_glb",
+      "name": "Scatteringskull",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/ScatteringSkull/glTF-Binary/ScatteringSkull.glb"
+      },
+      "tags": [
+        "gltf-binary",
+        "models",
+        "scatteringskull"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_scatteringskull_gltf_scatteringskull_gltf",
+      "name": "Scatteringskull",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/ScatteringSkull/glTF/ScatteringSkull.gltf"
+      },
+      "tags": [
+        "gltf",
+        "models",
+        "scatteringskull"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_scifihelmet_gltf_scifihelmet_gltf",
+      "name": "Scifihelmet",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/SciFiHelmet/glTF/SciFiHelmet.gltf"
+      },
+      "tags": [
+        "gltf",
+        "models",
+        "scifihelmet"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_sheenchair_gltf_binary_sheenchair_glb",
+      "name": "Sheenchair",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/SheenChair/glTF-Binary/SheenChair.glb"
+      },
+      "tags": [
+        "gltf-binary",
+        "models",
+        "sheenchair"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_sheenchair_gltf_sheenchair_gltf",
+      "name": "Sheenchair",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/SheenChair/glTF/SheenChair.gltf"
+      },
+      "tags": [
+        "gltf",
+        "models",
+        "sheenchair"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_sheencloth_gltf_sheencloth_gltf",
+      "name": "Sheencloth",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/SheenCloth/glTF/SheenCloth.gltf"
+      },
+      "tags": [
+        "gltf",
+        "models",
+        "sheencloth"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_sheentestgrid_gltf_binary_sheentestgrid_glb",
+      "name": "Sheentestgrid",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/SheenTestGrid/glTF-Binary/SheenTestGrid.glb"
+      },
+      "tags": [
+        "gltf-binary",
+        "models",
+        "sheentestgrid"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_sheentestgrid_gltf_sheentestgrid_gltf",
+      "name": "Sheentestgrid",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/SheenTestGrid/glTF/SheenTestGrid.gltf"
+      },
+      "tags": [
+        "gltf",
+        "models",
+        "sheentestgrid"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_sheenwoodleathersofa_gltf_binary_sheenwoodleathersofa_glb",
+      "name": "Sheenwoodleathersofa",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/SheenWoodLeatherSofa/glTF-Binary/SheenWoodLeatherSofa.glb"
+      },
+      "tags": [
+        "gltf-binary",
+        "models",
+        "sheenwoodleathersofa"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_sheenwoodleathersofa_gltf_sheenwoodleathersofa_gltf",
+      "name": "Sheenwoodleathersofa",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/SheenWoodLeatherSofa/glTF/SheenWoodLeatherSofa.gltf"
+      },
+      "tags": [
+        "gltf",
+        "models",
+        "sheenwoodleathersofa"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_simpleinstancing_gltf_binary_simpleinstancing_glb",
+      "name": "Simpleinstancing",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/SimpleInstancing/glTF-Binary/SimpleInstancing.glb"
+      },
+      "tags": [
+        "gltf-binary",
+        "models",
+        "simpleinstancing"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_simpleinstancing_gltf_simpleinstancing_gltf",
+      "name": "Simpleinstancing",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/SimpleInstancing/glTF/SimpleInstancing.gltf"
+      },
+      "tags": [
+        "gltf",
+        "models",
+        "simpleinstancing"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_simplematerial_gltf_embedded_simplematerial_gltf",
+      "name": "Simplematerial",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/SimpleMaterial/glTF-Embedded/SimpleMaterial.gltf"
+      },
+      "tags": [
+        "gltf-embedded",
+        "models",
+        "simplematerial"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_simplematerial_gltf_simplematerial_gltf",
+      "name": "Simplematerial",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/SimpleMaterial/glTF/SimpleMaterial.gltf"
+      },
+      "tags": [
+        "gltf",
+        "models",
+        "simplematerial"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_simplemeshes_gltf_embedded_simplemeshes_gltf",
+      "name": "Simplemeshes",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/SimpleMeshes/glTF-Embedded/SimpleMeshes.gltf"
+      },
+      "tags": [
+        "gltf-embedded",
+        "models",
+        "simplemeshes"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_simplemeshes_gltf_simplemeshes_gltf",
+      "name": "Simplemeshes",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/SimpleMeshes/glTF/SimpleMeshes.gltf"
+      },
+      "tags": [
+        "gltf",
+        "models",
+        "simplemeshes"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_simplemorph_gltf_embedded_simplemorph_gltf",
+      "name": "Simplemorph",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/SimpleMorph/glTF-Embedded/SimpleMorph.gltf"
+      },
+      "tags": [
+        "gltf-embedded",
+        "models",
+        "simplemorph"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_simplemorph_gltf_simplemorph_gltf",
+      "name": "Simplemorph",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/SimpleMorph/glTF/SimpleMorph.gltf"
+      },
+      "tags": [
+        "gltf",
+        "models",
+        "simplemorph"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_simpleskin_gltf_embedded_simpleskin_gltf",
+      "name": "Simpleskin",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/SimpleSkin/glTF-Embedded/SimpleSkin.gltf"
+      },
+      "tags": [
+        "gltf-embedded",
+        "models",
+        "simpleskin"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_simpleskin_gltf_simpleskin_gltf",
+      "name": "Simpleskin",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/SimpleSkin/glTF/SimpleSkin.gltf"
+      },
+      "tags": [
+        "gltf",
+        "models",
+        "simpleskin"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_simplesparseaccessor_gltf_embedded_simplesparseaccessor_gltf",
+      "name": "Simplesparseaccessor",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/SimpleSparseAccessor/glTF-Embedded/SimpleSparseAccessor.gltf"
+      },
+      "tags": [
+        "gltf-embedded",
+        "models",
+        "simplesparseaccessor"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_simplesparseaccessor_gltf_simplesparseaccessor_gltf",
+      "name": "Simplesparseaccessor",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/SimpleSparseAccessor/glTF/SimpleSparseAccessor.gltf"
+      },
+      "tags": [
+        "gltf",
+        "models",
+        "simplesparseaccessor"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_simpletexture_gltf_embedded_simpletexture_gltf",
+      "name": "Simpletexture",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/SimpleTexture/glTF-Embedded/SimpleTexture.gltf"
+      },
+      "tags": [
+        "gltf-embedded",
+        "models",
+        "simpletexture"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_simpletexture_gltf_simpletexture_gltf",
+      "name": "Simpletexture",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/SimpleTexture/glTF/SimpleTexture.gltf"
+      },
+      "tags": [
+        "gltf",
+        "models",
+        "simpletexture"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_specglossvsmetalrough_gltf_binary_specglossvsmetalrough_glb",
+      "name": "Specglossvsmetalrough",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/SpecGlossVsMetalRough/glTF-Binary/SpecGlossVsMetalRough.glb"
+      },
+      "tags": [
+        "gltf-binary",
+        "models",
+        "specglossvsmetalrough"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_specglossvsmetalrough_gltf_specglossvsmetalrough_gltf",
+      "name": "Specglossvsmetalrough",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/SpecGlossVsMetalRough/glTF/SpecGlossVsMetalRough.gltf"
+      },
+      "tags": [
+        "gltf",
+        "models",
+        "specglossvsmetalrough"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_specularsilkpouf_gltf_binary_specularsilkpouf_glb",
+      "name": "Specularsilkpouf",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/SpecularSilkPouf/glTF-Binary/SpecularSilkPouf.glb"
+      },
+      "tags": [
+        "gltf-binary",
+        "models",
+        "specularsilkpouf"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_specularsilkpouf_gltf_specularsilkpouf_gltf",
+      "name": "Specularsilkpouf",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/SpecularSilkPouf/glTF/SpecularSilkPouf.gltf"
+      },
+      "tags": [
+        "gltf",
+        "models",
+        "specularsilkpouf"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_speculartest_gltf_binary_speculartest_glb",
+      "name": "Speculartest",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/SpecularTest/glTF-Binary/SpecularTest.glb"
+      },
+      "tags": [
+        "gltf-binary",
+        "models",
+        "speculartest"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_speculartest_gltf_speculartest_gltf",
+      "name": "Speculartest",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/SpecularTest/glTF/SpecularTest.gltf"
+      },
+      "tags": [
+        "gltf",
+        "models",
+        "speculartest"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_sponza_gltf_sponza_gltf",
+      "name": "Sponza",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/Sponza/glTF/Sponza.gltf"
+      },
+      "tags": [
+        "gltf",
+        "models",
+        "sponza"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_stainedglasslamp_gltf_jpg_png_stainedglasslamp_gltf",
+      "name": "Stainedglasslamp",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/StainedGlassLamp/glTF-JPG-PNG/StainedGlassLamp.gltf"
+      },
+      "tags": [
+        "gltf-jpg-png",
+        "models",
+        "stainedglasslamp"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_stainedglasslamp_gltf_ktx_basisu_stainedglasslamp_gltf",
+      "name": "Stainedglasslamp",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/StainedGlassLamp/glTF-KTX-BasisU/StainedGlassLamp.gltf"
+      },
+      "tags": [
+        "gltf-ktx-basisu",
+        "models",
+        "stainedglasslamp"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_stainedglasslamp_gltf_stainedglasslamp_gltf",
+      "name": "Stainedglasslamp",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/StainedGlassLamp/glTF/StainedGlassLamp.gltf"
+      },
+      "tags": [
+        "gltf",
+        "models",
+        "stainedglasslamp"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_sunglasseskhronos_gltf_binary_sunglasseskhronos_glb",
+      "name": "Sunglasseskhronos",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/SunglassesKhronos/glTF-Binary/SunglassesKhronos.glb"
+      },
+      "tags": [
+        "gltf-binary",
+        "models",
+        "sunglasseskhronos"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_sunglasseskhronos_gltf_draco_sunglasseskhronos_gltf",
+      "name": "Sunglasseskhronos",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/SunglassesKhronos/glTF-Draco/SunglassesKhronos.gltf"
+      },
+      "tags": [
+        "gltf-draco",
+        "models",
+        "sunglasseskhronos"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_sunglasseskhronos_gltf_sunglasseskhronos_gltf",
+      "name": "Sunglasseskhronos",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/SunglassesKhronos/glTF/SunglassesKhronos.gltf"
+      },
+      "tags": [
+        "gltf",
+        "models",
+        "sunglasseskhronos"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_suzanne_gltf_suzanne_gltf",
+      "name": "Suzanne",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/Suzanne/glTF/Suzanne.gltf"
+      },
+      "tags": [
+        "gltf",
+        "models",
+        "suzanne"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_texturecoordinatetest_gltf_binary_texturecoordinatetest_glb",
+      "name": "Texturecoordinatetest",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/TextureCoordinateTest/glTF-Binary/TextureCoordinateTest.glb"
+      },
+      "tags": [
+        "gltf-binary",
+        "models",
+        "texturecoordinatetest"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_texturecoordinatetest_gltf_embedded_texturecoordinatetest_gltf",
+      "name": "Texturecoordinatetest",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/TextureCoordinateTest/glTF-Embedded/TextureCoordinateTest.gltf"
+      },
+      "tags": [
+        "gltf-embedded",
+        "models",
+        "texturecoordinatetest"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_texturecoordinatetest_gltf_texturecoordinatetest_gltf",
+      "name": "Texturecoordinatetest",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/TextureCoordinateTest/glTF/TextureCoordinateTest.gltf"
+      },
+      "tags": [
+        "gltf",
+        "models",
+        "texturecoordinatetest"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_textureencodingtest_gltf_binary_textureencodingtest_glb",
+      "name": "Textureencodingtest",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/TextureEncodingTest/glTF-Binary/TextureEncodingTest.glb"
+      },
+      "tags": [
+        "gltf-binary",
+        "models",
+        "textureencodingtest"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_textureencodingtest_gltf_textureencodingtest_gltf",
+      "name": "Textureencodingtest",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/TextureEncodingTest/glTF/TextureEncodingTest.gltf"
+      },
+      "tags": [
+        "gltf",
+        "models",
+        "textureencodingtest"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_texturelinearinterpolationtest_gltf_binary_texturelinearinterpolationtest_glb",
+      "name": "Texturelinearinterpolationtest",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/TextureLinearInterpolationTest/glTF-Binary/TextureLinearInterpolationTest.glb"
+      },
+      "tags": [
+        "gltf-binary",
+        "models",
+        "texturelinearinterpolationtest"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_texturelinearinterpolationtest_gltf_texturelinearinterpolationtest_gltf",
+      "name": "Texturelinearinterpolationtest",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/TextureLinearInterpolationTest/glTF/TextureLinearInterpolationTest.gltf"
+      },
+      "tags": [
+        "gltf",
+        "models",
+        "texturelinearinterpolationtest"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_texturesettingstest_gltf_binary_texturesettingstest_glb",
+      "name": "Texturesettingstest",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/TextureSettingsTest/glTF-Binary/TextureSettingsTest.glb"
+      },
+      "tags": [
+        "gltf-binary",
+        "models",
+        "texturesettingstest"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_texturesettingstest_gltf_embedded_texturesettingstest_gltf",
+      "name": "Texturesettingstest",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/TextureSettingsTest/glTF-Embedded/TextureSettingsTest.gltf"
+      },
+      "tags": [
+        "gltf-embedded",
+        "models",
+        "texturesettingstest"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_texturesettingstest_gltf_texturesettingstest_gltf",
+      "name": "Texturesettingstest",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/TextureSettingsTest/glTF/TextureSettingsTest.gltf"
+      },
+      "tags": [
+        "gltf",
+        "models",
+        "texturesettingstest"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_texturetransformmultitest_gltf_binary_texturetransformmultitest_glb",
+      "name": "Texturetransformmultitest",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/TextureTransformMultiTest/glTF-Binary/TextureTransformMultiTest.glb"
+      },
+      "tags": [
+        "gltf-binary",
+        "models",
+        "texturetransformmultitest"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_texturetransformmultitest_gltf_texturetransformmultitest_gltf",
+      "name": "Texturetransformmultitest",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/TextureTransformMultiTest/glTF/TextureTransformMultiTest.gltf"
+      },
+      "tags": [
+        "gltf",
+        "models",
+        "texturetransformmultitest"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_texturetransformtest_gltf_texturetransformtest_gltf",
+      "name": "Texturetransformtest",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/TextureTransformTest/glTF/TextureTransformTest.gltf"
+      },
+      "tags": [
+        "gltf",
+        "models",
+        "texturetransformtest"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_toycar_gltf_binary_toycar_glb",
+      "name": "Toycar",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/ToyCar/glTF-Binary/ToyCar.glb"
+      },
+      "tags": [
+        "gltf-binary",
+        "models",
+        "toycar"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_toycar_gltf_toycar_gltf",
+      "name": "Toycar",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/ToyCar/glTF/ToyCar.gltf"
+      },
+      "tags": [
+        "gltf",
+        "models",
+        "toycar"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_trafficcone_gltf_trafficcone_gltf",
+      "name": "Trafficcone",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/TrafficCone/glTF/TrafficCone.gltf"
+      },
+      "tags": [
+        "gltf",
+        "models",
+        "trafficcone"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_transmissionordertest_gltf_binary_transmissionordertest_glb",
+      "name": "Transmissionordertest",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/TransmissionOrderTest/glTF-Binary/TransmissionOrderTest.glb"
+      },
+      "tags": [
+        "gltf-binary",
+        "models",
+        "transmissionordertest"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_transmissionordertest_gltf_transmissionordertest_gltf",
+      "name": "Transmissionordertest",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/TransmissionOrderTest/glTF/TransmissionOrderTest.gltf"
+      },
+      "tags": [
+        "gltf",
+        "models",
+        "transmissionordertest"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_transmissionroughnesstest_gltf_binary_transmissionroughnesstest_glb",
+      "name": "Transmissionroughnesstest",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/TransmissionRoughnessTest/glTF-Binary/TransmissionRoughnessTest.glb"
+      },
+      "tags": [
+        "gltf-binary",
+        "models",
+        "transmissionroughnesstest"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_transmissionroughnesstest_gltf_transmissionroughnesstest_gltf",
+      "name": "Transmissionroughnesstest",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/TransmissionRoughnessTest/glTF/TransmissionRoughnessTest.gltf"
+      },
+      "tags": [
+        "gltf",
+        "models",
+        "transmissionroughnesstest"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_transmissiontest_gltf_binary_transmissiontest_glb",
+      "name": "Transmissiontest",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/TransmissionTest/glTF-Binary/TransmissionTest.glb"
+      },
+      "tags": [
+        "gltf-binary",
+        "models",
+        "transmissiontest"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_transmissiontest_gltf_transmissiontest_gltf",
+      "name": "Transmissiontest",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/TransmissionTest/glTF/TransmissionTest.gltf"
+      },
+      "tags": [
+        "gltf",
+        "models",
+        "transmissiontest"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_transmissionthinwalltestgrid_gltf_binary_transmissionthinwalltestgrid_glb",
+      "name": "Transmissionthinwalltestgrid",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/TransmissionThinwallTestGrid/glTF-Binary/TransmissionThinwallTestGrid.glb"
+      },
+      "tags": [
+        "gltf-binary",
+        "models",
+        "transmissionthinwalltestgrid"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_transmissionthinwalltestgrid_gltf_transmissionthinwalltestgrid_gltf",
+      "name": "Transmissionthinwalltestgrid",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/TransmissionThinwallTestGrid/glTF/TransmissionThinwallTestGrid.gltf"
+      },
+      "tags": [
+        "gltf",
+        "models",
+        "transmissionthinwalltestgrid"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_triangle_gltf_embedded_triangle_gltf",
+      "name": "Triangle",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/Triangle/glTF-Embedded/Triangle.gltf"
+      },
+      "tags": [
+        "gltf-embedded",
+        "models",
+        "triangle"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_triangle_gltf_triangle_gltf",
+      "name": "Triangle",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/Triangle/glTF/Triangle.gltf"
+      },
+      "tags": [
+        "gltf",
+        "models",
+        "triangle"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_trianglewithoutindices_gltf_embedded_trianglewithoutindices_gltf",
+      "name": "Trianglewithoutindices",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/TriangleWithoutIndices/glTF-Embedded/TriangleWithoutIndices.gltf"
+      },
+      "tags": [
+        "gltf-embedded",
+        "models",
+        "trianglewithoutindices"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_trianglewithoutindices_gltf_trianglewithoutindices_gltf",
+      "name": "Trianglewithoutindices",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/TriangleWithoutIndices/glTF/TriangleWithoutIndices.gltf"
+      },
+      "tags": [
+        "gltf",
+        "models",
+        "trianglewithoutindices"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_twosidedplane_gltf_twosidedplane_gltf",
+      "name": "Twosidedplane",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/TwoSidedPlane/glTF/TwoSidedPlane.gltf"
+      },
+      "tags": [
+        "gltf",
+        "models",
+        "twosidedplane"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_unicode_test_gltf_binary_unicode_test_glb",
+      "name": "Unicode\u2764\u267bTest",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/Unicode\u2764\u267bTest/glTF-Binary/Unicode\u2764\u267bTest.glb"
+      },
+      "tags": [
+        "gltf-binary",
+        "models",
+        "unicode\u2764\u267btest"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_unicode_test_gltf_unicode_test_gltf",
+      "name": "Unicode\u2764\u267bTest",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/Unicode\u2764\u267bTest/glTF/Unicode\u2764\u267bTest.gltf"
+      },
+      "tags": [
+        "gltf",
+        "models",
+        "unicode\u2764\u267btest"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_unlittest_gltf_binary_unlittest_glb",
+      "name": "Unlittest",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/UnlitTest/glTF-Binary/UnlitTest.glb"
+      },
+      "tags": [
+        "gltf-binary",
+        "models",
+        "unlittest"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_unlittest_gltf_unlittest_gltf",
+      "name": "Unlittest",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/UnlitTest/glTF/UnlitTest.gltf"
+      },
+      "tags": [
+        "gltf",
+        "models",
+        "unlittest"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_usdshaderballforgltf_gltf_binary_usdshaderballforgltf_glb",
+      "name": "Usdshaderballforgltf",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/USDShaderBallForGltf/glTF-Binary/USDShaderBallForGltf.glb"
+      },
+      "tags": [
+        "gltf-binary",
+        "models",
+        "usdshaderballforgltf"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_usdshaderballforgltf_gltf_usdshaderballforgltf_gltf",
+      "name": "Usdshaderballforgltf",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/USDShaderBallForGltf/glTF/USDShaderBallForGltf.gltf"
+      },
+      "tags": [
+        "gltf",
+        "models",
+        "usdshaderballforgltf"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_vertexcolortest_gltf_binary_vertexcolortest_glb",
+      "name": "Vertexcolortest",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/VertexColorTest/glTF-Binary/VertexColorTest.glb"
+      },
+      "tags": [
+        "gltf-binary",
+        "models",
+        "vertexcolortest"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_vertexcolortest_gltf_embedded_vertexcolortest_gltf",
+      "name": "Vertexcolortest",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/VertexColorTest/glTF-Embedded/VertexColorTest.gltf"
+      },
+      "tags": [
+        "gltf-embedded",
+        "models",
+        "vertexcolortest"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_vertexcolortest_gltf_vertexcolortest_gltf",
+      "name": "Vertexcolortest",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/VertexColorTest/glTF/VertexColorTest.gltf"
+      },
+      "tags": [
+        "gltf",
+        "models",
+        "vertexcolortest"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_virtualcity_gltf_binary_virtualcity_glb",
+      "name": "Virtualcity",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/VirtualCity/glTF-Binary/VirtualCity.glb"
+      },
+      "tags": [
+        "gltf-binary",
+        "models",
+        "virtualcity"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_virtualcity_gltf_draco_virtualcity_gltf",
+      "name": "Virtualcity",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/VirtualCity/glTF-Draco/VirtualCity.gltf"
+      },
+      "tags": [
+        "gltf-draco",
+        "models",
+        "virtualcity"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_virtualcity_gltf_embedded_virtualcity_gltf",
+      "name": "Virtualcity",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/VirtualCity/glTF-Embedded/VirtualCity.gltf"
+      },
+      "tags": [
+        "gltf-embedded",
+        "models",
+        "virtualcity"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_virtualcity_gltf_virtualcity_gltf",
+      "name": "Virtualcity",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/VirtualCity/glTF/VirtualCity.gltf"
+      },
+      "tags": [
+        "gltf",
+        "models",
+        "virtualcity"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_waterbottle_gltf_binary_waterbottle_glb",
+      "name": "Waterbottle",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/WaterBottle/glTF-Binary/WaterBottle.glb"
+      },
+      "tags": [
+        "gltf-binary",
+        "models",
+        "waterbottle"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_waterbottle_gltf_draco_waterbottle_gltf",
+      "name": "Waterbottle",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/WaterBottle/glTF-Draco/WaterBottle.gltf"
+      },
+      "tags": [
+        "gltf-draco",
+        "models",
+        "waterbottle"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_waterbottle_gltf_waterbottle_gltf",
+      "name": "Waterbottle",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/WaterBottle/glTF/WaterBottle.gltf"
+      },
+      "tags": [
+        "gltf",
+        "models",
+        "waterbottle"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_xmpmetadataroundedcube_gltf_binary_xmpmetadataroundedcube_glb",
+      "name": "Xmpmetadataroundedcube",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/XmpMetadataRoundedCube/glTF-Binary/XmpMetadataRoundedCube.glb"
+      },
+      "tags": [
+        "gltf-binary",
+        "models",
+        "xmpmetadataroundedcube"
+      ]
+    },
+    {
+      "id": "github_khronosgroup_gltf_sample_assets_models_xmpmetadataroundedcube_gltf_xmpmetadataroundedcube_gltf",
+      "name": "Xmpmetadataroundedcube",
+      "category": "unknown",
+      "format": "gltf",
+      "source": {
+        "type": "github",
+        "repository": "KhronosGroup/glTF-Sample-Assets",
+        "path": "Models/XmpMetadataRoundedCube/glTF/XmpMetadataRoundedCube.gltf"
+      },
+      "tags": [
+        "gltf",
+        "models",
+        "xmpmetadataroundedcube"
+      ]
+    },
+    {
+      "id": "github_omkarmusle510_web_reality_engine_assets_nature_cloud_glb",
+      "name": "Cloud",
+      "category": "nature",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "omkarmusle510-web/reality-engine-assets",
+        "path": "nature/cloud.glb"
+      },
+      "tags": [
+        "cloud",
+        "nature"
+      ]
+    },
+    {
+      "id": "github_omkarmusle510_web_reality_engine_assets_nature_flower_bouquet_glb",
+      "name": "Flower Bouquet",
+      "category": "nature",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "omkarmusle510-web/reality-engine-assets",
+        "path": "nature/flower_bouquet.glb"
+      },
+      "tags": [
+        "bouquet",
+        "flower",
+        "nature"
+      ]
+    },
+    {
+      "id": "github_omkarmusle510_web_reality_engine_assets_nature_flower_glb",
+      "name": "Flower",
+      "category": "nature",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "omkarmusle510-web/reality-engine-assets",
+        "path": "nature/flower.glb"
+      },
+      "tags": [
+        "flower",
+        "nature"
+      ]
+    },
+    {
+      "id": "github_omkarmusle510_web_reality_engine_assets_nature_ga_free_301_mature_lotus_flower_cluster_mt_glb",
+      "name": "Ga Free 301 Mature Lotus Flower Cluster  Mt",
+      "category": "nature",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "omkarmusle510-web/reality-engine-assets",
+        "path": "nature/ga_free_301_mature_lotus_flower_cluster__mt.glb"
+      },
+      "tags": [
+        "301",
+        "cluster",
+        "flower",
+        "free",
+        "ga",
+        "lotus",
+        "mature",
+        "mt",
+        "nature"
+      ]
+    },
+    {
+      "id": "github_omkarmusle510_web_reality_engine_assets_nature_ga_free_651_ancient_white_lotus_flower_clustertt_glb",
+      "name": "Ga Free 651 Ancient White Lotus Flower Clustertt",
+      "category": "nature",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "omkarmusle510-web/reality-engine-assets",
+        "path": "nature/ga_free_651_ancient_white_lotus_flower_clustertt.glb"
+      },
+      "tags": [
+        "651",
+        "ancient",
+        "clustertt",
+        "flower",
+        "free",
+        "ga",
+        "lotus",
+        "nature",
+        "white"
+      ]
+    },
+    {
+      "id": "github_omkarmusle510_web_reality_engine_assets_nature_pine_tree_ps1_low_poly_glb",
+      "name": "Pine Tree   Ps1 Low Poly",
+      "category": "nature",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "omkarmusle510-web/reality-engine-assets",
+        "path": "nature/pine_tree_-_ps1_low_poly.glb"
+      },
+      "tags": [
+        "low",
+        "nature",
+        "pine",
+        "poly",
+        "ps1",
+        "tree"
+      ]
+    },
+    {
+      "id": "github_omkarmusle510_web_reality_engine_assets_nature_sun_glb",
+      "name": "Sun",
+      "category": "nature",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "omkarmusle510-web/reality-engine-assets",
+        "path": "nature/sun.glb"
+      },
+      "tags": [
+        "nature",
+        "sun"
+      ]
+    },
+    {
+      "id": "github_omkarmusle510_web_reality_engine_assets_objects_lamp_glb",
+      "name": "Lamp",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "omkarmusle510-web/reality-engine-assets",
+        "path": "objects/lamp.glb"
+      },
+      "tags": [
+        "lamp",
+        "objects"
+      ]
+    },
+    {
+      "id": "github_omkarmusle510_web_reality_engine_assets_objects_simple_gun_glb",
+      "name": "Simple Gun",
+      "category": "unknown",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "omkarmusle510-web/reality-engine-assets",
+        "path": "objects/simple_gun.glb"
+      },
+      "tags": [
+        "gun",
+        "objects",
+        "simple"
+      ]
+    },
+    {
+      "id": "github_omkarmusle510_web_reality_engine_assets_vehicles_low_poly_airplane_glb",
+      "name": "Low Poly Airplane",
+      "category": "vehicles",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "omkarmusle510-web/reality-engine-assets",
+        "path": "vehicles/low-poly_airplane.glb"
+      },
+      "tags": [
+        "airplane",
+        "low",
+        "poly",
+        "vehicles"
+      ]
+    },
+    {
+      "id": "github_omkarmusle510_web_reality_engine_assets_vehicles_simple_sport_car_glb",
+      "name": "Simple Sport Car",
+      "category": "vehicles",
+      "format": "glb",
+      "source": {
+        "type": "github",
+        "repository": "omkarmusle510-web/reality-engine-assets",
+        "path": "vehicles/simple_sport_car.glb"
+      },
+      "tags": [
+        "car",
+        "simple",
+        "sport",
+        "vehicles"
+      ]
     }
   ]
 }

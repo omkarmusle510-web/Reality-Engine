@@ -27,6 +27,7 @@ disk and returned as a path.
 
 from __future__ import annotations
 
+import os
 import re
 from pathlib import Path
 from typing import Any, Callable, Dict, Optional
@@ -280,13 +281,16 @@ class AssetRetriever:
 
         Never raises a raw `requests` exception past this method -
         every network-level failure becomes a `RetrievalNetworkError`.
-        This class accepts no credentials and never includes any in a
-        request or in an error message.
         """
         try:
+            token = os.getenv("GITHUB_TOKEN")
+            headers = {"Accept": "application/vnd.github+json"}
+            if token:
+                headers["Authorization"] = f"Bearer {token}"
+
             return self._http.get(
                 url,
-                headers={"Accept": "application/vnd.github+json"},
+                headers=headers,
                 timeout=self._timeout_seconds,
                 stream=stream,
             )
