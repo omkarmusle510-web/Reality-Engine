@@ -44,6 +44,8 @@ _DEFAULT_PRIMARY_REPOSITORY: Dict[str, str] = {
 
 _DEFAULT_EXTERNAL_REPOSITORIES: List[Dict[str, str]] = [
     {"repository": "KhronosGroup/glTF-Sample-Assets", "path": ""},
+    {"repository": "BabylonJS/Assets", "path": "meshes"},
+    {"repository": "mrdoob/three.js", "path": "examples/models/gltf"},
 ]
 
 _DEFAULT_REPOSITORIES: List[Dict[str, str]] = [

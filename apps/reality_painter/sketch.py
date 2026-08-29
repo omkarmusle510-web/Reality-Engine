@@ -161,10 +161,14 @@ _COMPACT_PALETTE: List[Tuple[str, Tuple[int, int, int]]] = [
     ("Orange", (60, 180, 255)),
     ("Yellow", (60, 230, 255)),
     ("Green", (80, 200, 80)),
+    ("Sky Blue", (235, 206, 135)),
     ("Blue", (220, 140, 60)),
     ("Purple", (204, 50, 153)),
     ("Pink", (180, 105, 255)),
+    ("Brown", (30, 75, 139)),
+    ("Black", (0, 0, 0)),
     ("White", (255, 255, 255)),
+    ("Gray", (128, 128, 128)),
 ]
 _PALETTE_INNER_RADIUS_PX = 40.0
 _PALETTE_OUTER_RADIUS_PX = 140.0
@@ -175,7 +179,7 @@ _PALETTE_CENTER_HOVER_COLOR = (90, 90, 90)
 
 
 class _ColorPalette:
-    """A compact radial wedge picker for the 8 colors above.
+    """A compact radial wedge picker for the 12 colors above.
 
     Visually and interactionally matches `apps.reality_painter.menu.Menu`
     (a center point with items distributed evenly around it, hover
