@@ -157,24 +157,30 @@ class InspectionController:
         if selected is None:
             return self._fail(None, "Recognition returned no objects.")
 
-        resolution = resolve_asset(selected.label, registry)
+        resolution = resolve_asset(selected.label, registry, retriever=retriever)
         if resolution.status != AssetResolutionStatus.RESOLVED or resolution.asset is None:
-            return self._fail(selected.label, f"No registered asset for label {selected.label!r}.")
+            clean_label = resolution.label or selected.label
+            return self._fail(clean_label, f"No registered asset for label {clean_label!r}.")
 
         try:
             local_path = retriever.retrieve(resolution.asset)
+            try:
+                from apps.reality_painter.assets.promotion import maybe_promote_asset
+                maybe_promote_asset(resolution.asset, local_path, registry=registry)
+            except Exception as prom_exc:
+                logger.debug("Asset promotion skipped or failed: %s", prom_exc)
             optimized_path = self._optimize(local_path, resolution.asset.id)
             scene_object = load_glb(optimized_path, name=resolution.asset.id)
             scene_object.transform = normalize_transform(scene_object.mesh)
         except AssetRetrievalError as exc:
-            return self._fail(selected.label, f"Asset retrieval failed: {exc}")
+            return self._fail(resolution.label or selected.label, f"Asset retrieval failed: {exc}")
         except ModelLoadError as exc:
-            return self._fail(selected.label, f"GLB load failed: {exc}")
+            return self._fail(resolution.label or selected.label, f"GLB load failed: {exc}")
         except Exception as exc:
             logger.exception("Unexpected error during asset retrieval/loading.")
-            return self._fail(selected.label, f"Unexpected error: {exc}")
+            return self._fail(resolution.label or selected.label, f"Unexpected error: {exc}")
 
-        return ControllerOutcome(success=True, scene_object=scene_object, selected_label=selected.label, error=None)
+        return ControllerOutcome(success=True, scene_object=scene_object, selected_label=resolution.label, error=None)
 
     def _optimize(self, local_path: Path, source_identity: str) -> Path:
         """Runs Block 8's optimizer once for a freshly retrieved asset.

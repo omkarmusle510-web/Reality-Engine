@@ -173,30 +173,52 @@ class AssetRegistry:
         return sorted(assets, key=lambda asset: asset.id)
 
     def search_assets(self, query: str) -> List[Asset]:
-        """Searches assets by name or tags using a deterministic substring match.
+        """Searches assets by name or tags using deterministic token matching.
 
-        Case-insensitive substring matching against `name` and each of
-        `tags` - no AI model, no embeddings, no fuzzy/ranked scoring.
-        An empty or whitespace-only `query` matches nothing, rather
-        than returning the entire registry.
+        Priority order:
+        1. Exact normalized name match
+        2. Exact normalized tag match
+        3. Word boundary match (the query is a complete word in name or tags)
+
+        A substring inside a larger unrelated word (e.g. "sun" in "sunglasses")
+        is NOT a valid match.
 
         Args:
             query: Free-text search string.
 
         Returns:
-            Matching assets, ordered by `id` for deterministic output.
+            Matching assets, ordered by match quality (best first),
+            then by `id` for determinism.
         """
+        import re
         normalized_query = query.strip().lower()
         if not normalized_query:
             return []
 
-        def _matches(asset: Asset) -> bool:
-            if normalized_query in asset.name.lower():
-                return True
-            return any(normalized_query in tag.lower() for tag in asset.tags)
+        # Safe word boundary pattern (e.g. ^sun$ or " sun " or "sun_glasses", but not "sunglasses")
+        word_pattern = re.compile(r"(?:^|[^a-z0-9])" + re.escape(normalized_query) + r"(?:[^a-z0-9]|$)")
 
-        matches = [asset for asset in self._assets.values() if _matches(asset)]
-        return sorted(matches, key=lambda asset: asset.id)
+        def _get_match_priority(asset: Asset) -> int:
+            name_lower = asset.name.lower()
+            if normalized_query == name_lower:
+                return 1
+            if any(normalized_query == tag.lower() for tag in asset.tags):
+                return 2
+            if word_pattern.search(name_lower):
+                return 3
+            if any(word_pattern.search(tag.lower()) for tag in asset.tags):
+                return 3
+            return 999  # No match
+
+        matches = []
+        for asset in self._assets.values():
+            priority = _get_match_priority(asset)
+            if priority <= 3:
+                matches.append((priority, asset))
+
+        # Sort by priority first, then by id
+        matches.sort(key=lambda item: (item[0], item[1].id))
+        return [asset for priority, asset in matches]
 
     # --- Introspection ------------------------------------------------
 

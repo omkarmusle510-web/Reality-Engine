@@ -247,7 +247,7 @@ def test_4_promotable_asset_can_be_promoted():
 
         check("CC-BY-4.0 is promotable", is_promotable(asset))
 
-        promoted = promote_asset(asset, cache_file, staging_dir=staging, log_path=log_path)
+        promoted = promote_asset(asset, cache_file, staging_dir=staging, log_path=log_path, push_to_remote=False)
         check("promoted asset has source pointing to primary repo",
               promoted.source.details.get("repository") == "omkarmusle510-web/reality-engine-assets")
         check("promoted asset preserves license", promoted.license == "CC-BY-4.0")
@@ -325,7 +325,7 @@ def test_6_promoted_asset_available_from_primary():
             "license": "Apache-2.0",
         })
 
-        promoted = promote_asset(asset, cache_file, staging_dir=staging, log_path=log_path)
+        promoted = promote_asset(asset, cache_file, staging_dir=staging, log_path=log_path, push_to_remote=False)
 
         # Register promoted asset into a registry
         registry = AssetRegistry()
@@ -357,8 +357,8 @@ def test_7_duplicate_promotion_prevented():
             "license": "MIT",
         })
 
-        promoted_1 = promote_asset(asset, cache_file, staging_dir=staging, log_path=log_path)
-        promoted_2 = promote_asset(asset, cache_file, staging_dir=staging, log_path=log_path)
+        promoted_1 = promote_asset(asset, cache_file, staging_dir=staging, log_path=log_path, push_to_remote=False)
+        promoted_2 = promote_asset(asset, cache_file, staging_dir=staging, log_path=log_path, push_to_remote=False)
 
         check("duplicate promotion returns same promoted id", promoted_1.id == promoted_2.id)
         check("promotion log has exactly 1 entry", len(list_promoted_assets(log_path=log_path)) == 1)

@@ -78,7 +78,11 @@ registry_path = Path(scratch_dir.name) / "registry.json"
 import apps.reality_painter.assets.auto_discovery as auto_discovery_module
 
 _original_configured = auto_discovery_module.configured_repositories
+_original_primary = auto_discovery_module.primary_repository
+_original_external = auto_discovery_module.external_repositories
 auto_discovery_module.configured_repositories = lambda: repos
+auto_discovery_module.primary_repository = lambda: repos[0]
+auto_discovery_module.external_repositories = lambda: repos[1:]
 
 try:
     registry = AssetRegistry()
@@ -131,6 +135,8 @@ try:
     check("unmatched label after discovery is UNAVAILABLE, not raised", unmatched.status == AssetResolutionStatus.UNAVAILABLE)
 finally:
     auto_discovery_module.configured_repositories = _original_configured
+    auto_discovery_module.primary_repository = _original_primary
+    auto_discovery_module.external_repositories = _original_external
     scratch_dir.cleanup()
 
 print(f"\n{passed} passed, {failed} failed")

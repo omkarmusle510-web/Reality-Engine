@@ -203,6 +203,11 @@ def run() -> None:
             retriever=asset_retriever,
         )
         if outcome.success and outcome.scene_object is not None:
+            # Ensure exactly one inspection asset is active at a time
+            # by removing any previous 3D model from the scene.
+            for existing in scene.objects():
+                scene.remove(existing.name)
+            
             scene.add(outcome.scene_object)
             active_object["obj"] = outcome.scene_object
             inspection_view_state.set_base(outcome.scene_object.transform)
