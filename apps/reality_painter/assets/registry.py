@@ -15,6 +15,8 @@ has no outward dependency on any of them.
 from __future__ import annotations
 
 import json
+import os
+import tempfile
 from pathlib import Path
 from typing import Any, Dict, Iterable, Iterator, List, Optional, Union
 
@@ -125,11 +127,10 @@ class AssetRegistry:
     def save(self, path: Union[str, Path, None] = None) -> None:
         """Serializes this registry back to a JSON file, in `id` order.
 
-        Mirrors `load()`'s default path, so a registry loaded from the
-        bundled `registry.json` (the common case) can be saved back to
-        the same file without the caller needing to know its location.
-        Writes the same flat `Asset.to_dict()` shape `load()` already
-        accepts - never a second, divergent JSON schema.
+        Uses an atomic write-and-replace strategy: serializes into a temporary
+        file in the same directory, flushes and syncs to disk, and replaces the
+        target file atomically via `os.replace()`, preventing truncation or
+        corruption if interrupted mid-write.
 
         Args:
             path: Where to write. Defaults to the bundled
@@ -138,9 +139,31 @@ class AssetRegistry:
         registry_path = Path(path) if path is not None else _DEFAULT_REGISTRY_PATH
         payload = {"assets": [asset.to_dict() for asset in self]}
         registry_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(registry_path, "w", encoding="utf-8") as file:
-            json.dump(payload, file, indent=2)
-            file.write("\n")
+
+        temp_file_path: Optional[Path] = None
+        try:
+            with tempfile.NamedTemporaryFile(
+                mode="w",
+                encoding="utf-8",
+                dir=str(registry_path.parent),
+                prefix=f".{registry_path.name}.",
+                suffix=".tmp",
+                delete=False,
+            ) as file:
+                temp_file_path = Path(file.name)
+                json.dump(payload, file, indent=2)
+                file.write("\n")
+                file.flush()
+                os.fsync(file.fileno())
+
+            os.replace(str(temp_file_path), str(registry_path))
+            temp_file_path = None
+        finally:
+            if temp_file_path is not None and temp_file_path.is_file():
+                try:
+                    temp_file_path.unlink()
+                except OSError:
+                    pass
 
     # --- Lookup -----------------------------------------------------
 

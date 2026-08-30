@@ -38,7 +38,7 @@ _FONT_THICKNESS = 2
 #: Plain-language status text per `RuntimeMode` - never the raw enum
 #: value, so normal users never see internal names like "ASSET_READY".
 _MODE_MESSAGES: Dict[RuntimeMode, str] = {
-    RuntimeMode.PAINTING: "Painting - press N to find a 3D model",
+    RuntimeMode.PAINTING: "PRESS N \u2014 CONVERT IMAGE INTO REALITY",
     RuntimeMode.ANALYZING: "Analyzing drawing... finding 3D asset",
     RuntimeMode.ASSET_READY: "3D model ready - press I to inspect",
     RuntimeMode.INSPECTING_3D: "Inspecting 3D - A/D rotate, W/S tilt, +/- zoom, R reset, X back",

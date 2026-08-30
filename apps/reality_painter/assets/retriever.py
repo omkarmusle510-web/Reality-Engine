@@ -308,6 +308,70 @@ class AssetRetriever:
         if response.status_code == 403 and response.headers.get("X-RateLimit-Remaining") == "0":
             raise RetrievalRateLimitError("Rate limit exceeded (HTTP 403, X-RateLimit-Remaining=0).")
 
+    # --- Poly Pizza download -----------------------------------------------
+
+    def _download_from_poly_pizza(self, asset: Asset, cache_path: Path) -> None:
+        """Downloads `asset`'s GLB file from a Poly Pizza CDN URL.
+
+        The direct download URL is stored in ``source.details["download_url"]``
+        by the ``polypizza`` module. No authentication header is required for
+        CDN downloads — only the initial API search uses the API key.
+
+        Raises:
+            AssetRetrievalError: If the source metadata is incomplete.
+            AssetNotFoundError: If the CDN URL 404s.
+            RetrievalRateLimitError: If rate-limited.
+            RetrievalNetworkError: On a network failure.
+        """
+        download_url = asset.source.details.get("download_url")
+        if not download_url:
+            raise AssetRetrievalError(
+                f"Asset {asset.id!r} has no Poly Pizza download URL.")
+
+        # Poly Pizza CDN downloads don't need GitHub auth — use a plain GET.
+        try:
+            response = self._http.get(
+                download_url, timeout=self._timeout_seconds, stream=True)
+        except requests.exceptions.Timeout as exc:
+            raise RetrievalNetworkError("Poly Pizza download timed out.") from exc
+        except requests.exceptions.ConnectionError as exc:
+            raise RetrievalNetworkError(
+                "Could not reach Poly Pizza CDN.") from exc
+        except requests.exceptions.RequestException as exc:
+            raise RetrievalNetworkError(
+                f"Poly Pizza download failed ({type(exc).__name__}).") from exc
+
+        if response.status_code == 404:
+            raise AssetNotFoundError(
+                f"Asset {asset.id!r} not found at Poly Pizza CDN URL.")
+        if response.status_code == 429:
+            raise RetrievalRateLimitError("Poly Pizza CDN rate limit exceeded.")
+        if response.status_code != 200:
+            raise AssetRetrievalError(
+                f"Unexpected Poly Pizza CDN response (HTTP {response.status_code}).")
+
+        # Reuse the safe streaming download (atomic write via .part file)
+        temp_path = cache_path.with_name(cache_path.name + ".part")
+        total_bytes = 0
+        try:
+            with open(temp_path, "wb") as file:
+                for chunk in response.iter_content(chunk_size=_DOWNLOAD_CHUNK_SIZE):
+                    if chunk:
+                        file.write(chunk)
+                        total_bytes += len(chunk)
+        except (requests.exceptions.RequestException, OSError) as exc:
+            temp_path.unlink(missing_ok=True)
+            raise RetrievalNetworkError(
+                f"Download failed for Poly Pizza asset {asset.id!r}: "
+                f"{type(exc).__name__}.") from exc
+
+        if total_bytes == 0:
+            temp_path.unlink(missing_ok=True)
+            raise AssetRetrievalError(
+                f"Downloaded Poly Pizza file for asset {asset.id!r} was empty.")
+
+        temp_path.replace(cache_path)
+
 
 # --- Source-type dispatch ---------------------------------------------
 
@@ -316,4 +380,5 @@ class AssetRetriever:
 # registering another entry here - `retrieve()` itself never changes.
 _DOWNLOADERS: Dict[str, Callable[["AssetRetriever", Asset, Path], None]] = {
     "github": AssetRetriever._download_from_github,
+    "poly_pizza": AssetRetriever._download_from_poly_pizza,
 }

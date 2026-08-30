@@ -26,6 +26,7 @@ network calls on subsequent lookups.
 
 from __future__ import annotations
 
+import json
 import re
 from dataclasses import dataclass
 from enum import Enum
@@ -33,6 +34,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Set
 
 from apps.reality_painter.assets import auto_discovery
+from apps.reality_painter.assets import polypizza
 from apps.reality_painter.assets.registry import AssetRegistry
 from apps.reality_painter.assets.retriever import AssetRetrievalError, AssetRetriever
 from apps.reality_painter.assets.schema import Asset
@@ -69,6 +71,7 @@ def extract_clean_label(label: str) -> str:
     """Extracts a clean, normalized object label from formatted or natural-language recognition output.
 
     Deterministic, conservative string normalization:
+    - Parses JSON payloads (raw or within markdown code fences) extracting 'label'
     - Strips markdown formatting (**, *, _, `, quotes, etc.) and list bullets (*, -, 1.)
     - Extracts value from label patterns like 'object: flower', 'label: dog'
     - Extracts noun phrase from descriptive carrier phrases like 'the drawing depicts a dog'
@@ -76,6 +79,31 @@ def extract_clean_label(label: str) -> str:
     if not label:
         return ""
     text = label.strip()
+
+    # 1. JSON payload / markdown code block extraction
+    json_candidate = text
+    fence_match = re.search(r"```(?:json)?\s*(\{.*?\})\s*```", text, re.DOTALL | re.IGNORECASE)
+    if fence_match:
+        json_candidate = fence_match.group(1).strip()
+    elif text.startswith("{") and text.endswith("}"):
+        json_candidate = text
+    else:
+        obj_match = re.search(r"\{[^{}]*\}", text, re.DOTALL)
+        if obj_match:
+            json_candidate = obj_match.group(0).strip()
+
+    if json_candidate.startswith("{") and json_candidate.endswith("}"):
+        try:
+            data = json.loads(json_candidate)
+            if isinstance(data, dict):
+                for key in ("label", "object", "name", "item", "class", "prediction"):
+                    val = data.get(key)
+                    if isinstance(val, str) and val.strip():
+                        text = val.strip()
+                        break
+        except (ValueError, TypeError, json.JSONDecodeError):
+            pass
+
     for _ in range(3):
         text = text.strip()
         text = re.sub(r"^[\*\-\+\•\>\#]+\s*", "", text)
@@ -115,31 +143,89 @@ def extract_clean_label(label: str) -> str:
     return text.strip().lower()
 
 
+_NON_PLURAL_S_WORDS = {
+    "bus", "gas", "canvas", "plus", "lens", "news", "walrus", "cactus",
+    "focus", "status", "grass", "glass", "dress", "cross", "moss", "chess",
+    "scissors", "glasses", "sunglasses", "jeans", "pants", "shorts", "trousers",
+    "species", "series", "chaos", "basis", "axis", "analysis",
+}
+
+
+def _singularize_word(word: str) -> Optional[str]:
+    """Conservatively converts a regular English plural noun to singular.
+
+    Returns None if the word is already singular or not a recognizable regular plural.
+    """
+    w = word.lower().strip()
+    if len(w) <= 3 or w in _NON_PLURAL_S_WORDS:
+        return None
+
+    # -ies -> -y (e.g. cherries -> cherry, berries -> berry, butterflies -> butterfly)
+    if w.endswith("ies") and len(w) > 4 and w[-4] not in "aeiou":
+        return w[:-3] + "y"
+
+    # -sses -> -ss (e.g. dresses -> dress, glasses -> glass)
+    if w.endswith("sses") and len(w) > 4:
+        return w[:-2]
+
+    # -xes, -ches, -shes, -zes -> strip -es (e.g. boxes -> box, watches -> watch, dishes -> dish)
+    if (w.endswith("xes") or w.endswith("ches") or w.endswith("shes") or w.endswith("zes")) and len(w) > 4:
+        return w[:-2]
+
+    # -oes -> -o (e.g. tomatoes -> tomato, potatoes -> potato, heroes -> hero)
+    if w.endswith("oes") and len(w) > 4 and w[-4] not in "aeiou":
+        return w[:-2]
+
+    # Regular -s (e.g. trees -> tree, flowers -> flower, cars -> car, dogs -> dog, mushrooms -> mushroom)
+    # Exclude words ending in 'ss'
+    if w.endswith("s") and not w.endswith("ss") and len(w) > 3:
+        return w[:-1]
+
+    return None
+
+
+def _singularize_phrase(phrase: str) -> Optional[str]:
+    """Singularizes the final word of a noun phrase if applicable."""
+    words = phrase.split()
+    if not words:
+        return None
+    last_singular = _singularize_word(words[-1])
+    if last_singular and last_singular != words[-1]:
+        return " ".join(words[:-1] + [last_singular])
+    return None
+
+
 def _normalized_label_candidates(label: str) -> List[str]:
     """Generates deterministic label variants to try against the registry.
 
-    Broadest-first: the clean (lowercased, stripped) label, then
-    progressively shorter word-suffixes of it - e.g. "red flower" ->
-    ["red flower", "flower"] - so a descriptive recognition label
-    still resolves against a registry entry named/tagged with just its
-    final noun. Purely string manipulation: no NLP model, no stemming,
-    no embeddings. A single-word label (e.g. "car") yields exactly one
-    candidate, identical to the label itself.
-
-    Args:
-        label: The raw or cleaned recognized label.
-
-    Returns:
-        Ordered, deduplicated candidate strings to try, most specific
-        first. Empty if `label` is empty/whitespace-only.
+    Broadest-first: the clean (lowercased, stripped) label and its singular
+    variant if plural, then progressively shorter word-suffixes of it (and
+    their singular variants) - e.g. "red flowers" ->
+    ["red flowers", "red flower", "flowers", "flower"] - so a descriptive
+    or plural recognition label still resolves against a registry entry
+    named/tagged with just its singular base noun.
     """
     clean = extract_clean_label(label)
+    if not clean:
+        return []
+
     words = clean.split()
-    candidates = [clean] if clean else []
+    candidates: List[str] = []
+
+    def _add(cand: Optional[str]) -> None:
+        if cand and cand not in candidates:
+            candidates.append(cand)
+
+    # 1. Full phrase + singular of full phrase
+    _add(clean)
+    _add(_singularize_phrase(clean))
+
+    # 2. Suffix phrases + singular of suffix phrases
     for start in range(1, len(words)):
-        candidate = " ".join(words[start:])
-        if candidate and candidate not in candidates:
-            candidates.append(candidate)
+        suffix = " ".join(words[start:])
+        _add(suffix)
+        _add(_singularize_phrase(suffix))
+
     return candidates
 
 
@@ -168,10 +254,15 @@ def _candidate_sort_key(
             is_cached = 1
 
     repo = asset.source.details.get("repository") if asset.source.type == "github" else None
-    try:
-        repo_idx = repo_order.index(repo)
-    except ValueError:
-        repo_idx = len(repo_order)
+    if asset.source.type == "poly_pizza":
+        # Poly Pizza sits between primary repository (index 0) and
+        # external GitHub repositories (index 1+) in priority.
+        repo_idx = 0.5
+    else:
+        try:
+            repo_idx = repo_order.index(repo)
+        except ValueError:
+            repo_idx = len(repo_order)
 
     name_lower = asset.name.lower()
     tags_lower = [t.lower() for t in asset.tags]
@@ -310,9 +401,37 @@ def resolve_asset(
     if match is not None:
         return AssetResolution(status=AssetResolutionStatus.RESOLVED, asset=match, label=clean_label)
 
+    # Fallback 1.5: Poly Pizza search-on-demand
+    # Searches the Poly Pizza API for the clean label and registers any
+    # compatible results into the existing registry. Only attempted when
+    # an API key is configured. This never bulk-downloads the catalogue —
+    # it issues a single keyword search for the specific label.
+    if polypizza.is_available():
+        try:
+            pp_assets = polypizza.search_and_register(
+                clean_label, registry, session=session)
+            if not pp_assets:
+                singular = _singularize_phrase(clean_label)
+                if singular and singular != clean_label:
+                    pp_assets = polypizza.search_and_register(
+                        singular, registry, session=session)
+            if pp_assets:
+                logger.info(
+                    "Poly Pizza search for '%s' found %d candidates.",
+                    clean_label, len(pp_assets))
+                pp_candidates = _collect_and_sort_candidates(
+                    query_candidates, registry, repo_order, retriever)
+                match = _try_candidates(pp_candidates, retriever, tried_ids)
+                if match is not None:
+                    return AssetResolution(
+                        status=AssetResolutionStatus.RESOLVED,
+                        asset=match, label=clean_label)
+        except Exception as exc:
+            logger.warning(
+                "Poly Pizza fallback for '%s' failed: %s", clean_label, exc)
+
     # Fallback 2: Configured external repositories discovery (in order)
-    external_repos = auto_discovery.external_repositories()
-    for repo in external_repos:
+    for repo in configured:
         if repo.get("repository") == primary.get("repository"):
             continue
         auto_discovery.ensure_discovered(
