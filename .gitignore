@@ -67,3 +67,38 @@ C:\Reality Engine\
     apps\
     tests\
     .env
+    # Python
+.venv/
+__pycache__/
+*.py[cod]
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# Runtime asset cache
+apps/reality_painter/optimization/optimized_cache/
+apps/reality_painter/inspection/optimizer_candidates/
+
+# Runtime promoted/staged assets
+apps/reality_painter/assets/promoted/
+
+# Generated 3D assets
+*.glb
+*.gltf
+*.bin
+
+# Runtime/generated registry
+# Uncomment only if registry.json is fully runtime-generated
+# apps/reality_painter/assets/registry.json
+
+# Test/debug artifacts
+scratch/
+.pytest_cache/
+.mypy_cache/
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.vscode/
