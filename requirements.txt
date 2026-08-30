@@ -4,3 +4,6 @@ opencv_python==5.0.0.93
 requests>=2.31.0
 trimesh>=4.0.0
 pyrender>=0.1.45
+mediapipe>=0.10.14
+google-genai>=0.1.0
+groq>=0.9.0
